@@ -4,7 +4,7 @@ overview: Bootstrap the Jenjco MVP platform -- a multi-tenant Next.js applicatio
 todos:
   - id: phase-0
     content: "Phase 0: Project housekeeping -- fix AGENTS.md paths, tsconfig, .env.example, .gitignore, clean up weather example"
-    status: in_progress
+    status: completed
   - id: phase-1a
     content: "Phase 1a: Create Supabase project, install @supabase/supabase-js + @supabase/ssr, add env vars"
     status: pending
