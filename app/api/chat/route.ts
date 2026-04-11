@@ -4,8 +4,9 @@ import { createUIMessageStreamResponse, type UIMessageChunk } from 'ai'
 import { mastra } from '@/mastra'
 import { NextResponse } from 'next/server'
 
-const THREAD_ID = 'example-user-id'
-const RESOURCE_ID = 'weather-chat'
+/** Demo thread/resource ids for the sample agent until org-scoped chat lands. */
+const THREAD_ID = 'demo-thread'
+const RESOURCE_ID = 'jenjco-demo'
 
 export async function POST(req: Request) {
   const params = await req.json()

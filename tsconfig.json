@@ -20,7 +20,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/mastra": ["./src/mastra/index.ts"]
     }
   },
   "include": [

@@ -4,7 +4,7 @@ overview: Bootstrap the Jenjco MVP platform -- a multi-tenant Next.js applicatio
 todos:
   - id: phase-0
     content: "Phase 0: Project housekeeping -- fix AGENTS.md paths, tsconfig, .env.example, .gitignore, clean up weather example"
-    status: pending
+    status: in_progress
   - id: phase-1a
     content: "Phase 1a: Create Supabase project, install @supabase/supabase-js + @supabase/ssr, add env vars"
     status: pending
@@ -266,7 +266,6 @@ Clean up the existing project before building new features.
 - **Create `.env.example`**: List all required env vars without values (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`)
 - **Fix `.env`**: The file has a corrupted last line (concatenated keys) -- fix it
 - **Add `.gitignore` entries**: Ensure `mastra.db`, `mastra-next.duckdb`, `mastra.duckdb`, `.mastra/`, `.env` are ignored
-- **Remove weather example** (or keep as reference): The weather agent, tool, and workflow are scaffolding -- decide whether to keep or remove
 
 ---
 
@@ -394,7 +393,7 @@ Based on wireframe 4 (dashboard), create:
 
 - **Search bar** at top to filter agents by name
 - **Agent cards** listing all agents assigned to the user's org (from `org_agents` table)
-- Each card shows: display name, description, active/inactive status
+- Each card shows: display name, description, active/inactive status, assigned processes 
 - Clicking an agent opens the chat view (right panel)
 - **"Active Agents" panel**: Shows agents with ongoing conversations
 

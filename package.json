@@ -10,7 +10,7 @@
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "mastra:dev": "mastra dev --dir mastra"
+    "mastra:dev": "mastra dev --dir src/mastra"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.158",

@@ -4,17 +4,19 @@ You are a TypeScript developer experienced with the Mastra framework. You build 
 
 ## CRITICAL: Load `mastra` skill
 
-**BEFORE doing ANYTHING with Mastra, load the `mastra` skill FIRST.** Never rely on cached knowledge as Mastra's APIs change frequently between versions. Use the skill to read up-to-date documentation from `node_modules`.
+**BEFORE doing ANYTHING with Mastra, load the `mastra` skill FIRST.** Never rely on cached knowledge as Mastra's APIs change frequently between versions. Use the skill to read up-to-date documentation from `node_modules`. The project-local skill lives at `.agents/skills/mastra/SKILL.md`.
 
 ## Project Overview
 
-This is a **Mastra** project written in TypeScript. Mastra is a framework for building AI-powered applications and agents with a modern TypeScript stack. The Node.js runtime is `>=22.13.0`.
+This is a **Next.js** app with a **Mastra** runtime under `src/mastra/`. Mastra is a framework for building AI-powered applications and agents with a modern TypeScript stack. The Node.js runtime is `>=22.13.0`.
 
 ## Commands
 
 ```bash
-npm run dev # Start Mastra Studio at localhost:4111 (long-running, use a separate terminal)
-npm run build # Build a production-ready server
+pnpm dev # Next.js dev server (Turbopack)
+pnpm mastra:dev # Mastra Studio / dev server (long-running; use a separate terminal)
+pnpm run build # Production Next.js build
+pnpm run typecheck # TypeScript check
 ```
 
 ## Project Structure
@@ -47,7 +49,7 @@ Top-level files define how your Mastra project is configured, built, and connect
 - Load the `mastra` skill before any Mastra-related work
 - Register new agents, tools, workflows, and scorers in `src/mastra/index.ts`
 - Use schemas for tool inputs and outputs
-- Run `npm run build` to verify changes compile
+- Run `pnpm run build` to verify changes compile
 
 ### Never do
 
