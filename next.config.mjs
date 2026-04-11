@@ -1,4 +1,12 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+import { paths } from "./app/paths.ts"
 
-export default nextConfig;
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  async redirects() {
+    return [
+      { source: paths.login, destination: paths.signIn, permanent: false },
+    ]
+  },
+}
+
+export default nextConfig

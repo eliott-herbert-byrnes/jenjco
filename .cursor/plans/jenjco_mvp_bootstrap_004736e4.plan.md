@@ -7,34 +7,34 @@ todos:
     status: completed
   - id: phase-1a
     content: "Phase 1a: Create Supabase project, install @supabase/supabase-js + @supabase/ssr, add env vars"
-    status: pending
+    status: completed
   - id: phase-1b
     content: "Phase 1b: Create Supabase client utilities (lib/supabase/server.ts, lib/supabase/client.ts)"
-    status: pending
+    status: completed
   - id: phase-1c
     content: "Phase 1c: Database schema migration -- all tables, pgvector extension, indexes"
-    status: pending
+    status: completed
   - id: phase-1d
     content: "Phase 1d: Row-Level Security policies for all tables"
-    status: pending
+    status: completed
   - id: phase-1e
     content: "Phase 1e: Swap Mastra storage from LibSQL/DuckDB to @mastra/pg (PostgresStore)"
-    status: pending
+    status: completed
   - id: phase-1f
     content: "Phase 1f: Create seed script with demo org, users, agent/workflow assignments, processes"
-    status: pending
+    status: completed
   - id: phase-2a
     content: "Phase 2a: Auth flow -- sign-in, sign-up, callback pages, middleware"
-    status: pending
+    status: completed
   - id: phase-2b
     content: "Phase 2b: Dashboard layout shell -- sidebar navigation, header, responsive design"
-    status: pending
+    status: completed
   - id: phase-2c
     content: "Phase 2c: Dashboard home page -- welcome, summary cards, token usage chart"
-    status: pending
+    status: completed
   - id: phase-2d
     content: "Phase 2d: Auth context/hooks -- use-user hook, server-side auth helper"
-    status: pending
+    status: completed
   - id: phase-3a
     content: "Phase 3a: Agent list page -- search, agent cards, active agents panel"
     status: pending
@@ -359,7 +359,7 @@ Create a seed script (`scripts/seed.ts`) using the Supabase service role client 
 Based on wireframe 4 (dashboard), create:
 
 - `app/(dashboard)/layout.tsx`: Authenticated layout with sidebar navigation
-- **Sidebar** (`components/sidebar.tsx`): Navigation items matching wireframes:
+- **Sidebar** refactor components\app-sidebar.tsx): Navigation items matching wireframes:
   - Agents
   - Workflows
   - Processes
