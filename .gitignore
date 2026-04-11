@@ -38,3 +38,6 @@ next-env.d.ts
 # mastra (local DBs / CLI output)
 .mastra/
 mastra-next.duckdb
+
+# secrets
+.env
