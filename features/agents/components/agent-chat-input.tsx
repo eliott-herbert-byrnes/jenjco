@@ -21,6 +21,9 @@ export type AgentChatInputProps = {
   onSubmit: () => void
   onSuggestionClick: (suggestion: string) => void
   status: ChatStatus
+  onStop: () => void
+  /** When false, starter suggestions are hidden (e.g. after the first turn). */
+  showSuggestions: boolean
 }
 
 export function AgentChatInput({
@@ -29,27 +32,30 @@ export function AgentChatInput({
   onSubmit,
   onSuggestionClick,
   status,
+  onStop,
+  showSuggestions,
 }: AgentChatInputProps) {
   return (
     <div className="mt-4">
-      <Suggestions>
-        {suggestions.map(suggestion => (
-          <Suggestion
-            className="border-amber-600 bg-amber-600/5 p-4 text-amber-600 hover:border-amber-700 hover:bg-amber-600/5 hover:text-amber-700"
-            key={suggestion}
-            onClick={onSuggestionClick}
-            suggestion={suggestion}
-          />
-        ))}
-      </Suggestions>
+      {showSuggestions && (
+        <Suggestions>
+          {suggestions.map(suggestion => (
+            <Suggestion
+              className="border-amber-600 bg-amber-600/5 p-4 text-amber-600 hover:border-amber-700 hover:bg-amber-600/5 hover:text-amber-700"
+              key={suggestion}
+              onClick={onSuggestionClick}
+              suggestion={suggestion}
+            />
+          ))}
+        </Suggestions>
+      )}
 
-      <PromptInput onSubmit={onSubmit} className="mt-4">
+      <PromptInput onSubmit={onSubmit} className={showSuggestions ? 'mt-4' : undefined}>
         <PromptInputBody>
           <PromptInputTextarea
             value={input}
             onChange={e => onInputChange(e.target.value)}
             placeholder="Ask about a process..."
-            disabled={status !== 'ready'}
             className="text-sm placeholder:text-sm"
           />
         </PromptInputBody>
@@ -67,7 +73,7 @@ export function AgentChatInput({
               <MicIcon size={16} />
             </PromptInputButton>
           </PromptInputTools>
-          <PromptInputSubmit />
+          <PromptInputSubmit status={status} onStop={onStop} />
         </PromptInputFooter>
       </PromptInput>
     </div>

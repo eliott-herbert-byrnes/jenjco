@@ -50,7 +50,7 @@ export function DashboardHeader({ className }: { className?: string }) {
           </>
         )}
       </div>
-      <Badge variant="secondary" className="hidden shrink-0 sm:inline-flex">
+      <Badge variant="outline" className="hidden shrink-0 sm:inline-flex bg-cyan-600/5 border-cyan-600 text-cyan-600 rounded-md">
         {isLoading ? <Skeleton className="h-5 w-24" /> : orgLabel}
       </Badge>
     </header>
