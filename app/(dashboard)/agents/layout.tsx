@@ -17,7 +17,7 @@ export default async function AgentsLayout({ children }: { children: React.React
     .order('display_name')
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden rounded-lg border">
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
       <aside className="w-72 shrink-0 overflow-y-auto border-r">
         <AgentListPanel agents={agents ?? []} />
       </aside>

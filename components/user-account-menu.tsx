@@ -26,8 +26,10 @@ import {
   BellIcon,
   ChevronsUpDownIcon,
   LogOutIcon,
+  LucideSun,
   SettingsIcon,
 } from "lucide-react"
+import { useTheme } from "next-themes"
 
 function initials(
   displayName: string | null | undefined,
@@ -49,6 +51,7 @@ export function UserAccountMenu() {
   const router = useRouter()
   const { isMobile } = useSidebar()
   const { authUser, appUser, isLoading } = useUser()
+  const { resolvedTheme, setTheme } = useTheme()
 
   const name =
     appUser?.displayName?.trim() || authUser?.email?.split("@")[0] || "Account"
@@ -59,6 +62,10 @@ export function UserAccountMenu() {
     await supabase.auth.signOut()
     router.push(paths.signIn)
     router.refresh()
+  }
+
+  function switchTheme() {
+    setTheme(resolvedTheme === "dark" ? "light" : "dark")
   }
 
   return (
@@ -122,6 +129,10 @@ export function UserAccountMenu() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => void switchTheme()}>
+                <LucideSun />
+                Theme
+              </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <BadgeCheckIcon />
                 Account
