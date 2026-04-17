@@ -19,7 +19,10 @@ function greetingName(
 export function DashboardHeader({ className }: { className?: string }) {
   const { authUser, appUser, organization, isLoading } = useUser()
 
-  const welcomeName = greetingName(appUser?.displayName ?? null, authUser?.email ?? null)
+  const welcomeName = greetingName(
+    appUser?.displayName ?? null,
+    authUser?.email ?? null
+  )
   const orgLabel =
     organization?.name?.trim() || organization?.slug?.trim() || "—"
 
@@ -31,7 +34,7 @@ export function DashboardHeader({ className }: { className?: string }) {
       )}
     >
       <SidebarTrigger className="-ml-1" size={"lg"} />
-      <Separator orientation="vertical" className="mr-2 h-6 my-auto " />
+      <Separator orientation="vertical" className="my-auto mr-2 h-6" />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         {isLoading ? (
           <>
@@ -41,7 +44,8 @@ export function DashboardHeader({ className }: { className?: string }) {
         ) : (
           <>
             <h1 className="truncate text-lg font-semibold tracking-tight md:text-xl">
-              <span className="text-muted-foreground">Welcome,</span> {welcomeName}
+              <span className="text-muted-foreground">Welcome,</span>{" "}
+              {welcomeName}
             </h1>
           </>
         )}

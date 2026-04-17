@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   EnvironmentVariable,
@@ -12,7 +12,7 @@ import {
   EnvironmentVariablesTitle,
   EnvironmentVariablesToggle,
   EnvironmentVariableValue,
-} from "@/components/ai-elements/environment-variables";
+} from "@/components/ai-elements/environment-variables"
 
 const variables = [
   {
@@ -23,11 +23,11 @@ const variables = [
   { name: "API_KEY", required: true, value: "sk-1234567890abcdef" },
   { name: "NODE_ENV", required: false, value: "production" },
   { name: "PORT", required: false, value: "3000" },
-];
+]
 
 const handleCopy = () => {
-  console.log("Copied!");
-};
+  console.log("Copied!")
+}
 
 const Example = () => (
   <EnvironmentVariables defaultShowValues={false}>
@@ -57,6 +57,6 @@ const Example = () => (
       ))}
     </EnvironmentVariablesContent>
   </EnvironmentVariables>
-);
+)
 
-export default Example;
+export default Example

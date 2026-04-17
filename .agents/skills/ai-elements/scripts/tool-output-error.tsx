@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Tool,
@@ -6,8 +6,8 @@ import {
   ToolHeader,
   ToolInput,
   ToolOutput,
-} from "@/components/ai-elements/tool";
-import type { ToolUIPart } from "ai";
+} from "@/components/ai-elements/tool"
+import type { ToolUIPart } from "ai"
 
 const toolCall: ToolUIPart = {
   errorText:
@@ -25,7 +25,7 @@ const toolCall: ToolUIPart = {
   state: "output-error" as const,
   toolCallId: "api_request_1",
   type: "tool-api_request" as const,
-};
+}
 
 const Example = () => (
   <div style={{ height: "500px" }}>
@@ -39,6 +39,6 @@ const Example = () => (
       </ToolContent>
     </Tool>
   </div>
-);
+)
 
-export default Example;
+export default Example

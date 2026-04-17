@@ -1,6 +1,9 @@
-"use client";
+"use client"
 
-import { CodeBlock, CodeBlockCopyButton } from "@/components/ai-elements/code-block";
+import {
+  CodeBlock,
+  CodeBlockCopyButton,
+} from "@/components/ai-elements/code-block"
 import {
   Sandbox,
   SandboxContent,
@@ -10,7 +13,7 @@ import {
   SandboxTabsBar,
   SandboxTabsList,
   SandboxTabsTrigger,
-} from "@/components/ai-elements/sandbox";
+} from "@/components/ai-elements/sandbox"
 import {
   StackTrace,
   StackTraceActions,
@@ -22,10 +25,10 @@ import {
   StackTraceExpandButton,
   StackTraceFrames,
   StackTraceHeader,
-} from "@/components/ai-elements/stack-trace";
-import { Button } from "@/components/ui/button";
-import type { ToolUIPart } from "ai";
-import { memo, useCallback, useState } from "react";
+} from "@/components/ai-elements/stack-trace"
+import { Button } from "@/components/ui/button"
+import type { ToolUIPart } from "ai"
+import { memo, useCallback, useState } from "react"
 
 const code = `import math
 
@@ -44,7 +47,7 @@ def calculate_primes(limit):
 if __name__ == "__main__":
     primes = calculate_primes(50)
     print(f"Found {len(primes)} prime numbers up to 50:")
-    print(primes)`;
+    print(primes)`
 
 const outputs: Record<ToolUIPart["state"], string | undefined> = {
   "input-available": undefined,
@@ -57,24 +60,24 @@ const outputs: Record<ToolUIPart["state"], string | undefined> = {
     at onClick (/src/components/Button.tsx:18:5)
     at HTMLButtonElement.dispatch (node_modules/react-dom/cjs/react-dom.development.js:3456:9)
     at node_modules/react-dom/cjs/react-dom.development.js:4245:12`,
-};
+}
 
 const states: ToolUIPart["state"][] = [
   "input-streaming",
   "input-available",
   "output-available",
   "output-error",
-];
+]
 
 interface StateButtonProps {
-  s: ToolUIPart["state"];
-  currentState: ToolUIPart["state"];
-  onStateChange: (state: ToolUIPart["state"]) => void;
+  s: ToolUIPart["state"]
+  currentState: ToolUIPart["state"]
+  onStateChange: (state: ToolUIPart["state"]) => void
 }
 
 const StateButton = memo(
   ({ s, currentState, onStateChange }: StateButtonProps) => {
-    const handleClick = useCallback(() => onStateChange(s), [onStateChange, s]);
+    const handleClick = useCallback(() => onStateChange(s), [onStateChange, s])
     return (
       <Button
         key={s}
@@ -84,18 +87,18 @@ const StateButton = memo(
       >
         {s}
       </Button>
-    );
+    )
   }
-);
+)
 
-StateButton.displayName = "StateButton";
+StateButton.displayName = "StateButton"
 
 const Example = () => {
-  const [state, setState] = useState<ToolUIPart["state"]>("output-available");
+  const [state, setState] = useState<ToolUIPart["state"]>("output-available")
 
   const handleStateChange = useCallback((s: ToolUIPart["state"]) => {
-    setState(s);
-  }, []);
+    setState(s)
+  }, [])
 
   return (
     <div className="space-y-4">
@@ -172,7 +175,7 @@ const Example = () => {
         </SandboxContent>
       </Sandbox>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

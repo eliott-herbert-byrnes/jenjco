@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
 import {
   Attachment,
   AttachmentPreview,
   AttachmentRemove,
   Attachments,
-} from "@/components/ai-elements/attachments";
+} from "@/components/ai-elements/attachments"
 import {
   Message,
   MessageAction,
@@ -19,28 +19,28 @@ import {
   MessageContent,
   MessageResponse,
   MessageToolbar,
-} from "@/components/ai-elements/message";
+} from "@/components/ai-elements/message"
 import {
   CopyIcon,
   RefreshCcwIcon,
   ThumbsDownIcon,
   ThumbsUpIcon,
-} from "lucide-react";
-import { nanoid } from "nanoid";
-import { memo, useCallback, useState } from "react";
+} from "lucide-react"
+import { nanoid } from "nanoid"
+import { memo, useCallback, useState } from "react"
 
 const messages: {
-  key: string;
-  from: "user" | "assistant";
-  versions?: { id: string; content: string }[];
-  content?: string;
+  key: string
+  from: "user" | "assistant"
+  versions?: { id: string; content: string }[]
+  content?: string
   attachments?: {
-    id: string;
-    type: "file";
-    url: string;
-    mediaType?: string;
-    filename?: string;
-  }[];
+    id: string
+    type: "file"
+    url: string
+    mediaType?: string
+    filename?: string
+  }[]
 }[] = [
   {
     attachments: [
@@ -166,20 +166,20 @@ The beauty of hooks is that they let you reuse stateful logic without changing y
       },
     ],
   },
-];
+]
 
 const handleCopy = (content: string) => {
-  navigator.clipboard.writeText(content);
-};
+  navigator.clipboard.writeText(content)
+}
 
 const handleRetry = () => {
-  console.log("Retrying...");
-};
+  console.log("Retrying...")
+}
 
 interface LikeActionProps {
-  messageKey: string;
-  isLiked: boolean;
-  onToggle: (key: string) => void;
+  messageKey: string
+  isLiked: boolean
+  onToggle: (key: string) => void
 }
 
 const LikeAction = memo(
@@ -187,7 +187,7 @@ const LikeAction = memo(
     const handleClick = useCallback(
       () => onToggle(messageKey),
       [messageKey, onToggle]
-    );
+    )
     return (
       <MessageAction
         label="Like"
@@ -199,16 +199,16 @@ const LikeAction = memo(
           fill={isLiked ? "currentColor" : "none"}
         />
       </MessageAction>
-    );
+    )
   }
-);
+)
 
-LikeAction.displayName = "LikeAction";
+LikeAction.displayName = "LikeAction"
 
 interface DislikeActionProps {
-  messageKey: string;
-  isDisliked: boolean;
-  onToggle: (key: string) => void;
+  messageKey: string
+  isDisliked: boolean
+  onToggle: (key: string) => void
 }
 
 const DislikeAction = memo(
@@ -216,7 +216,7 @@ const DislikeAction = memo(
     const handleClick = useCallback(
       () => onToggle(messageKey),
       [messageKey, onToggle]
-    );
+    )
     return (
       <MessageAction
         label="Dislike"
@@ -228,18 +228,18 @@ const DislikeAction = memo(
           fill={isDisliked ? "currentColor" : "none"}
         />
       </MessageAction>
-    );
+    )
   }
-);
+)
 
-DislikeAction.displayName = "DislikeAction";
+DislikeAction.displayName = "DislikeAction"
 
 interface CopyActionProps {
-  content: string;
+  content: string
 }
 
 const CopyAction = memo(({ content }: CopyActionProps) => {
-  const handleClick = useCallback(() => handleCopy(content), [content]);
+  const handleClick = useCallback(() => handleCopy(content), [content])
   return (
     <MessageAction
       label="Copy"
@@ -248,22 +248,22 @@ const CopyAction = memo(({ content }: CopyActionProps) => {
     >
       <CopyIcon className="size-4" />
     </MessageAction>
-  );
-});
+  )
+})
 
-CopyAction.displayName = "CopyAction";
+CopyAction.displayName = "CopyAction"
 
 const Example = () => {
-  const [liked, setLiked] = useState<Record<string, boolean>>({});
-  const [disliked, setDisliked] = useState<Record<string, boolean>>({});
+  const [liked, setLiked] = useState<Record<string, boolean>>({})
+  const [disliked, setDisliked] = useState<Record<string, boolean>>({})
 
   const handleToggleLike = useCallback((key: string) => {
-    setLiked((prev) => ({ ...prev, [key]: !prev[key] }));
-  }, []);
+    setLiked((prev) => ({ ...prev, [key]: !prev[key] }))
+  }, [])
 
   const handleToggleDislike = useCallback((key: string) => {
-    setDisliked((prev) => ({ ...prev, [key]: !prev[key] }));
-  }, []);
+    setDisliked((prev) => ({ ...prev, [key]: !prev[key] }))
+  }, [])
 
   return (
     <div className="flex flex-col gap-4">
@@ -359,7 +359,7 @@ const Example = () => {
         </Message>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

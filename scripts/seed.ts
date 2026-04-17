@@ -1,204 +1,229 @@
 /**
  * Phase 1f: demo seed for Supabase (service role).
- * Requires: SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL), SUPABASE_SERVICE_ROLE_KEY, SEED_DEMO_PASSWORD (min 6 characters).
+ * Requires: SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL), SUPABASE_SERVICE_ROLE_KEY, SEED_DEMO_PASSWORD (min 6 characters),
+ *   OPENAI_API_KEY (for org_processes embeddings — text-embedding-3-small).
  *
  * Creates: John Pye org, auth + app users (admin + viewer), org agents, workflow,
  * department tree (Operations → Sales & Customer Service), and three process documents.
  *
  * Run: pnpm run seed
  */
-import 'dotenv/config';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import "dotenv/config"
+import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
-type DeptRow = { id: string; parent_id: string | null };
+import { generateEmbedding } from "../lib/embeddings"
 
-const ORG_NAME = 'John Pye';
-const ORG_SLUG = 'john-pye';
-const ADMIN_EMAIL = 'admin@johnpye.co.uk';
-const VIEWER_EMAIL = 'user@johnpye.co.uk';
+type DeptRow = { id: string; parent_id: string | null }
+
+const ORG_NAME = "John Pye"
+const ORG_SLUG = "john-pye"
+const ADMIN_EMAIL = "admin@johnpye.co.uk"
+const VIEWER_EMAIL = "user@johnpye.co.uk"
 
 function requireEnv(name: string): string {
-  const v = process.env[name];
+  const v = process.env[name]
   if (!v?.trim()) {
-    throw new Error(`Missing required env: ${name}`);
+    throw new Error(`Missing required env: ${name}`)
   }
-  return v.trim();
+  return v.trim()
 }
 
 function supabaseUrl(): string {
-  const direct = process.env.SUPABASE_URL?.trim();
-  if (direct) return direct;
-  const pub = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  if (pub) return pub;
-  throw new Error('Set SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL');
+  const direct = process.env.SUPABASE_URL?.trim()
+  if (direct) return direct
+  const pub = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+  if (pub) return pub
+  throw new Error("Set SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL")
 }
 
 async function getOrCreateAuthUser(
-  admin: ReturnType<typeof createClient>['auth']['admin'],
+  admin: ReturnType<typeof createClient>["auth"]["admin"],
   email: string,
   password: string
 ): Promise<string> {
-  const { data: list, error: listErr } = await admin.listUsers({ page: 1, perPage: 1000 });
-  if (listErr) throw listErr;
-  const found = list.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
-  if (found) return found.id;
+  const { data: list, error: listErr } = await admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  })
+  if (listErr) throw listErr
+  const found = list.users.find(
+    (u) => u.email?.toLowerCase() === email.toLowerCase()
+  )
+  if (found) return found.id
 
   const { data, error } = await admin.createUser({
     email,
     password,
     email_confirm: true,
-  });
-  if (error) throw error;
-  if (!data.user) throw new Error(`createUser returned no user for ${email}`);
-  return data.user.id;
+  })
+  if (error) throw error
+  if (!data.user) throw new Error(`createUser returned no user for ${email}`)
+  return data.user.id
 }
 
-async function deleteDepartmentsForOrg(supabase: SupabaseClient, orgId: string): Promise<void> {
+async function deleteDepartmentsForOrg(
+  supabase: SupabaseClient,
+  orgId: string
+): Promise<void> {
   const { data: depts, error: selErr } = await supabase
-    .from('departments')
-    .select('id, parent_id')
-    .eq('org_id', orgId);
-  if (selErr) throw selErr;
-  const rows = (depts ?? []) as DeptRow[];
-  if (!rows.length) return;
+    .from("departments")
+    .select("id, parent_id")
+    .eq("org_id", orgId)
+  if (selErr) throw selErr
+  const rows = (depts ?? []) as DeptRow[]
+  if (!rows.length) return
 
-  const children = rows.filter((d) => d.parent_id != null);
+  const children = rows.filter((d) => d.parent_id != null)
   for (const c of children) {
-    const { error } = await supabase.from('departments').delete().eq('id', c.id);
-    if (error) throw error;
+    const { error } = await supabase.from("departments").delete().eq("id", c.id)
+    if (error) throw error
   }
-  const roots = rows.filter((d) => d.parent_id == null);
+  const roots = rows.filter((d) => d.parent_id == null)
   for (const r of roots) {
-    const { error } = await supabase.from('departments').delete().eq('id', r.id);
-    if (error) throw error;
+    const { error } = await supabase.from("departments").delete().eq("id", r.id)
+    if (error) throw error
   }
 }
 
 async function main() {
-  const url = supabaseUrl();
-  const serviceKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
-  const password = requireEnv('SEED_DEMO_PASSWORD');
+  const url = supabaseUrl()
+  const serviceKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY")
+  const password = requireEnv("SEED_DEMO_PASSWORD")
   if (password.length < 6) {
-    throw new Error('SEED_DEMO_PASSWORD must be at least 6 characters (Supabase requirement).');
+    throw new Error(
+      "SEED_DEMO_PASSWORD must be at least 6 characters (Supabase requirement)."
+    )
   }
 
   const supabase = createClient(url, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
-  });
+  })
 
   const { data: orgRow, error: orgErr } = await supabase
-    .from('organizations')
-    .upsert({ name: ORG_NAME, slug: ORG_SLUG }, { onConflict: 'slug' })
-    .select('id')
-    .single();
-  if (orgErr) throw orgErr;
-  const orgId = orgRow.id as string;
+    .from("organizations")
+    .upsert({ name: ORG_NAME, slug: ORG_SLUG }, { onConflict: "slug" })
+    .select("id")
+    .single()
+  if (orgErr) throw orgErr
+  const orgId = orgRow.id as string
 
-  const adminAuthId = await getOrCreateAuthUser(supabase.auth.admin, ADMIN_EMAIL, password);
-  const viewerAuthId = await getOrCreateAuthUser(supabase.auth.admin, VIEWER_EMAIL, password);
+  const adminAuthId = await getOrCreateAuthUser(
+    supabase.auth.admin,
+    ADMIN_EMAIL,
+    password
+  )
+  const viewerAuthId = await getOrCreateAuthUser(
+    supabase.auth.admin,
+    VIEWER_EMAIL,
+    password
+  )
 
-  const { error: usersErr } = await supabase.from('users').upsert(
+  const { error: usersErr } = await supabase.from("users").upsert(
     [
       {
         org_id: orgId,
         supabase_auth_id: adminAuthId,
         email: ADMIN_EMAIL,
-        role: 'admin',
-        display_name: 'John Pye Admin',
+        role: "admin",
+        display_name: "John Pye Admin",
       },
       {
         org_id: orgId,
         supabase_auth_id: viewerAuthId,
         email: VIEWER_EMAIL,
-        role: 'viewer',
-        display_name: 'John Pye Viewer',
+        role: "viewer",
+        display_name: "John Pye Viewer",
       },
     ],
-    { onConflict: 'supabase_auth_id' }
-  );
-  if (usersErr) throw usersErr;
+    { onConflict: "supabase_auth_id" }
+  )
+  if (usersErr) throw usersErr
 
-  const { error: agentsErr } = await supabase.from('org_agents').upsert(
+  const { error: agentsErr } = await supabase.from("org_agents").upsert(
     [
       {
         org_id: orgId,
-        agent_key: 'weather-agent',
-        display_name: 'Weather Assistant',
-        description: 'Forecasts and activity planning using live weather data.',
+        agent_key: "weather-agent",
+        display_name: "Weather Assistant",
+        description: "Forecasts and activity planning using live weather data.",
         is_active: true,
       },
       {
         org_id: orgId,
-        agent_key: 'process-assistant',
-        display_name: 'Process Assistant',
-        description: 'Answers questions about internal processes and documentation.',
+        agent_key: "process-assistant",
+        display_name: "Process Assistant",
+        description:
+          "Answers questions about internal processes and documentation.",
         is_active: true,
       },
     ],
-    { onConflict: 'org_id,agent_key' }
-  );
-  if (agentsErr) throw agentsErr;
+    { onConflict: "org_id,agent_key" }
+  )
+  if (agentsErr) throw agentsErr
 
-  const { error: wfErr } = await supabase.from('org_workflows').upsert(
+  const { error: wfErr } = await supabase.from("org_workflows").upsert(
     {
       org_id: orgId,
-      workflow_key: 'weather-workflow',
-      display_name: 'Weather planning workflow',
-      description: 'Fetch forecast and suggest activities for a city.',
+      workflow_key: "weather-workflow",
+      display_name: "Weather planning workflow",
+      description: "Fetch forecast and suggest activities for a city.",
       is_active: true,
     },
-    { onConflict: 'org_id,workflow_key' }
-  );
-  if (wfErr) throw wfErr;
+    { onConflict: "org_id,workflow_key" }
+  )
+  if (wfErr) throw wfErr
 
-  const { error: delProcErr } = await supabase.from('org_processes').delete().eq('org_id', orgId);
-  if (delProcErr) throw delProcErr;
+  const { error: delProcErr } = await supabase
+    .from("org_processes")
+    .delete()
+    .eq("org_id", orgId)
+  if (delProcErr) throw delProcErr
 
-  await deleteDepartmentsForOrg(supabase, orgId);
+  await deleteDepartmentsForOrg(supabase, orgId)
 
   const { data: opsDept, error: opsErr } = await supabase
-    .from('departments')
+    .from("departments")
     .insert({
       org_id: orgId,
-      name: 'Operations',
+      name: "Operations",
       parent_id: null,
       sort_order: 0,
     })
-    .select('id')
-    .single();
-  if (opsErr) throw opsErr;
+    .select("id")
+    .single()
+  if (opsErr) throw opsErr
 
   const { data: salesDept, error: salesErr } = await supabase
-    .from('departments')
+    .from("departments")
     .insert({
       org_id: orgId,
-      name: 'Sales',
+      name: "Sales",
       parent_id: opsDept.id,
       sort_order: 0,
     })
-    .select('id')
-    .single();
-  if (salesErr) throw salesErr;
+    .select("id")
+    .single()
+  if (salesErr) throw salesErr
 
   const { data: csDept, error: csErr } = await supabase
-    .from('departments')
+    .from("departments")
     .insert({
       org_id: orgId,
-      name: 'Customer Service',
+      name: "Customer Service",
       parent_id: opsDept.id,
       sort_order: 1,
     })
-    .select('id')
-    .single();
-  if (csErr) throw csErr;
+    .select("id")
+    .single()
+  if (csErr) throw csErr
 
-  const now = new Date().toISOString();
+  const now = new Date().toISOString()
   const processes = [
     {
       org_id: orgId,
       department_id: salesDept.id,
-      title: 'Sales Pipeline',
-      slug: 'sales-pipeline',
+      title: "Sales Pipeline",
+      slug: "sales-pipeline",
       content: `# Sales Pipeline
 
 ## Purpose
@@ -217,8 +242,8 @@ Escalate deal-blockers to the Operations lead when SLA risk appears.`,
     {
       org_id: orgId,
       department_id: opsDept.id,
-      title: 'Product Content Retrieval',
-      slug: 'product-content-retrieval',
+      title: "Product Content Retrieval",
+      slug: "product-content-retrieval",
       content: `# Product Content Retrieval
 
 ## Purpose
@@ -235,8 +260,8 @@ Link to canonical pricing in the ERP; do not paste estimates from email threads.
     {
       org_id: orgId,
       department_id: csDept.id,
-      title: 'Complaints Reporting',
-      slug: 'complaints-reporting',
+      title: "Complaints Reporting",
+      slug: "complaints-reporting",
       content: `# Complaints Reporting
 
 ## Purpose
@@ -253,25 +278,43 @@ Consistent intake, severity, and closure for customer complaints.
 ## Audit
 Store final summary in the case file with owner and timestamps.`,
     },
-  ];
+  ]
 
-  const { error: procErr } = await supabase.from('org_processes').insert(
+  const { error: procErr } = await supabase.from("org_processes").insert(
     processes.map((p) => ({
       ...p,
       created_at: now,
       updated_at: now,
     }))
-  );
-  if (procErr) throw procErr;
+  )
+  if (procErr) throw procErr
 
-  console.log('Seed completed successfully.');
-  console.log(`  Organization: ${ORG_NAME} (${ORG_SLUG}) — ${orgId}`);
-  console.log(`  Users: ${ADMIN_EMAIL} (admin), ${VIEWER_EMAIL} (viewer)`);
-  console.log('  Hierarchy: Operations → Sales, Customer Service');
-  console.log('  Processes: Sales Pipeline, Product Content Retrieval, Complaints Reporting');
+  const { data: processRows, error: procSelErr } = await supabase
+    .from("org_processes")
+    .select("id, title, content")
+    .eq("org_id", orgId)
+  if (procSelErr) throw procSelErr
+
+  for (const proc of processRows ?? []) {
+    const text = `${proc.title}\n\n${proc.content ?? ""}`
+    const embedding = await generateEmbedding(text)
+    const { error: embErr } = await supabase
+      .from("org_processes")
+      .update({ embedding })
+      .eq("id", proc.id)
+    if (embErr) throw embErr
+  }
+
+  console.log("Seed completed successfully.")
+  console.log(`  Organization: ${ORG_NAME} (${ORG_SLUG}) — ${orgId}`)
+  console.log(`  Users: ${ADMIN_EMAIL} (admin), ${VIEWER_EMAIL} (viewer)`)
+  console.log("  Hierarchy: Operations → Sales, Customer Service")
+  console.log(
+    "  Processes: Sales Pipeline, Product Content Retrieval, Complaints Reporting"
+  )
 }
 
 main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+  console.error(e)
+  process.exit(1)
+})

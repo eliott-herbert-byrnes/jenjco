@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   CodeBlock,
@@ -12,10 +12,10 @@ import {
   CodeBlockLanguageSelectorTrigger,
   CodeBlockLanguageSelectorValue,
   CodeBlockTitle,
-} from "@/components/ai-elements/code-block";
-import { FileIcon } from "lucide-react";
-import { useCallback, useState } from "react";
-import type { BundledLanguage } from "shiki";
+} from "@/components/ai-elements/code-block"
+import { FileIcon } from "lucide-react"
+import { useCallback, useState } from "react"
+import type { BundledLanguage } from "shiki"
 
 const codeExamples = {
   go: {
@@ -57,32 +57,32 @@ fn main() {
 console.log(greet("World"));`,
     filename: "greet.ts",
   },
-} as const;
+} as const
 
-type Language = keyof typeof codeExamples;
+type Language = keyof typeof codeExamples
 
 const languages: { value: Language; label: string }[] = [
   { label: "TypeScript", value: "typescript" },
   { label: "Python", value: "python" },
   { label: "Rust", value: "rust" },
   { label: "Go", value: "go" },
-];
+]
 
 const handleCopy = () => {
-  console.log("Copied code to clipboard");
-};
+  console.log("Copied code to clipboard")
+}
 
 const handleCopyError = () => {
-  console.error("Failed to copy code to clipboard");
-};
+  console.error("Failed to copy code to clipboard")
+}
 
 const Example = () => {
-  const [language, setLanguage] = useState<Language>("typescript");
-  const { code, filename } = codeExamples[language];
+  const [language, setLanguage] = useState<Language>("typescript")
+  const { code, filename } = codeExamples[language]
 
   const handleLanguageChange = useCallback((value: string) => {
-    setLanguage(value as Language);
-  }, []);
+    setLanguage(value as Language)
+  }, [])
 
   return (
     <CodeBlock code={code} language={language as BundledLanguage}>
@@ -114,7 +114,7 @@ const Example = () => {
         </CodeBlockActions>
       </CodeBlockHeader>
     </CodeBlock>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

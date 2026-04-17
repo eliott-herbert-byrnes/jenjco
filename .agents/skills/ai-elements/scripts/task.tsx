@@ -1,15 +1,15 @@
-"use client";
+"use client"
 
-import { SiReact } from "@icons-pack/react-simple-icons";
+import { SiReact } from "@icons-pack/react-simple-icons"
 import {
   Task,
   TaskContent,
   TaskItem,
   TaskItemFile,
   TaskTrigger,
-} from "@/components/ai-elements/task";
-import { nanoid } from "nanoid";
-import type { ReactNode } from "react";
+} from "@/components/ai-elements/task"
+import { nanoid } from "nanoid"
+import type { ReactNode } from "react"
 
 const Example = () => {
   const tasks: { key: string; value: ReactNode }[] = [
@@ -40,7 +40,7 @@ const Example = () => {
         </span>
       ),
     },
-  ];
+  ]
 
   return (
     <div style={{ height: "200px" }}>
@@ -53,7 +53,7 @@ const Example = () => {
         </TaskContent>
       </Task>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

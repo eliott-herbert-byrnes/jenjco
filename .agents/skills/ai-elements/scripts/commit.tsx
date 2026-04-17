@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Commit,
@@ -23,14 +23,14 @@ import {
   CommitMetadata,
   CommitSeparator,
   CommitTimestamp,
-} from "@/components/ai-elements/commit";
+} from "@/components/ai-elements/commit"
 
 const handleCopy = () => {
-  console.log("Copied hash!");
-};
+  console.log("Copied hash!")
+}
 
-const hash = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0";
-const timestamp = new Date(Date.now() - 1000 * 60 * 60 * 2);
+const hash = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
+const timestamp = new Date(Date.now() - 1000 * 60 * 60 * 2)
 
 const files = [
   {
@@ -51,7 +51,7 @@ const files = [
     path: "src/lib/session.ts",
     status: "modified" as const,
   },
-];
+]
 
 const Example = () => (
   <Commit>
@@ -89,6 +89,6 @@ const Example = () => (
       </CommitFiles>
     </CommitContent>
   </Commit>
-);
+)
 
-export default Example;
+export default Example

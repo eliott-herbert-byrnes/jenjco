@@ -38,7 +38,9 @@ export function isProtectedAppRoute(pathname: string): boolean {
 }
 
 export const apiPaths = {
-  chat: "/api/chat",
+  chat: '/api/chat',
+  agents: '/api/agents',
+  agentChat: (id: string) => `/api/agents/${id}/chat`,
 } as const
 
 /** Static assets referenced from route components */

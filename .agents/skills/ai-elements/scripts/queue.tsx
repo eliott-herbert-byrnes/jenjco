@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import type { QueueMessage, QueueTodo } from "@/components/ai-elements/queue";
+import type { QueueMessage, QueueTodo } from "@/components/ai-elements/queue"
 import {
   Queue,
   QueueItem,
@@ -17,9 +17,9 @@ import {
   QueueSectionContent,
   QueueSectionLabel,
   QueueSectionTrigger,
-} from "@/components/ai-elements/queue";
-import { ArrowUp, Trash2 } from "lucide-react";
-import { memo, useCallback, useState } from "react";
+} from "@/components/ai-elements/queue"
+import { ArrowUp, Trash2 } from "lucide-react"
+import { memo, useCallback, useState } from "react"
 
 const sampleMessages: QueueMessage[] = [
   {
@@ -58,7 +58,7 @@ const sampleMessages: QueueMessage[] = [
     id: "msg-7",
     parts: [{ text: "Set up CI/CD pipeline.", type: "text" }],
   },
-];
+]
 
 const sampleTodos: QueueTodo[] = [
   {
@@ -90,12 +90,12 @@ const sampleTodos: QueueTodo[] = [
     status: "pending",
     title: "Add unit tests",
   },
-];
+]
 
 interface MessageActionsProps {
-  messageId: string;
-  onRemove: (e: React.MouseEvent, id: string) => void;
-  onSend: (e: React.MouseEvent, id: string) => void;
+  messageId: string
+  onRemove: (e: React.MouseEvent, id: string) => void
+  onSend: (e: React.MouseEvent, id: string) => void
 }
 
 const MessageActions = memo(
@@ -103,11 +103,11 @@ const MessageActions = memo(
     const handleRemove = useCallback(
       (e: React.MouseEvent) => onRemove(e, messageId),
       [onRemove, messageId]
-    );
+    )
     const handleSend = useCallback(
       (e: React.MouseEvent) => onSend(e, messageId),
       [onSend, messageId]
-    );
+    )
     return (
       <QueueItemActions>
         <QueueItemAction
@@ -121,23 +121,20 @@ const MessageActions = memo(
           <ArrowUp size={14} />
         </QueueItemAction>
       </QueueItemActions>
-    );
+    )
   }
-);
+)
 
-MessageActions.displayName = "MessageActions";
+MessageActions.displayName = "MessageActions"
 
 interface TodoItemProps {
-  todo: QueueTodo;
-  onRemove: (id: string) => void;
+  todo: QueueTodo
+  onRemove: (id: string) => void
 }
 
 const TodoItem = memo(({ todo, onRemove }: TodoItemProps) => {
-  const isCompleted = todo.status === "completed";
-  const handleRemove = useCallback(
-    () => onRemove(todo.id),
-    [onRemove, todo.id]
-  );
+  const isCompleted = todo.status === "completed"
+  const handleRemove = useCallback(() => onRemove(todo.id), [onRemove, todo.id])
 
   return (
     <QueueItem key={todo.id}>
@@ -158,48 +155,48 @@ const TodoItem = memo(({ todo, onRemove }: TodoItemProps) => {
         </QueueItemDescription>
       )}
     </QueueItem>
-  );
-});
+  )
+})
 
-TodoItem.displayName = "TodoItem";
+TodoItem.displayName = "TodoItem"
 
 const Example = () => {
-  const [messages, setMessages] = useState(sampleMessages);
-  const [todos, setTodos] = useState(sampleTodos);
+  const [messages, setMessages] = useState(sampleMessages)
+  const [todos, setTodos] = useState(sampleTodos)
 
   const handleRemoveMessage = useCallback((id: string) => {
-    setMessages((prev) => prev.filter((msg) => msg.id !== id));
-  }, []);
+    setMessages((prev) => prev.filter((msg) => msg.id !== id))
+  }, [])
 
   const handleRemoveTodo = useCallback((id: string) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
-  }, []);
+    setTodos((prev) => prev.filter((todo) => todo.id !== id))
+  }, [])
 
   const handleSendNow = useCallback((id: string) => {
-    console.log("Send now:", id);
-    setMessages((prev) => prev.filter((msg) => msg.id !== id));
-  }, []);
+    console.log("Send now:", id)
+    setMessages((prev) => prev.filter((msg) => msg.id !== id))
+  }, [])
 
   const handleMessageRemove = useCallback(
     (e: React.MouseEvent, id: string) => {
-      e.preventDefault();
-      e.stopPropagation();
-      handleRemoveMessage(id);
+      e.preventDefault()
+      e.stopPropagation()
+      handleRemoveMessage(id)
     },
     [handleRemoveMessage]
-  );
+  )
 
   const handleMessageSend = useCallback(
     (e: React.MouseEvent, id: string) => {
-      e.preventDefault();
-      e.stopPropagation();
-      handleSendNow(id);
+      e.preventDefault()
+      e.stopPropagation()
+      handleSendNow(id)
     },
     [handleSendNow]
-  );
+  )
 
   if (messages.length === 0 && todos.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -215,17 +212,17 @@ const Example = () => {
                 const summary = (() => {
                   const textParts = message.parts.filter(
                     (p) => p.type === "text"
-                  );
+                  )
                   const text = textParts
                     .map((p) => p.text)
                     .join(" ")
-                    .trim();
-                  return text || "(queued message)";
-                })();
+                    .trim()
+                  return text || "(queued message)"
+                })()
 
                 const hasFiles = message.parts.some(
                   (p) => p.type === "file" && p.url
-                );
+                )
 
                 return (
                   <QueueItem key={message.id}>
@@ -253,18 +250,18 @@ const Example = () => {
                                   key={file.url}
                                   src={file.url}
                                 />
-                              );
+                              )
                             }
                             return (
                               <QueueItemFile key={file.url}>
                                 {file.filename || "file"}
                               </QueueItemFile>
-                            );
+                            )
                           })}
                       </QueueItemAttachment>
                     )}
                   </QueueItem>
-                );
+                )
               })}
             </QueueList>
           </QueueSectionContent>
@@ -289,7 +286,7 @@ const Example = () => {
         </QueueSection>
       )}
     </Queue>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

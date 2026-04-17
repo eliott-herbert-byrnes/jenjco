@@ -1,6 +1,12 @@
 import type { Metadata } from "next"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -24,7 +30,9 @@ export default function DashboardHomePage() {
           <Card key={item.label} size="sm">
             <CardHeader className="pb-2">
               <CardDescription>{item.label}</CardDescription>
-              <CardTitle className="text-3xl font-semibold tabular-nums">{item.value}</CardTitle>
+              <CardTitle className="text-3xl font-semibold tabular-nums">
+                {item.value}
+              </CardTitle>
             </CardHeader>
           </Card>
         ))}
@@ -34,11 +42,17 @@ export default function DashboardHomePage() {
         <Card>
           <CardHeader>
             <CardTitle>AAMI</CardTitle>
-            <CardDescription>Organizational maturity index (placeholder)</CardDescription>
+            <CardDescription>
+              Organizational maturity index (placeholder)
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-semibold tabular-nums tracking-tight">0.34</p>
-            <p className="mt-1 text-xs text-muted-foreground">Target benchmark · 0.50</p>
+            <p className="text-4xl font-semibold tracking-tight tabular-nums">
+              0.34
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Target benchmark · 0.50
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -71,7 +85,9 @@ export default function DashboardHomePage() {
       <Card>
         <CardHeader>
           <CardTitle>Token usage (30 days)</CardTitle>
-          <CardDescription>Daily total tokens — placeholder until Phase 2c</CardDescription>
+          <CardDescription>
+            Daily total tokens — placeholder until Phase 2c
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div
@@ -88,7 +104,9 @@ export default function DashboardHomePage() {
                   className="w-full max-w-14 rounded-t-sm bg-primary/80"
                   style={{ height: `${h}px` }}
                 />
-                <span className="text-[10px] text-muted-foreground">W{i + 1}</span>
+                <span className="text-[10px] text-muted-foreground">
+                  W{i + 1}
+                </span>
               </div>
             ))}
           </div>

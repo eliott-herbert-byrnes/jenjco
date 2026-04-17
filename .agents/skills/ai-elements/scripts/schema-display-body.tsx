@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { SchemaDisplay } from "@/components/ai-elements/schema-display";
+import { SchemaDisplay } from "@/components/ai-elements/schema-display"
 
 const Example = () => (
   <SchemaDisplay
@@ -15,6 +15,6 @@ const Example = () => (
       { name: "createdAt", required: true, type: "string" },
     ]}
   />
-);
+)
 
-export default Example;
+export default Example

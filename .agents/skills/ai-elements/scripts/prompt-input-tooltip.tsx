@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   PromptInput,
@@ -8,12 +8,12 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
-} from "@/components/ai-elements/prompt-input";
-import { GlobeIcon, MicIcon, PaperclipIcon } from "lucide-react";
+} from "@/components/ai-elements/prompt-input"
+import { GlobeIcon, MicIcon, PaperclipIcon } from "lucide-react"
 
 const handleSubmit = () => {
   // Handle submit
-};
+}
 
 const Example = () => (
   <PromptInput onSubmit={handleSubmit}>
@@ -39,6 +39,6 @@ const Example = () => (
       <PromptInputSubmit />
     </PromptInputFooter>
   </PromptInput>
-);
+)
 
-export default Example;
+export default Example

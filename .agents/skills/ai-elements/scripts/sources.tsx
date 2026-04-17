@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
 import {
   Source,
   Sources,
   SourcesContent,
   SourcesTrigger,
-} from "@/components/ai-elements/sources";
+} from "@/components/ai-elements/sources"
 
 const sources = [
   { href: "https://stripe.com/docs/api", title: "Stripe API Documentation" },
@@ -14,7 +14,7 @@ const sources = [
     href: "https://docs.aws.amazon.com/sdk-for-javascript/",
     title: "AWS SDK for JavaScript",
   },
-];
+]
 
 const Example = () => (
   <div style={{ height: "110px" }}>
@@ -27,6 +27,6 @@ const Example = () => (
       </SourcesContent>
     </Sources>
   </div>
-);
+)
 
-export default Example;
+export default Example

@@ -11,7 +11,10 @@ import {
 import type { User as SupabaseAuthUser } from "@supabase/supabase-js"
 
 import { fetchOrganizationByOrgId } from "@/lib/auth/fetch-organization"
-import { mapUsersProfileRow, type UsersProfileRow } from "@/lib/auth/map-profile"
+import {
+  mapUsersProfileRow,
+  type UsersProfileRow,
+} from "@/lib/auth/map-profile"
 import type { AppUser, OrganizationSummary } from "@/lib/auth/types"
 import { createClient } from "@/lib/supabase/client"
 
@@ -44,7 +47,9 @@ const AuthContext = createContext<UseUserResult | undefined>(undefined)
 function useAuthState(): UseUserResult {
   const [authUser, setAuthUser] = useState<SupabaseAuthUser | null>(null)
   const [appUser, setAppUser] = useState<AppUser | null>(null)
-  const [organization, setOrganization] = useState<OrganizationSummary | null>(null)
+  const [organization, setOrganization] = useState<OrganizationSummary | null>(
+    null
+  )
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
@@ -89,7 +94,10 @@ function useAuthState(): UseUserResult {
     const mapped = mapUsersProfileRow(row as unknown as UsersProfileRow)
     let organization = mapped.organization
     if (!organization && mapped.appUser) {
-      organization = await fetchOrganizationByOrgId(supabase, mapped.appUser.orgId)
+      organization = await fetchOrganizationByOrgId(
+        supabase,
+        mapped.appUser.orgId
+      )
     }
     setAppUser(mapped.appUser)
     setOrganization(organization)

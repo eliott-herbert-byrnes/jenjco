@@ -21,6 +21,9 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.redirect(
-    new URL(`${paths.signIn}?error=${encodeURIComponent("Could not sign in")}`, origin)
+    new URL(
+      `${paths.signIn}?error=${encodeURIComponent("Could not sign in")}`,
+      origin
+    )
   )
 }

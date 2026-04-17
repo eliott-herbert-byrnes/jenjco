@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
 import {
   Attachment,
   AttachmentPreview,
   AttachmentRemove,
   Attachments,
-} from "@/components/ai-elements/attachments";
-import { nanoid } from "nanoid";
-import { memo, useCallback, useState } from "react";
+} from "@/components/ai-elements/attachments"
+import { nanoid } from "nanoid"
+import { memo, useCallback, useState } from "react"
 
 const initialAttachments = [
   {
@@ -38,34 +38,34 @@ const initialAttachments = [
     type: "file" as const,
     url: "",
   },
-];
+]
 
 interface AttachmentItemProps {
-  attachment: (typeof initialAttachments)[0];
-  onRemove: (id: string) => void;
+  attachment: (typeof initialAttachments)[0]
+  onRemove: (id: string) => void
 }
 
 const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
   const handleRemove = useCallback(
     () => onRemove(attachment.id),
     [onRemove, attachment.id]
-  );
+  )
   return (
     <Attachment data={attachment} onRemove={handleRemove}>
       <AttachmentPreview />
       <AttachmentRemove />
     </Attachment>
-  );
-});
+  )
+})
 
-AttachmentItem.displayName = "AttachmentItem";
+AttachmentItem.displayName = "AttachmentItem"
 
 const Example = () => {
-  const [attachments, setAttachments] = useState(initialAttachments);
+  const [attachments, setAttachments] = useState(initialAttachments)
 
   const handleRemove = useCallback((id: string) => {
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
-  }, []);
+    setAttachments((prev) => prev.filter((a) => a.id !== id))
+  }, [])
 
   return (
     <div className="flex items-center justify-center p-8">
@@ -79,7 +79,7 @@ const Example = () => {
         ))}
       </Attachments>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

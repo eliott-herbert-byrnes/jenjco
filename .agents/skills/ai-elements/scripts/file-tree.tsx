@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
 import {
   FileTree,
   FileTreeFile,
   FileTreeFolder,
-} from "@/components/ai-elements/file-tree";
-import { useState } from "react";
+} from "@/components/ai-elements/file-tree"
+import { useState } from "react"
 
 const Example = () => {
-  const [selectedPath, setSelectedPath] = useState<string | undefined>();
+  const [selectedPath, setSelectedPath] = useState<string | undefined>()
 
   return (
     <FileTree
@@ -36,7 +36,7 @@ const Example = () => {
       <FileTreeFile name="tsconfig.json" path="tsconfig.json" />
       <FileTreeFile name="README.md" path="README.md" />
     </FileTree>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

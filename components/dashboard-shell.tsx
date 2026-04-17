@@ -1,15 +1,25 @@
 "use client"
 
 import * as React from "react"
+import { usePathname } from "next/navigation"
 
 import { AppSidebar } from "@/components/app-sidebar"
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AuthProvider } from "@/hooks/use-user"
+import { cn } from "@/lib/utils"
 import { DashboardHeader } from "./dashboard-header"
 
+function isAgentsRoute(pathname: string | null): boolean {
+  if (!pathname) return false
+  return pathname === "/agents" || pathname.startsWith("/agents/")
+}
+
 export function DashboardShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const agents = isAgentsRoute(pathname)
+
   return (
     <TooltipProvider>
       <SidebarProvider>
@@ -17,7 +27,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <AppSidebar />
           <SidebarInset className="overflow-x-hidden">
             <DashboardHeader />
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">{children}</div>
+            <div
+              className={cn(
+                "flex flex-1 flex-col gap-6",
+                agents ? "p-0" : "p-4 md:p-6"
+              )}
+            >
+              {children}
+            </div>
           </SidebarInset>
         </AuthProvider>
       </SidebarProvider>

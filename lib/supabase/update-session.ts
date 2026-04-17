@@ -7,7 +7,9 @@ import { isProtectedAppRoute, paths } from "@/app/paths"
  * Refreshes the Supabase session from cookies and returns a response that may
  * include updated auth cookies. Use from root `proxy.js` / `proxy.ts`.
  */
-export async function updateSession(request: NextRequest): Promise<NextResponse> {
+export async function updateSession(
+  request: NextRequest
+): Promise<NextResponse> {
   let supabaseResponse = NextResponse.next({ request })
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -22,7 +24,9 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
         return request.cookies.getAll()
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        )
         supabaseResponse = NextResponse.next({ request })
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, options)

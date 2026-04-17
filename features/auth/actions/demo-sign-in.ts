@@ -7,7 +7,11 @@ import { DEMO_ADMIN_EMAIL } from "@/features/auth/constants"
 import { createClient } from "@/lib/supabase/server"
 
 function safeInternalPath(next: FormDataEntryValue | null): string {
-  if (typeof next !== "string" || !next.startsWith("/") || next.startsWith("//")) {
+  if (
+    typeof next !== "string" ||
+    !next.startsWith("/") ||
+    next.startsWith("//")
+  ) {
     return paths.dashboard
   }
   return next
@@ -20,7 +24,9 @@ export async function signInWithDemo(formData: FormData) {
   if (!password) {
     redirect(
       `${paths.signIn}?error=` +
-        encodeURIComponent("Demo sign-in is not configured (set SEED_DEMO_PASSWORD).")
+        encodeURIComponent(
+          "Demo sign-in is not configured (set SEED_DEMO_PASSWORD)."
+        )
     )
   }
 

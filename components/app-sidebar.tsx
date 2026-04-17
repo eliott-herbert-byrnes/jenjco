@@ -56,7 +56,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">JENJCO</span>
-                  <span className="truncate text-xs text-muted-foreground">v 1.0.0</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    v 1.0.0
+                  </span>
                 </div>
               </Link>
             </SidebarMenuButton>

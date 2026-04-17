@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import type { AttachmentData } from "@/components/ai-elements/attachments";
+import type { AttachmentData } from "@/components/ai-elements/attachments"
 import {
   Attachment,
   AttachmentInfo,
   AttachmentPreview,
   AttachmentRemove,
   Attachments,
-} from "@/components/ai-elements/attachments";
+} from "@/components/ai-elements/attachments"
 import {
   ModelSelector,
   ModelSelectorContent,
@@ -20,8 +20,8 @@ import {
   ModelSelectorLogoGroup,
   ModelSelectorName,
   ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
-import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+} from "@/components/ai-elements/model-selector"
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input"
 import {
   PromptInput,
   PromptInputBody,
@@ -48,9 +48,9 @@ import {
   PromptInputTools,
   usePromptInputAttachments,
   usePromptInputReferencedSources,
-} from "@/components/ai-elements/prompt-input";
-import { Button } from "@/components/ui/button";
-import type { SourceDocumentUIPart } from "ai";
+} from "@/components/ai-elements/prompt-input"
+import { Button } from "@/components/ui/button"
+import type { SourceDocumentUIPart } from "ai"
 import {
   AtSignIcon,
   CheckIcon,
@@ -58,8 +58,8 @@ import {
   GlobeIcon,
   ImageIcon,
   RulerIcon,
-} from "lucide-react";
-import { memo, useCallback, useState } from "react";
+} from "lucide-react"
+import { memo, useCallback, useState } from "react"
 
 const models = [
   {
@@ -97,60 +97,60 @@ const models = [
     name: "Gemini 2.0 Flash",
     providers: ["google"],
   },
-];
+]
 
-const SUBMITTING_TIMEOUT = 200;
-const STREAMING_TIMEOUT = 2000;
+const SUBMITTING_TIMEOUT = 200
+const STREAMING_TIMEOUT = 2000
 
 interface AttachmentItemProps {
-  attachment: AttachmentData;
-  onRemove: (id: string) => void;
+  attachment: AttachmentData
+  onRemove: (id: string) => void
 }
 
 const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
   const handleRemove = useCallback(
     () => onRemove(attachment.id),
     [onRemove, attachment.id]
-  );
+  )
   return (
     <Attachment data={attachment} key={attachment.id} onRemove={handleRemove}>
       <AttachmentPreview />
       <AttachmentRemove />
     </Attachment>
-  );
-});
+  )
+})
 
-AttachmentItem.displayName = "AttachmentItem";
+AttachmentItem.displayName = "AttachmentItem"
 
 interface SourceItemProps {
-  source: AttachmentData;
-  onRemove: (id: string) => void;
+  source: AttachmentData
+  onRemove: (id: string) => void
 }
 
 const SourceItem = memo(({ source, onRemove }: SourceItemProps) => {
   const handleRemove = useCallback(
     () => onRemove(source.id),
     [onRemove, source.id]
-  );
+  )
   return (
     <Attachment data={source} key={source.id} onRemove={handleRemove}>
       <AttachmentPreview />
       <AttachmentInfo />
       <AttachmentRemove />
     </Attachment>
-  );
-});
+  )
+})
 
-SourceItem.displayName = "SourceItem";
+SourceItem.displayName = "SourceItem"
 
 interface ModelItemProps {
-  m: (typeof models)[0];
-  selectedModel: string;
-  onSelect: (id: string) => void;
+  m: (typeof models)[0]
+  selectedModel: string
+  onSelect: (id: string) => void
 }
 
 const ModelItem = memo(({ m, selectedModel, onSelect }: ModelItemProps) => {
-  const handleSelect = useCallback(() => onSelect(m.id), [onSelect, m.id]);
+  const handleSelect = useCallback(() => onSelect(m.id), [onSelect, m.id])
   return (
     <ModelSelectorItem key={m.id} onSelect={handleSelect} value={m.id}>
       <ModelSelectorLogo provider={m.chefSlug} />
@@ -166,18 +166,18 @@ const ModelItem = memo(({ m, selectedModel, onSelect }: ModelItemProps) => {
         <div className="ml-auto size-4" />
       )}
     </ModelSelectorItem>
-  );
-});
+  )
+})
 
-ModelItem.displayName = "ModelItem";
+ModelItem.displayName = "ModelItem"
 
 interface SourceCommandItemProps {
-  source: SourceDocumentUIPart;
-  onAdd: (source: SourceDocumentUIPart) => void;
+  source: SourceDocumentUIPart
+  onAdd: (source: SourceDocumentUIPart) => void
 }
 
 const SourceCommandItem = memo(({ source, onAdd }: SourceCommandItemProps) => {
-  const handleSelect = useCallback(() => onAdd(source), [onAdd, source]);
+  const handleSelect = useCallback(() => onAdd(source), [onAdd, source])
   return (
     <PromptInputCommandItem
       key={`${source.filename}-${source.title}`}
@@ -185,14 +185,14 @@ const SourceCommandItem = memo(({ source, onAdd }: SourceCommandItemProps) => {
     >
       <GlobeIcon className="text-primary" />
       <div className="flex flex-col">
-        <span className="font-medium text-sm">{source.title}</span>
-        <span className="text-muted-foreground text-xs">{source.filename}</span>
+        <span className="text-sm font-medium">{source.title}</span>
+        <span className="text-xs text-muted-foreground">{source.filename}</span>
       </div>
     </PromptInputCommandItem>
-  );
-});
+  )
+})
 
-SourceCommandItem.displayName = "SourceCommandItem";
+SourceCommandItem.displayName = "SourceCommandItem"
 
 const sampleSources: SourceDocumentUIPart[] = [
   {
@@ -216,7 +216,7 @@ const sampleSources: SourceDocumentUIPart[] = [
     title: "queue.tsx",
     type: "source-document",
   },
-];
+]
 
 const sampleTabs = {
   active: [{ path: "packages/elements/src/task-queue-panel.tsx" }],
@@ -228,18 +228,18 @@ const sampleTabs = {
     { path: "packages/elements/src/queue.tsx" },
     { path: "apps/test/app/examples/queue.tsx" },
   ],
-};
+}
 
 const PromptInputAttachmentsDisplay = () => {
-  const attachments = usePromptInputAttachments();
+  const attachments = usePromptInputAttachments()
 
   const handleRemove = useCallback(
     (id: string) => attachments.remove(id),
     [attachments]
-  );
+  )
 
   if (attachments.files.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -252,16 +252,16 @@ const PromptInputAttachmentsDisplay = () => {
         />
       ))}
     </Attachments>
-  );
-};
+  )
+}
 
 const PromptInputReferencedSourcesDisplay = () => {
-  const refs = usePromptInputReferencedSources();
+  const refs = usePromptInputReferencedSources()
 
-  const handleRemove = useCallback((id: string) => refs.remove(id), [refs]);
+  const handleRemove = useCallback((id: string) => refs.remove(id), [refs])
 
   if (refs.sources.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -274,16 +274,16 @@ const PromptInputReferencedSourcesDisplay = () => {
         />
       ))}
     </Attachments>
-  );
-};
+  )
+}
 
 const SampleFilesMenu = () => {
-  const refs = usePromptInputReferencedSources();
+  const refs = usePromptInputReferencedSources()
 
   const handleAdd = useCallback(
     (source: SourceDocumentUIPart) => refs.add(source),
     [refs]
-  );
+  )
 
   return (
     <PromptInputCommand>
@@ -292,7 +292,7 @@ const SampleFilesMenu = () => {
         placeholder="Add files, folders, docs..."
       />
       <PromptInputCommandList>
-        <PromptInputCommandEmpty className="p-3 text-muted-foreground text-sm">
+        <PromptInputCommandEmpty className="p-3 text-sm text-muted-foreground">
           No results found.
         </PromptInputCommandEmpty>
         <PromptInputCommandGroup heading="Added">
@@ -322,41 +322,41 @@ const SampleFilesMenu = () => {
         </PromptInputCommandGroup>
       </PromptInputCommandList>
     </PromptInputCommand>
-  );
-};
+  )
+}
 
 const Example = () => {
-  const [model, setModel] = useState<string>(models[0].id);
-  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
+  const [model, setModel] = useState<string>(models[0].id)
+  const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
   const [status, setStatus] = useState<
     "submitted" | "streaming" | "ready" | "error"
-  >("ready");
+  >("ready")
 
-  const selectedModelData = models.find((m) => m.id === model);
+  const selectedModelData = models.find((m) => m.id === model)
 
   const handleModelSelect = useCallback((id: string) => {
-    setModel(id);
-    setModelSelectorOpen(false);
-  }, []);
+    setModel(id)
+    setModelSelectorOpen(false)
+  }, [])
 
   const handleSubmit = useCallback((message: PromptInputMessage) => {
-    const hasText = Boolean(message.text);
-    const hasAttachments = Boolean(message.files?.length);
+    const hasText = Boolean(message.text)
+    const hasAttachments = Boolean(message.files?.length)
 
     if (!(hasText || hasAttachments)) {
-      return;
+      return
     }
 
-    setStatus("submitted");
+    setStatus("submitted")
 
     setTimeout(() => {
-      setStatus("streaming");
-    }, SUBMITTING_TIMEOUT);
+      setStatus("streaming")
+    }, SUBMITTING_TIMEOUT)
 
     setTimeout(() => {
-      setStatus("ready");
-    }, STREAMING_TIMEOUT);
-  }, []);
+      setStatus("ready")
+    }, STREAMING_TIMEOUT)
+  }, [])
 
   return (
     <div className="flex size-full flex-col justify-end">
@@ -386,15 +386,15 @@ const Example = () => {
               </PromptInputHoverCardTrigger>
               <PromptInputHoverCardContent className="divide-y overflow-hidden p-0">
                 <div className="space-y-2 p-3">
-                  <p className="font-medium text-muted-foreground text-sm">
+                  <p className="text-sm font-medium text-muted-foreground">
                     Attached Project Rules
                   </p>
-                  <p className="ml-4 text-muted-foreground text-sm">
+                  <p className="ml-4 text-sm text-muted-foreground">
                     Always Apply:
                   </p>
                   <p className="ml-8 text-sm">ultracite.mdc</p>
                 </div>
-                <p className="bg-sidebar px-4 py-3 text-muted-foreground text-sm">
+                <p className="bg-sidebar px-4 py-3 text-sm text-muted-foreground">
                   Click to manage
                 </p>
               </PromptInputHoverCardContent>
@@ -433,7 +433,7 @@ const Example = () => {
                     ))}
                   </PromptInputTabBody>
                 </PromptInputTab>
-                <div className="border-t px-3 pt-2 text-muted-foreground text-xs">
+                <div className="border-t px-3 pt-2 text-xs text-muted-foreground">
                   Only file paths are included
                 </div>
               </PromptInputHoverCardContent>
@@ -496,7 +496,7 @@ const Example = () => {
         </PromptInput>
       </PromptInputProvider>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

@@ -1,16 +1,15 @@
 import type { Metadata } from "next"
+import { BotIcon } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: "Agents",
 }
 
-export default function AgentsPage() {
+export default function AgentsIndexPage() {
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-lg font-semibold">Agents</h2>
-      <p className="text-sm text-muted-foreground">
-        Agent directory and chat land in Phase 3a–3b.
-      </p>
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
+      <BotIcon className="size-10 opacity-40" />
+      <p className="text-sm">Select an agent to start a conversation</p>
     </div>
   )
 }

@@ -1,7 +1,12 @@
-"use client";
+"use client"
 
-import { Tool, ToolContent, ToolHeader, ToolInput } from "@/components/ai-elements/tool";
-import { nanoid } from "nanoid";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+} from "@/components/ai-elements/tool"
+import { nanoid } from "nanoid"
 
 const toolCall = {
   errorText: undefined,
@@ -15,7 +20,7 @@ const toolCall = {
   state: "input-available" as const,
   toolCallId: nanoid(),
   type: "tool-image_generation" as const,
-};
+}
 
 const Example = () => (
   <div style={{ height: "500px" }}>
@@ -26,6 +31,6 @@ const Example = () => (
       </ToolContent>
     </Tool>
   </div>
-);
+)
 
-export default Example;
+export default Example

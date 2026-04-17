@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
 import {
   Attachment,
   AttachmentPreview,
   AttachmentRemove,
   Attachments,
-} from "@/components/ai-elements/attachments";
+} from "@/components/ai-elements/attachments"
 import {
   ModelSelector,
   ModelSelectorContent,
@@ -18,8 +18,8 @@ import {
   ModelSelectorLogoGroup,
   ModelSelectorName,
   ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
-import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+} from "@/components/ai-elements/model-selector"
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input"
 import {
   PromptInput,
   PromptInputActionAddAttachments,
@@ -34,8 +34,8 @@ import {
   PromptInputTextarea,
   PromptInputTools,
   usePromptInputAttachments,
-} from "@/components/ai-elements/prompt-input";
-import type { QueueTodo } from "@/components/ai-elements/queue";
+} from "@/components/ai-elements/prompt-input"
+import type { QueueTodo } from "@/components/ai-elements/queue"
 import {
   Queue,
   QueueItem,
@@ -46,9 +46,9 @@ import {
   QueueItemIndicator,
   QueueSection,
   QueueSectionContent,
-} from "@/components/ai-elements/queue";
-import { CheckIcon, GlobeIcon, Trash2 } from "lucide-react";
-import { memo, useCallback, useRef, useState } from "react";
+} from "@/components/ai-elements/queue"
+import { CheckIcon, GlobeIcon, Trash2 } from "lucide-react"
+import { memo, useCallback, useRef, useState } from "react"
 
 const models = [
   {
@@ -86,48 +86,45 @@ const models = [
     name: "Gemini 2.0 Flash",
     providers: ["google"],
   },
-];
+]
 
-const SUBMITTING_TIMEOUT = 200;
-const STREAMING_TIMEOUT = 2000;
+const SUBMITTING_TIMEOUT = 200
+const STREAMING_TIMEOUT = 2000
 
 interface AttachmentItemProps {
   attachment: {
-    id: string;
-    type: "file";
-    filename?: string;
-    mediaType?: string;
-    url: string;
-  };
-  onRemove: (id: string) => void;
+    id: string
+    type: "file"
+    filename?: string
+    mediaType?: string
+    url: string
+  }
+  onRemove: (id: string) => void
 }
 
 const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
   const handleRemove = useCallback(
     () => onRemove(attachment.id),
     [onRemove, attachment.id]
-  );
+  )
   return (
     <Attachment data={attachment} key={attachment.id} onRemove={handleRemove}>
       <AttachmentPreview />
       <AttachmentRemove />
     </Attachment>
-  );
-});
+  )
+})
 
-AttachmentItem.displayName = "AttachmentItem";
+AttachmentItem.displayName = "AttachmentItem"
 
 interface TodoItemProps {
-  todo: QueueTodo;
-  onRemove: (id: string) => void;
+  todo: QueueTodo
+  onRemove: (id: string) => void
 }
 
 const TodoItem = memo(({ todo, onRemove }: TodoItemProps) => {
-  const isCompleted = todo.status === "completed";
-  const handleRemove = useCallback(
-    () => onRemove(todo.id),
-    [onRemove, todo.id]
-  );
+  const isCompleted = todo.status === "completed"
+  const handleRemove = useCallback(() => onRemove(todo.id), [onRemove, todo.id])
 
   return (
     <QueueItem key={todo.id}>
@@ -148,19 +145,19 @@ const TodoItem = memo(({ todo, onRemove }: TodoItemProps) => {
         </QueueItemDescription>
       )}
     </QueueItem>
-  );
-});
+  )
+})
 
-TodoItem.displayName = "TodoItem";
+TodoItem.displayName = "TodoItem"
 
 interface ModelItemProps {
-  m: (typeof models)[0];
-  selectedModel: string;
-  onSelect: (id: string) => void;
+  m: (typeof models)[0]
+  selectedModel: string
+  onSelect: (id: string) => void
 }
 
 const ModelItem = memo(({ m, selectedModel, onSelect }: ModelItemProps) => {
-  const handleSelect = useCallback(() => onSelect(m.id), [onSelect, m.id]);
+  const handleSelect = useCallback(() => onSelect(m.id), [onSelect, m.id])
   return (
     <ModelSelectorItem key={m.id} onSelect={handleSelect} value={m.id}>
       <ModelSelectorLogo provider={m.chefSlug} />
@@ -176,10 +173,10 @@ const ModelItem = memo(({ m, selectedModel, onSelect }: ModelItemProps) => {
         <div className="ml-auto size-4" />
       )}
     </ModelSelectorItem>
-  );
-});
+  )
+})
 
-ModelItem.displayName = "ModelItem";
+ModelItem.displayName = "ModelItem"
 
 const sampleTodos: QueueTodo[] = [
   {
@@ -211,18 +208,18 @@ const sampleTodos: QueueTodo[] = [
     status: "pending",
     title: "Add unit tests",
   },
-];
+]
 
 const PromptInputAttachmentsDisplay = () => {
-  const attachments = usePromptInputAttachments();
+  const attachments = usePromptInputAttachments()
 
   const handleRemove = useCallback(
     (id: string) => attachments.remove(id),
     [attachments]
-  );
+  )
 
   if (attachments.files.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -235,82 +232,82 @@ const PromptInputAttachmentsDisplay = () => {
         />
       ))}
     </Attachments>
-  );
-};
+  )
+}
 
 const Example = () => {
-  const [todos, setTodos] = useState(sampleTodos);
+  const [todos, setTodos] = useState(sampleTodos)
 
   const handleRemoveTodo = useCallback((id: string) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
-  }, []);
+    setTodos((prev) => prev.filter((todo) => todo.id !== id))
+  }, [])
 
-  const [text, setText] = useState<string>("");
-  const [model, setModel] = useState<string>(models[0].id);
-  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
+  const [text, setText] = useState<string>("")
+  const [model, setModel] = useState<string>(models[0].id)
+  const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
   const [status, setStatus] = useState<
     "submitted" | "streaming" | "ready" | "error"
-  >("ready");
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  >("ready")
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleTextChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value),
     []
-  );
+  )
 
   const handleModelSelect = useCallback((id: string) => {
-    setModel(id);
-    setModelSelectorOpen(false);
-  }, []);
+    setModel(id)
+    setModelSelectorOpen(false)
+  }, [])
 
-  const selectedModelData = models.find((m) => m.id === model);
+  const selectedModelData = models.find((m) => m.id === model)
 
   const stop = () => {
-    console.log("Stopping request...");
+    console.log("Stopping request...")
 
     // Clear any pending timeouts
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
 
-    setStatus("ready");
-  };
+    setStatus("ready")
+  }
 
   const handleSubmit = useCallback(
     (message: PromptInputMessage) => {
       // If currently streaming or submitted, stop instead of submitting
       if (status === "streaming" || status === "submitted") {
-        stop();
-        return;
+        stop()
+        return
       }
 
-      const hasText = Boolean(message.text);
-      const hasAttachments = Boolean(message.files?.length);
+      const hasText = Boolean(message.text)
+      const hasAttachments = Boolean(message.files?.length)
 
       if (!(hasText || hasAttachments)) {
-        return;
+        return
       }
 
-      setStatus("submitted");
+      setStatus("submitted")
 
-      console.log("Submitting message:", message);
+      console.log("Submitting message:", message)
 
       setTimeout(() => {
-        setStatus("streaming");
-      }, SUBMITTING_TIMEOUT);
+        setStatus("streaming")
+      }, SUBMITTING_TIMEOUT)
 
       timeoutRef.current = setTimeout(() => {
-        setStatus("ready");
-        timeoutRef.current = null;
-      }, STREAMING_TIMEOUT);
+        setStatus("ready")
+        timeoutRef.current = null
+      }, STREAMING_TIMEOUT)
     },
     [status]
-  );
+  )
 
   return (
     <div className="flex size-full flex-col justify-end">
-      <Queue className="mx-auto max-h-[150px] w-[95%] overflow-y-auto rounded-b-none border-input border-b-0">
+      <Queue className="mx-auto max-h-[150px] w-[95%] overflow-y-auto rounded-b-none border-b-0 border-input">
         {todos.length > 0 && (
           <QueueSection>
             <QueueSectionContent>
@@ -388,7 +385,7 @@ const Example = () => {
         </PromptInputFooter>
       </PromptInput>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

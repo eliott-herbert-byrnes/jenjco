@@ -1,28 +1,28 @@
-"use client";
+"use client"
 
-import type { PersonaState } from "@/components/ai-elements/persona";
-import { Persona } from "@/components/ai-elements/persona";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
+import type { PersonaState } from "@/components/ai-elements/persona"
+import { Persona } from "@/components/ai-elements/persona"
+import { Button } from "@/components/ui/button"
+import { ButtonGroup } from "@/components/ui/button-group"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import type { LucideIcon } from "lucide-react";
+} from "@/components/ui/tooltip"
+import type { LucideIcon } from "lucide-react"
 import {
   BrainIcon,
   CircleIcon,
   EyeClosedIcon,
   MegaphoneIcon,
   MicIcon,
-} from "lucide-react";
-import { memo, useCallback, useState } from "react";
+} from "lucide-react"
+import { memo, useCallback, useState } from "react"
 
 interface StateButtonProps {
-  state: { state: PersonaState; icon: LucideIcon; label: string };
-  currentState: PersonaState;
-  onStateChange: (state: PersonaState) => void;
+  state: { state: PersonaState; icon: LucideIcon; label: string }
+  currentState: PersonaState
+  onStateChange: (state: PersonaState) => void
 }
 
 const StateButton = memo(
@@ -30,7 +30,7 @@ const StateButton = memo(
     const handleClick = useCallback(
       () => onStateChange(state.state),
       [onStateChange, state.state]
-    );
+    )
     return (
       <Tooltip key={state.state}>
         <TooltipTrigger asChild>
@@ -44,16 +44,16 @@ const StateButton = memo(
         </TooltipTrigger>
         <TooltipContent>{state.label}</TooltipContent>
       </Tooltip>
-    );
+    )
   }
-);
+)
 
-StateButton.displayName = "StateButton";
+StateButton.displayName = "StateButton"
 
 const states: {
-  state: PersonaState;
-  icon: LucideIcon;
-  label: string;
+  state: PersonaState
+  icon: LucideIcon
+  label: string
 }[] = [
   {
     icon: CircleIcon,
@@ -80,14 +80,14 @@ const states: {
     label: "Asleep",
     state: "asleep",
   },
-];
+]
 
 const Example = () => {
-  const [currentState, setCurrentState] = useState<PersonaState>("idle");
+  const [currentState, setCurrentState] = useState<PersonaState>("idle")
 
   const handleStateChange = useCallback((state: PersonaState) => {
-    setCurrentState(state);
-  }, []);
+    setCurrentState(state)
+  }, [])
 
   return (
     <div className="flex size-full flex-col items-center justify-center gap-4">
@@ -104,7 +104,7 @@ const Example = () => {
         ))}
       </ButtonGroup>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

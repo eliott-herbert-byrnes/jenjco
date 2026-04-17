@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Confirmation,
@@ -6,9 +6,9 @@ import {
   ConfirmationRejected,
   ConfirmationRequest,
   ConfirmationTitle,
-} from "@/components/ai-elements/confirmation";
-import { CheckIcon, XIcon } from "lucide-react";
-import { nanoid } from "nanoid";
+} from "@/components/ai-elements/confirmation"
+import { CheckIcon, XIcon } from "lucide-react"
+import { nanoid } from "nanoid"
 
 const Example = () => (
   <div className="w-full max-w-2xl">
@@ -35,6 +35,6 @@ const Example = () => (
       </ConfirmationTitle>
     </Confirmation>
   </div>
-);
+)
 
-export default Example;
+export default Example

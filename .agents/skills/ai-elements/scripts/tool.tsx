@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Confirmation,
@@ -8,25 +8,25 @@ import {
   ConfirmationRejected,
   ConfirmationRequest,
   ConfirmationTitle,
-} from "@/components/ai-elements/confirmation";
+} from "@/components/ai-elements/confirmation"
 import {
   Tool,
   ToolContent,
   ToolHeader,
   ToolInput,
   ToolOutput,
-} from "@/components/ai-elements/tool";
-import type { ToolUIPart } from "ai";
-import { CheckIcon, XIcon } from "lucide-react";
-import { nanoid } from "nanoid";
+} from "@/components/ai-elements/tool"
+import type { ToolUIPart } from "ai"
+import { CheckIcon, XIcon } from "lucide-react"
+import { nanoid } from "nanoid"
 
 const handleReject = () => {
   // In production, call addConfirmationResponse
-};
+}
 
 const handleAccept = () => {
   // In production, call addConfirmationResponse
-};
+}
 
 const toolCall: ToolUIPart = {
   errorText: undefined,
@@ -45,7 +45,7 @@ const toolCall: ToolUIPart = {
   state: "output-available" as const,
   toolCallId: nanoid(),
   type: "tool-database_query" as const,
-};
+}
 
 const Example = () => (
   <div className="space-y-4" style={{ minHeight: "1400px" }}>
@@ -217,6 +217,6 @@ const Example = () => (
       </ToolContent>
     </Tool>
   </div>
-);
+)
 
-export default Example;
+export default Example

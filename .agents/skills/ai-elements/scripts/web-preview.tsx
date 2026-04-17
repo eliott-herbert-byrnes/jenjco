@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   WebPreview,
@@ -7,7 +7,7 @@ import {
   WebPreviewNavigation,
   WebPreviewNavigationButton,
   WebPreviewUrl,
-} from "@/components/ai-elements/web-preview";
+} from "@/components/ai-elements/web-preview"
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -15,32 +15,32 @@ import {
   Maximize2Icon,
   MousePointerClickIcon,
   RefreshCcwIcon,
-} from "lucide-react";
-import { useCallback, useState } from "react";
+} from "lucide-react"
+import { useCallback, useState } from "react"
 
 const handleUrlChange = (url: string) => {
-  console.log("URL changed to:", url);
-};
+  console.log("URL changed to:", url)
+}
 
 const handleGoBack = () => {
-  console.log("Go back");
-};
+  console.log("Go back")
+}
 
 const handleGoForward = () => {
-  console.log("Go forward");
-};
+  console.log("Go forward")
+}
 
 const handleReload = () => {
-  console.log("Reload");
-};
+  console.log("Reload")
+}
 
 const handleSelect = () => {
-  console.log("Select");
-};
+  console.log("Select")
+}
 
 const handleOpenInNewTab = () => {
-  console.log("Open in new tab");
-};
+  console.log("Open in new tab")
+}
 
 const exampleLogs = [
   {
@@ -58,15 +58,15 @@ const exampleLogs = [
     message: "Failed to load resource",
     timestamp: new Date(),
   },
-];
+]
 
 const Example = () => {
-  const [_fullscreen, setFullscreen] = useState(false);
+  const [_fullscreen, setFullscreen] = useState(false)
 
   const handleToggleFullscreen = useCallback(
     () => setFullscreen((prev) => !prev),
     []
-  );
+  )
 
   return (
     <WebPreview
@@ -109,7 +109,7 @@ const Example = () => {
 
       <WebPreviewConsole logs={exampleLogs} />
     </WebPreview>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

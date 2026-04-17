@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   InlineCitation,
@@ -14,7 +14,7 @@ import {
   InlineCitationCarouselPrev,
   InlineCitationSource,
   InlineCitationText,
-} from "@/components/ai-elements/inline-citation";
+} from "@/components/ai-elements/inline-citation"
 
 const citation = {
   sources: [
@@ -56,7 +56,7 @@ const citation = {
     },
   ],
   text: "The technology continues to evolve rapidly, with new breakthroughs being announced regularly",
-};
+}
 
 const Example = () => (
   <p className="text-sm leading-relaxed">
@@ -92,6 +92,6 @@ const Example = () => (
     </InlineCitation>
     .
   </p>
-);
+)
 
-export default Example;
+export default Example

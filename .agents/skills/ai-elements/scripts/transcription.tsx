@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
 import {
   Transcription,
   TranscriptionSegment,
-} from "@/components/ai-elements/transcription";
-import type { Experimental_TranscriptionResult as TranscriptionResult } from "ai";
-import { useCallback, useRef, useState } from "react";
+} from "@/components/ai-elements/transcription"
+import type { Experimental_TranscriptionResult as TranscriptionResult } from "ai"
+import { useCallback, useRef, useState } from "react"
 
 const segments: TranscriptionResult["segments"] = [
   {
@@ -243,23 +243,23 @@ const segments: TranscriptionResult["segments"] = [
     startSecond: 9.82,
     text: "agents.",
   },
-];
+]
 
 const Example = () => {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [currentTime, setCurrentTime] = useState(0)
 
   const handleSeek = useCallback((time: number) => {
     if (audioRef.current) {
-      audioRef.current.currentTime = time;
+      audioRef.current.currentTime = time
     }
-  }, []);
+  }, [])
 
   const handleTimeUpdate = useCallback(() => {
     if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
+      setCurrentTime(audioRef.current.currentTime)
     }
-  }, []);
+  }, [])
 
   return (
     <div className="space-y-6 p-6">
@@ -284,7 +284,7 @@ const Example = () => {
         )}
       </Transcription>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

@@ -1,18 +1,18 @@
-import { handleChatStream } from '@mastra/ai-sdk'
-import { toAISdkV5Messages } from '@mastra/ai-sdk/ui'
-import { createUIMessageStreamResponse, type UIMessageChunk } from 'ai'
-import { mastra } from '@/mastra'
-import { NextResponse } from 'next/server'
+import { handleChatStream } from "@mastra/ai-sdk"
+import { toAISdkV5Messages } from "@mastra/ai-sdk/ui"
+import { createUIMessageStreamResponse, type UIMessageChunk } from "ai"
+import { mastra } from "@/mastra"
+import { NextResponse } from "next/server"
 
 /** Demo thread/resource ids for the sample agent until org-scoped chat lands. */
-const THREAD_ID = 'demo-thread'
-const RESOURCE_ID = 'jenjco-demo'
+const THREAD_ID = "demo-thread"
+const RESOURCE_ID = "jenjco-demo"
 
 export async function POST(req: Request) {
   const params = await req.json()
   const stream = await handleChatStream({
     mastra,
-    agentId: 'weather-agent',
+    agentId: "weather-agent",
     params: {
       ...params,
       memory: {
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  const memory = await mastra.getAgentById('weather-agent').getMemory()
+  const memory = await mastra.getAgentById("weather-agent").getMemory()
   let response = null
 
   try {
@@ -37,7 +37,7 @@ export async function GET() {
       resourceId: RESOURCE_ID,
     })
   } catch {
-    console.log('No previous messages found.')
+    console.log("No previous messages found.")
   }
 
   const uiMessages = toAISdkV5Messages(response?.messages || [])

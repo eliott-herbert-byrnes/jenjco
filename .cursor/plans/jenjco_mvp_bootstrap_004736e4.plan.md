@@ -420,17 +420,13 @@ Based on wireframe 4 (dashboard), create:
 
 ### 3d. Build 2 Demo Agents in Mastra
 
-Replace the weather agent with two business-relevant demo agents:
+Replace the weather agent with one business-relevant demo agents:
 
 - **Agent 1: Process Assistant** (`mastra/agents/process-assistant.ts`)
   - Answers questions about the org's business processes
   - Uses RAG to retrieve relevant process docs from `org_processes`
   - Tools: `process-search-tool` (vector query filtered by org_id)
-- **Agent 2: Operations Analyst** (`mastra/agents/operations-analyst.ts`)
-  - Analyzes operational data, provides summaries and recommendations
-  - Could use a data query tool or work with structured data
-  - Tools: TBD based on demo scenario
-- Register both in [mastra/index.ts](mastra/index.ts)
+- Register in [mastra/index.ts](mastra/index.ts)
 
 ### 3e. RAG Pipeline for Process Docs
 

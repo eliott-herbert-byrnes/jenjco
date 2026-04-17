@@ -1,15 +1,15 @@
-"use client";
+"use client"
 
-import { CodeBlock } from "@/components/ai-elements/code-block";
+import { CodeBlock } from "@/components/ai-elements/code-block"
 import {
   Tool,
   ToolContent,
   ToolHeader,
   ToolInput,
   ToolOutput,
-} from "@/components/ai-elements/tool";
-import type { ToolUIPart } from "ai";
-import { nanoid } from "nanoid";
+} from "@/components/ai-elements/tool"
+import type { ToolUIPart } from "ai"
+import { nanoid } from "nanoid"
 
 const toolCall: ToolUIPart = {
   errorText: undefined,
@@ -53,7 +53,7 @@ const toolCall: ToolUIPart = {
   state: "output-available" as const,
   toolCallId: nanoid(),
   type: "tool-database_query" as const,
-};
+}
 
 const Example = () => (
   <div style={{ height: "500px" }}>
@@ -75,6 +75,6 @@ const Example = () => (
       </ToolContent>
     </Tool>
   </div>
-);
+)
 
-export default Example;
+export default Example

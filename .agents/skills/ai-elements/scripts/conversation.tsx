@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Conversation,
@@ -6,16 +6,16 @@ import {
   ConversationDownload,
   ConversationEmptyState,
   ConversationScrollButton,
-} from "@/components/ai-elements/conversation";
-import { Message, MessageContent } from "@/components/ai-elements/message";
-import { MessageSquareIcon } from "lucide-react";
-import { nanoid } from "nanoid";
-import { useEffect, useState } from "react";
+} from "@/components/ai-elements/conversation"
+import { Message, MessageContent } from "@/components/ai-elements/message"
+import { MessageSquareIcon } from "lucide-react"
+import { nanoid } from "nanoid"
+import { useEffect, useState } from "react"
 
 const messages: {
-  key: string;
-  content: string;
-  role: "user" | "assistant";
+  key: string
+  content: string
+  role: "user" | "assistant"
 }[] = [
   {
     content: "Hello, how are you?",
@@ -118,22 +118,22 @@ const messages: {
     key: nanoid(),
     role: "assistant",
   },
-];
+]
 
 const Example = () => {
   const [visibleMessages, setVisibleMessages] = useState<
     {
-      key: string;
-      content: string;
-      role: "user" | "assistant";
+      key: string
+      content: string
+      role: "user" | "assistant"
     }[]
-  >([]);
+  >([])
 
   useEffect(() => {
-    let currentIndex = 0;
+    let currentIndex = 0
     const interval = setInterval(() => {
       if (currentIndex < messages.length && messages[currentIndex]) {
-        const currentMessage = messages[currentIndex];
+        const currentMessage = messages[currentIndex]
         setVisibleMessages((prev) => [
           ...prev,
           {
@@ -141,15 +141,15 @@ const Example = () => {
             key: currentMessage.key,
             role: currentMessage.role,
           },
-        ]);
-        currentIndex += 1;
+        ])
+        currentIndex += 1
       } else {
-        clearInterval(interval);
+        clearInterval(interval)
       }
-    }, 500);
+    }, 500)
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <Conversation className="relative size-full">
@@ -171,7 +171,7 @@ const Example = () => {
       <ConversationDownload messages={visibleMessages} />
       <ConversationScrollButton />
     </Conversation>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

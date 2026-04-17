@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input"
 import {
   PromptInput,
   PromptInputButton,
@@ -13,11 +13,11 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
-} from "@/components/ai-elements/prompt-input";
-import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
-import { GlobeIcon, MicIcon, PlusIcon, SendIcon } from "lucide-react";
-import { nanoid } from "nanoid";
-import { memo, useCallback, useState } from "react";
+} from "@/components/ai-elements/prompt-input"
+import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion"
+import { GlobeIcon, MicIcon, PlusIcon, SendIcon } from "lucide-react"
+import { nanoid } from "nanoid"
+import { memo, useCallback, useState } from "react"
 
 const suggestions: { key: string; value: string }[] = [
   { key: nanoid(), value: "What are the latest trends in AI?" },
@@ -28,7 +28,7 @@ const suggestions: { key: string; value: string }[] = [
   { key: nanoid(), value: "How to optimize database queries?" },
   { key: nanoid(), value: "What is the difference between SQL and NoSQL?" },
   { key: nanoid(), value: "Explain cloud computing basics" },
-];
+]
 
 const models = [
   { id: "gpt-4", name: "GPT-4" },
@@ -40,23 +40,23 @@ const models = [
   { id: "llama-2-13b", name: "Llama 2 13B" },
   { id: "cohere-command", name: "Command" },
   { id: "mistral-7b", name: "Mistral 7B" },
-];
+]
 
 const handleSubmit = (message: PromptInputMessage) => {
-  const hasText = Boolean(message.text);
-  const hasAttachments = Boolean(message.files?.length);
+  const hasText = Boolean(message.text)
+  const hasAttachments = Boolean(message.files?.length)
 
   if (!(hasText || hasAttachments)) {
-    return;
+    return
   }
 
-  console.log("Submitted message:", message.text || "Sent with attachments");
-  console.log("Attached files:", message.files);
-};
+  console.log("Submitted message:", message.text || "Sent with attachments")
+  console.log("Attached files:", message.files)
+}
 
 interface SuggestionItemProps {
-  suggestion: { key: string; value: string };
-  onSuggestionClick: (value: string) => void;
+  suggestion: { key: string; value: string }
+  onSuggestionClick: (value: string) => void
 }
 
 const SuggestionItem = memo(
@@ -64,31 +64,31 @@ const SuggestionItem = memo(
     const handleClick = useCallback(
       () => onSuggestionClick(suggestion.value),
       [onSuggestionClick, suggestion.value]
-    );
+    )
     return (
       <Suggestion
         key={suggestion.key}
         onClick={handleClick}
         suggestion={suggestion.value}
       />
-    );
+    )
   }
-);
+)
 
-SuggestionItem.displayName = "SuggestionItem";
+SuggestionItem.displayName = "SuggestionItem"
 
 const Example = () => {
-  const [model, setModel] = useState<string>(models[0].id);
-  const [text, setText] = useState<string>("");
+  const [model, setModel] = useState<string>(models[0].id)
+  const [text, setText] = useState<string>("")
 
   const handleSuggestionClick = useCallback((suggestion: string) => {
-    setText(suggestion);
-  }, []);
+    setText(suggestion)
+  }, [])
 
   const handleTextChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value),
     []
-  );
+  )
 
   return (
     <div className="grid gap-4">
@@ -138,7 +138,7 @@ const Example = () => {
         </PromptInputFooter>
       </PromptInput>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

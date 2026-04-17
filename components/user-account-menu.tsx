@@ -1,11 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,7 +29,10 @@ import {
   SettingsIcon,
 } from "lucide-react"
 
-function initials(displayName: string | null | undefined, email: string | null | undefined): string {
+function initials(
+  displayName: string | null | undefined,
+  email: string | null | undefined
+): string {
   const n = displayName?.trim()
   if (n) {
     const parts = n.split(/\s+/).filter(Boolean)
@@ -51,7 +50,8 @@ export function UserAccountMenu() {
   const { isMobile } = useSidebar()
   const { authUser, appUser, isLoading } = useUser()
 
-  const name = appUser?.displayName?.trim() || authUser?.email?.split("@")[0] || "Account"
+  const name =
+    appUser?.displayName?.trim() || authUser?.email?.split("@")[0] || "Account"
   const email = appUser?.email ?? authUser?.email ?? ""
 
   async function signOut() {
@@ -114,7 +114,9 @@ export function UserAccountMenu() {
                 </Avatar>
                 <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{name}</span>
-                  <span className="truncate text-xs text-muted-foreground">{email || "—"}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {email || "—"}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>

@@ -1,7 +1,12 @@
-"use client";
+"use client"
 
-import { Tool, ToolContent, ToolHeader, ToolInput } from "@/components/ai-elements/tool";
-import { nanoid } from "nanoid";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+} from "@/components/ai-elements/tool"
+import { nanoid } from "nanoid"
 
 const toolCall = {
   errorText: undefined,
@@ -14,7 +19,7 @@ const toolCall = {
   state: "input-streaming" as const,
   toolCallId: nanoid(),
   type: "tool-web_search" as const,
-};
+}
 
 const Example = () => (
   <div style={{ height: "500px" }}>
@@ -25,6 +30,6 @@ const Example = () => (
       </ToolContent>
     </Tool>
   </div>
-);
+)
 
-export default Example;
+export default Example

@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
 import {
   Attachment,
   AttachmentPreview,
   AttachmentRemove,
   Attachments,
-} from "@/components/ai-elements/attachments";
+} from "@/components/ai-elements/attachments"
 import {
   ModelSelector,
   ModelSelectorContent,
@@ -18,8 +18,8 @@ import {
   ModelSelectorLogoGroup,
   ModelSelectorName,
   ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
-import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+} from "@/components/ai-elements/model-selector"
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input"
 import {
   PromptInput,
   PromptInputActionAddAttachments,
@@ -35,9 +35,9 @@ import {
   PromptInputTextarea,
   PromptInputTools,
   usePromptInputAttachments,
-} from "@/components/ai-elements/prompt-input";
-import { CheckIcon, GlobeIcon } from "lucide-react";
-import { memo, useCallback, useState } from "react";
+} from "@/components/ai-elements/prompt-input"
+import { CheckIcon, GlobeIcon } from "lucide-react"
+import { memo, useCallback, useState } from "react"
 
 const models = [
   {
@@ -75,45 +75,45 @@ const models = [
     name: "Gemini 2.0 Flash",
     providers: ["google"],
   },
-];
+]
 
-const SUBMITTING_TIMEOUT = 200;
-const STREAMING_TIMEOUT = 2000;
+const SUBMITTING_TIMEOUT = 200
+const STREAMING_TIMEOUT = 2000
 
 interface AttachmentItemProps {
   attachment: {
-    id: string;
-    type: "file";
-    filename?: string;
-    mediaType?: string;
-    url: string;
-  };
-  onRemove: (id: string) => void;
+    id: string
+    type: "file"
+    filename?: string
+    mediaType?: string
+    url: string
+  }
+  onRemove: (id: string) => void
 }
 
 const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
   const handleRemove = useCallback(
     () => onRemove(attachment.id),
     [onRemove, attachment.id]
-  );
+  )
   return (
     <Attachment data={attachment} key={attachment.id} onRemove={handleRemove}>
       <AttachmentPreview />
       <AttachmentRemove />
     </Attachment>
-  );
-});
+  )
+})
 
-AttachmentItem.displayName = "AttachmentItem";
+AttachmentItem.displayName = "AttachmentItem"
 
 interface ModelItemProps {
-  m: (typeof models)[0];
-  selectedModel: string;
-  onSelect: (id: string) => void;
+  m: (typeof models)[0]
+  selectedModel: string
+  onSelect: (id: string) => void
 }
 
 const ModelItem = memo(({ m, selectedModel, onSelect }: ModelItemProps) => {
-  const handleSelect = useCallback(() => onSelect(m.id), [onSelect, m.id]);
+  const handleSelect = useCallback(() => onSelect(m.id), [onSelect, m.id])
   return (
     <ModelSelectorItem key={m.id} onSelect={handleSelect} value={m.id}>
       <ModelSelectorLogo provider={m.chefSlug} />
@@ -129,21 +129,21 @@ const ModelItem = memo(({ m, selectedModel, onSelect }: ModelItemProps) => {
         <div className="ml-auto size-4" />
       )}
     </ModelSelectorItem>
-  );
-});
+  )
+})
 
-ModelItem.displayName = "ModelItem";
+ModelItem.displayName = "ModelItem"
 
 const PromptInputAttachmentsDisplay = () => {
-  const attachments = usePromptInputAttachments();
+  const attachments = usePromptInputAttachments()
 
   const handleRemove = useCallback(
     (id: string) => attachments.remove(id),
     [attachments]
-  );
+  )
 
   if (attachments.files.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -156,44 +156,44 @@ const PromptInputAttachmentsDisplay = () => {
         />
       ))}
     </Attachments>
-  );
-};
+  )
+}
 
 const Example = () => {
-  const [model, setModel] = useState<string>(models[0].id);
-  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
+  const [model, setModel] = useState<string>(models[0].id)
+  const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
   const [status, setStatus] = useState<
     "submitted" | "streaming" | "ready" | "error"
-  >("ready");
+  >("ready")
 
-  const selectedModelData = models.find((m) => m.id === model);
+  const selectedModelData = models.find((m) => m.id === model)
 
   const handleModelSelect = useCallback((id: string) => {
-    setModel(id);
-    setModelSelectorOpen(false);
-  }, []);
+    setModel(id)
+    setModelSelectorOpen(false)
+  }, [])
 
   const handleSubmit = useCallback((message: PromptInputMessage) => {
-    const hasText = Boolean(message.text);
-    const hasAttachments = Boolean(message.files?.length);
+    const hasText = Boolean(message.text)
+    const hasAttachments = Boolean(message.files?.length)
 
     if (!(hasText || hasAttachments)) {
-      return;
+      return
     }
 
-    setStatus("submitted");
+    setStatus("submitted")
 
     // eslint-disable-next-line no-console
-    console.log("Submitting message:", message);
+    console.log("Submitting message:", message)
 
     setTimeout(() => {
-      setStatus("streaming");
-    }, SUBMITTING_TIMEOUT);
+      setStatus("streaming")
+    }, SUBMITTING_TIMEOUT)
 
     setTimeout(() => {
-      setStatus("ready");
-    }, STREAMING_TIMEOUT);
-  }, []);
+      setStatus("ready")
+    }, STREAMING_TIMEOUT)
+  }, [])
 
   return (
     <div className="size-full">
@@ -261,7 +261,7 @@ const Example = () => {
         </PromptInput>
       </PromptInputProvider>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

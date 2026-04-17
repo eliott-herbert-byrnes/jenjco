@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Attachment,
@@ -11,9 +11,9 @@ import {
   Attachments,
   getAttachmentLabel,
   getMediaCategory,
-} from "@/components/ai-elements/attachments";
-import { nanoid } from "nanoid";
-import { memo, useCallback, useState } from "react";
+} from "@/components/ai-elements/attachments"
+import { nanoid } from "nanoid"
+import { memo, useCallback, useState } from "react"
 
 const initialAttachments = [
   {
@@ -44,20 +44,20 @@ const initialAttachments = [
     type: "file" as const,
     url: "",
   },
-];
+]
 
 interface AttachmentItemProps {
-  attachment: (typeof initialAttachments)[0];
-  onRemove: (id: string) => void;
+  attachment: (typeof initialAttachments)[0]
+  onRemove: (id: string) => void
 }
 
 const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
   const handleRemove = useCallback(
     () => onRemove(attachment.id),
     [onRemove, attachment.id]
-  );
-  const mediaCategory = getMediaCategory(attachment);
-  const label = getAttachmentLabel(attachment);
+  )
+  const mediaCategory = getMediaCategory(attachment)
+  const label = getAttachmentLabel(attachment)
 
   return (
     <AttachmentHoverCard key={attachment.id}>
@@ -88,9 +88,9 @@ const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
               </div>
             )}
           <div className="space-y-1 px-0.5">
-            <h4 className="font-semibold text-sm leading-none">{label}</h4>
+            <h4 className="text-sm leading-none font-semibold">{label}</h4>
             {attachment.mediaType && (
-              <p className="font-mono text-muted-foreground text-xs">
+              <p className="font-mono text-xs text-muted-foreground">
                 {attachment.mediaType}
               </p>
             )}
@@ -98,17 +98,17 @@ const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
         </div>
       </AttachmentHoverCardContent>
     </AttachmentHoverCard>
-  );
-});
+  )
+})
 
-AttachmentItem.displayName = "AttachmentItem";
+AttachmentItem.displayName = "AttachmentItem"
 
 const Example = () => {
-  const [attachments, setAttachments] = useState(initialAttachments);
+  const [attachments, setAttachments] = useState(initialAttachments)
 
   const handleRemove = useCallback((id: string) => {
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
-  }, []);
+    setAttachments((prev) => prev.filter((a) => a.id !== id))
+  }, [])
 
   return (
     <div className="flex items-center justify-center p-8">
@@ -122,7 +122,7 @@ const Example = () => {
         ))}
       </Attachments>
     </div>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

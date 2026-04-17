@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
+import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion"
 
 const suggestions = [
   "What are the latest trends in AI?",
@@ -11,11 +11,11 @@ const suggestions = [
   "How to optimize database queries?",
   "What is the difference between SQL and NoSQL?",
   "Explain cloud computing basics",
-];
+]
 
 const handleSuggestionClick = (suggestion: string) => {
-  console.log("Selected suggestion:", suggestion);
-};
+  console.log("Selected suggestion:", suggestion)
+}
 
 const Example = () => (
   <Suggestions>
@@ -27,6 +27,6 @@ const Example = () => (
       />
     ))}
   </Suggestions>
-);
+)
 
-export default Example;
+export default Example

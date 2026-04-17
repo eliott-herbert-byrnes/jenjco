@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   SchemaDisplay,
@@ -10,7 +10,7 @@ import {
   SchemaDisplayPath,
   SchemaDisplayRequest,
   SchemaDisplayResponse,
-} from "@/components/ai-elements/schema-display";
+} from "@/components/ai-elements/schema-display"
 
 const Example = () => (
   <SchemaDisplay
@@ -105,6 +105,6 @@ const Example = () => (
       <SchemaDisplayResponse />
     </SchemaDisplayContent>
   </SchemaDisplay>
-);
+)
 
-export default Example;
+export default Example

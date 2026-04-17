@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { fetchOrganizationByOrgId } from "@/lib/auth/fetch-organization"
-import { mapUsersProfileRow, type UsersProfileRow } from "@/lib/auth/map-profile"
+import {
+  mapUsersProfileRow,
+  type UsersProfileRow,
+} from "@/lib/auth/map-profile"
 import type { ServerAuthContext } from "@/lib/auth/types"
 
 const PROFILE_SELECT = `
@@ -44,10 +47,18 @@ export async function getServerAuth(): Promise<ServerAuthContext> {
   const mapped = mapUsersProfileRow(row as unknown as UsersProfileRow)
   let organization = mapped.organization
   if (!organization && mapped.appUser) {
-    organization = await fetchOrganizationByOrgId(supabase, mapped.appUser.orgId)
+    organization = await fetchOrganizationByOrgId(
+      supabase,
+      mapped.appUser.orgId
+    )
   }
 
   return { authUser, appUser: mapped.appUser, organization }
 }
 
-export type { AppUser, AppRole, OrganizationSummary, ServerAuthContext } from "@/lib/auth/types"
+export type {
+  AppUser,
+  AppRole,
+  OrganizationSummary,
+  ServerAuthContext,
+} from "@/lib/auth/types"
