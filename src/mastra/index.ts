@@ -1,7 +1,6 @@
 import type { Mastra } from "@mastra/core/mastra"
 import { Mastra as MastraClass } from "@mastra/core/mastra"
 import { PinoLogger } from "@mastra/loggers"
-import { PostgresStore } from "@mastra/pg"
 import {
   Observability,
   DefaultExporter,
@@ -10,43 +9,14 @@ import {
 } from "@mastra/observability"
 import { weatherWorkflow } from "./workflows/weather-workflow"
 import { processAssistantAgent } from "./agents/process-assistant"
+import { getMastraStorage } from "./storage"
 
-// Persist singletons across Next.js / Mastra dev HMR reloads. Without this, every
-// module re-evaluation creates a new PostgresStore + Mastra instance, each opening
-// its own pg.Pool. The old pools are never drained and quickly exhaust the Supabase
-// pooler's `max_client_conn` limit ("Max client connections reached").
+// Persist the Mastra instance across Next.js / Mastra dev HMR reloads so we
+// don't leak pg.Pools on every module re-evaluation (see `./storage` for the
+// shared PostgresStore singleton).
 declare global {
   // eslint-disable-next-line no-var
-  var __mastraPgStore: PostgresStore | undefined
-  // eslint-disable-next-line no-var
   var __mastraInstance: MastraClass | undefined
-}
-
-function createMastraStorage(): PostgresStore {
-  const connectionString = process.env.DATABASE_URL
-  if (!connectionString) {
-    throw new Error(
-      "DATABASE_URL is not set. Add your Supabase Postgres connection string to .env (required for Mastra PostgresStore)."
-    )
-  }
-  return new PostgresStore({
-    id: "mastra-storage",
-    connectionString,
-    // Mastra-managed tables (memory, workflows, observability, …) — keep separate from public app tables
-    schemaName: "mastra",
-    // Keep pool small: Mastra also creates an internal observability pool,
-    // and dev HMR can leave stale pools alive. Supabase's pooler rejects once
-    // `max_client_conn` is reached, so budget conservatively.
-    max: 5,
-    idleTimeoutMillis: 10_000,
-  })
-}
-
-function getMastraStorage(): PostgresStore {
-  if (!globalThis.__mastraPgStore) {
-    globalThis.__mastraPgStore = createMastraStorage()
-  }
-  return globalThis.__mastraPgStore
 }
 
 /** Lazily construct Mastra so `next build` can load modules when DATABASE_URL is only set at runtime. */

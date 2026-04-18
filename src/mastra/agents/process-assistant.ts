@@ -1,7 +1,7 @@
 import { Agent } from "@mastra/core/agent"
 import { Memory } from "@mastra/memory"
-import { PostgresStore } from "@mastra/pg"
 import { processSearchTool } from "../tools/process-search-tool"
+import { getMastraStorage } from "../storage"
 
 export const processAssistantAgent = new Agent({
   id: "process-assistant",
@@ -11,11 +11,9 @@ When the user asks about any process, procedure, or "how do I...", always call t
 Summarise the retrieved process clearly. If no relevant process is found, say so and suggest who to ask.`,
   model: "openai/gpt-5-mini",
   tools: { processSearchTool },
+  // Share the Mastra-wide PostgresStore singleton so we don't open a second
+  // pg.Pool per HMR reload (caused EMAXCONNSESSION on Supabase's session pooler).
   memory: new Memory({
-    storage: new PostgresStore({
-      id: "process-assistant-memory",
-      connectionString: process.env.DATABASE_URL!,
-      schemaName: "mastra",
-    }),
+    storage: getMastraStorage(),
   }),
 })
