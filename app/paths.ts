@@ -43,6 +43,9 @@ export const apiPaths = {
   agentChat: (id: string) => `/api/agents/${id}/chat`,
   processes: '/api/processes',
   processDetail: (id: string) => `/api/processes/${id}`,
+  workflows: '/api/workflows',
+  workflowDetail: (id: string) => `/api/workflows/${id}`,
+  workflowRun: (id: string) => `/api/workflows/${id}/run`,
 } as const
 
 /** Static assets referenced from route components */

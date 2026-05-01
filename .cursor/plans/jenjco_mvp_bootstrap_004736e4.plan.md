@@ -524,9 +524,9 @@ Each stored in `org_processes` with pre-generated embeddings.
 
 Replace the weather workflow with a business-relevant demo:
 
-- **Workflow: "New Client Onboarding"** (`mastra/workflows/client-onboarding-workflow.ts`)
+- **Workflow: "Send Email Summary"** (`mastra/workflows/email-summary-workflow.ts`)
   - Step 1: Validate client data (input schema)
-  - Step 2: Generate welcome email draft (uses agent)
+  - Step 2: Generate email of total processes in knowledge base (uses agent)
   - Step 3: Create checklist of setup tasks
   - Register in [mastra/index.ts](mastra/index.ts)
 

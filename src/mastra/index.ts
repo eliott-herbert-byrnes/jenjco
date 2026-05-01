@@ -7,7 +7,7 @@ import {
   CloudExporter,
   SensitiveDataFilter,
 } from "@mastra/observability"
-import { weatherWorkflow } from "./workflows/weather-workflow"
+import { processKnowledgeSummaryWorkflow } from "./workflows/process-knowledge-summary-workflow"
 import { processAssistantAgent } from "./agents/process-assistant"
 import { getMastraStorage } from "./storage"
 
@@ -23,7 +23,7 @@ declare global {
 export function getMastra(): MastraClass {
   if (!globalThis.__mastraInstance) {
     globalThis.__mastraInstance = new MastraClass({
-      workflows: { weatherWorkflow },
+      workflows: { processKnowledgeSummaryWorkflow },
       agents: { processAssistantAgent },
       storage: getMastraStorage(),
       logger: new PinoLogger({

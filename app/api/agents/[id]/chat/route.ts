@@ -104,7 +104,7 @@ export async function POST(
       await logUsage({
         orgId: appUser.orgId,
         userId: appUser.id,
-        agentKey: orgAgent.agent_key,
+        resourceKey: orgAgent.agent_key,
         tokensIn: result.usage?.inputTokens ?? 0,
         tokensOut: result.usage?.outputTokens ?? 0,
       })
