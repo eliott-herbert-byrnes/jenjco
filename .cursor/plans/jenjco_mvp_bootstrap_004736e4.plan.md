@@ -463,7 +463,7 @@ Replace the weather agent with one business-relevant demo agents:
 - **Right panel**:
   - Process title + action buttons (edit/delete -- admin only)
   - Rendered markdown content (read-only for MVP)
-  - Use a markdown renderer (e.g., `react-markdown` or the existing `streamdown` package)
+  - Use **Streamdown.**
 
 ### 4b. Process Detail Page
 

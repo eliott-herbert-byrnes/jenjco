@@ -29,27 +29,6 @@ export const processSearchTool = createTool({
     // Mastra Studio does not inject app auth; use same org UUID as seed/demo for local testing.
     const orgId =
       orgIdFromContext ?? process.env.MASTRA_STUDIO_ORG_ID?.trim() ?? undefined
-    // #region agent log
-    fetch("http://127.0.0.1:7863/ingest/8e054a94-5c3a-4d12-a295-844d6b6a346c", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "a61970",
-      },
-      body: JSON.stringify({
-        sessionId: "a61970",
-        location: "src/mastra/tools/process-search-tool.ts:execute",
-        message: "processSearch org resolution",
-        data: {
-          hypothesisId: "D",
-          hasContextOrg: !!orgIdFromContext,
-          hasEnvOrg: !!process.env.MASTRA_STUDIO_ORG_ID?.trim(),
-          resolved: !!orgId,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {})
-    // #endregion
     if (!orgId) {
       throw new Error(
         "orgId missing: set RequestContext in the app, or MASTRA_STUDIO_ORG_ID in .env for Mastra Studio (seed org UUID)."

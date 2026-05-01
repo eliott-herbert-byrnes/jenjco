@@ -11,6 +11,7 @@ export type AppUser = {
   displayName: string | null
 }
 
+
 export type OrganizationSummary = {
   id: string
   name: string
@@ -22,3 +23,4 @@ export type ServerAuthContext = {
   appUser: AppUser | null
   organization: OrganizationSummary | null
 }
+

@@ -16,9 +16,16 @@ function isAgentsRoute(pathname: string | null): boolean {
   return pathname === "/agents" || pathname.startsWith("/agents/")
 }
 
+function isProcessesRoute(pathname: string | null): boolean {
+  if (!pathname) return false
+  return pathname === '/processes' || pathname.startsWith('/processes/')
+}
+
+
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const agents = isAgentsRoute(pathname)
+  const nopadding = agents || isProcessesRoute(pathname)
 
   return (
     <TooltipProvider>
@@ -30,7 +37,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <div
               className={cn(
                 "flex flex-1 flex-col gap-6",
-                agents ? "p-0" : "p-4 md:p-6"
+                nopadding ? "p-0" : "p-4 md:p-6"
               )}
             >
               {children}

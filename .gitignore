@@ -8,6 +8,9 @@
 !.yarn/releases
 !.yarn/versions
 
+#blog
+./blog
+
 # testing
 /coverage
 
