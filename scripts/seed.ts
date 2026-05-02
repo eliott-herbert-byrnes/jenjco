@@ -4,7 +4,7 @@
  *   OPENAI_API_KEY (for org_processes embeddings — text-embedding-3-small).
  *
  * Creates: John Pye org, auth + app users (admin + viewer), org agents, workflow,
- * department tree (Operations → Sales & Customer Service), and three process documents.
+ * department tree (Operations → Sales & Customer Service; root siblings Finance, HR), and three process documents.
  *
  * Run: pnpm run seed
  */
@@ -227,6 +227,30 @@ async function main() {
     .single()
   if (opsErr) throw opsErr
 
+  const { error: financeErr } = await supabase
+    .from("departments")
+    .insert({
+      org_id: orgId,
+      name: "Finance",
+      parent_id: null,
+      sort_order: 1,
+    })
+    .select("id")
+    .single()
+  if (financeErr) throw financeErr
+
+  const { error: hrErr } = await supabase
+    .from("departments")
+    .insert({
+      org_id: orgId,
+      name: "HR",
+      parent_id: null,
+      sort_order: 2,
+    })
+    .select("id")
+    .single()
+  if (hrErr) throw hrErr
+
   const { data: salesDept, error: salesErr } = await supabase
     .from("departments")
     .insert({
@@ -342,7 +366,9 @@ Store final summary in the case file with owner and timestamps.`,
   console.log("Seed completed successfully.")
   console.log(`  Organization: ${ORG_NAME} (${ORG_SLUG}) — ${orgId}`)
   console.log(`  Users: ${ADMIN_EMAIL} (admin), ${VIEWER_EMAIL} (viewer)`)
-  console.log("  Hierarchy: Operations → Sales, Customer Service")
+  console.log(
+    "  Hierarchy: Operations → Sales, Customer Service; Finance; HR (root siblings)"
+  )
   console.log(
     "  Processes: Sales Pipeline, Product Content Retrieval, Complaints Reporting"
   )

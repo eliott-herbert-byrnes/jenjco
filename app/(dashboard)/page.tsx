@@ -14,13 +14,14 @@ import { getServerAuth } from "@/lib/auth"
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = { title: "Dashboard" }
+const dateNow = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
 export default async function DashboardHomePage() {
   const { appUser } = await getServerAuth()
   if (!appUser) redirect(paths.signIn)
 
   const supabase = await createClient()
-  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  const since = new Date(dateNow).toISOString()
 
   const [
     { count: agentCount },

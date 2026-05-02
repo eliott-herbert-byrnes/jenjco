@@ -48,6 +48,7 @@ export const apiPaths = {
   auditMetrics: '/api/audit/metrics',
   auditInvocations: '/api/audit/invocations',
   auditLogs: '/api/audit/logs',
+  orgStructure: '/api/org-structure',
 } as const
 
 /** Static assets referenced from route components */
