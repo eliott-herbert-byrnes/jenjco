@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 
+import { paths } from "@/app/paths"
 import {
   Card,
   CardContent,
@@ -7,109 +9,85 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { TokenUsageChart } from "@/features/audit/components/token-usage-chart"
+import { getServerAuth } from "@/lib/auth"
+import { createClient } from "@/lib/supabase/server"
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-}
+export const metadata: Metadata = { title: "Dashboard" }
 
-/** Static placeholders — Phase 2c wires Supabase counts and usage_logs. */
-const SUMMARY = [
-  { label: "Agents", value: "3" },
-  { label: "Workflows", value: "10" },
-  { label: "Processes", value: "50" },
-] as const
+export default async function DashboardHomePage() {
+  const { appUser } = await getServerAuth()
+  if (!appUser) redirect(paths.signIn)
 
-/** Pixel heights for placeholder bars (max container ~11rem) */
-const TOKEN_BARS = [48, 78, 54, 96, 66, 84] as const
+  const supabase = await createClient()
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-export default function DashboardHomePage() {
+  const [
+    { count: agentCount },
+    { count: workflowCount },
+    { count: processCount },
+    { data: usageRows },
+  ] = await Promise.all([
+    supabase
+      .from("org_agents")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", appUser.orgId)
+      .eq("is_active", true),
+    supabase
+      .from("org_workflows")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", appUser.orgId)
+      .eq("is_active", true),
+    supabase
+      .from("org_processes")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", appUser.orgId),
+    supabase
+      .from("usage_logs")
+      .select("created_at, tokens_in, tokens_out")
+      .eq("org_id", appUser.orgId)
+      .gte("created_at", since)
+      .order("created_at", { ascending: true }),
+  ])
+
+  const dailyMap: Record<string, number> = {}
+  for (const r of usageRows ?? []) {
+    const day = r.created_at.slice(0, 10)
+    dailyMap[day] =
+      (dailyMap[day] ?? 0) + (r.tokens_in ?? 0) + (r.tokens_out ?? 0)
+  }
+  const dailyUsage = Object.entries(dailyMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, tokens]) => ({ date, tokens }))
+
+  const summary = [
+    { label: "Active Agents", value: agentCount ?? 0 },
+    { label: "Active Workflows", value: workflowCount ?? 0 },
+    { label: "Processes", value: processCount ?? 0 },
+  ]
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-6">
       <section className="grid gap-4 sm:grid-cols-3">
-        {SUMMARY.map((item) => (
+        {summary.map((item) => (
           <Card key={item.label} size="sm">
             <CardHeader className="pb-2">
               <CardDescription>{item.label}</CardDescription>
-              <CardTitle className="text-3xl font-semibold tabular-nums">
-                {item.value}
-              </CardTitle>
+              <CardTitle className="text-3xl tabular-nums">{item.value}</CardTitle>
             </CardHeader>
           </Card>
         ))}
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>AAMI</CardTitle>
-            <CardDescription>
-              Organizational maturity index (placeholder)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-semibold tracking-tight tabular-nums">
-              0.34
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Target benchmark · 0.50
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Activity trend</CardTitle>
-            <CardDescription>Last 30 days (placeholder)</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="aspect-5/2 w-full text-primary">
-              <svg
-                viewBox="0 0 120 48"
-                className="size-full"
-                preserveAspectRatio="none"
-                aria-hidden
-              >
-                <polyline
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  points="0,40 20,38 40,32 60,24 80,18 100,12 120,6"
-                />
-              </svg>
-            </div>
-          </CardContent>
-        </Card>
       </section>
 
       <Card>
         <CardHeader>
           <CardTitle>Token usage (30 days)</CardTitle>
           <CardDescription>
-            Daily total tokens — placeholder until Phase 2c
+            Daily totals · cost estimates are approximate (GPT-4o rates)
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div
-            className="flex h-44 items-end justify-between gap-2 border-t border-border/60 pt-4"
-            role="img"
-            aria-label="Bar chart placeholder for token usage over six periods"
-          >
-            {TOKEN_BARS.map((h, i) => (
-              <div
-                key={i}
-                className="flex min-w-0 flex-1 flex-col items-center gap-2"
-              >
-                <div
-                  className="w-full max-w-14 rounded-t-sm bg-primary/80"
-                  style={{ height: `${h}px` }}
-                />
-                <span className="text-[10px] text-muted-foreground">
-                  W{i + 1}
-                </span>
-              </div>
-            ))}
-          </div>
+          <TokenUsageChart data={dailyUsage} />
         </CardContent>
       </Card>
     </div>

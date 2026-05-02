@@ -93,23 +93,41 @@ export async function POST(
   const requestContext = new RequestContext<{ orgId: string }>()
   requestContext.set('orgId', appUser.orgId)
 
-  const stream = await agent.stream(messages, {
-    instructions: orgAgent.system_prompt_override ?? undefined,
-    requestContext,
-    memory: {
-      thread: threadId,
-      resource: appUser.id,
-    },
-    onFinish: async (result) => {
-      await logUsage({
-        orgId: appUser.orgId,
-        userId: appUser.id,
-        resourceKey: orgAgent.agent_key,
-        tokensIn: result.usage?.inputTokens ?? 0,
-        tokensOut: result.usage?.outputTokens ?? 0,
-      })
-    },
-  })
+  const startTime = Date.now()
+
+  let stream: Awaited<ReturnType<typeof agent.stream>>
+  try {
+    stream = await agent.stream(messages, {
+      instructions: orgAgent.system_prompt_override ?? undefined,
+      requestContext,
+      memory: {
+        thread: threadId,
+        resource: appUser.id,
+      },
+      onFinish: async (result) => {
+        await logUsage({
+          orgId: appUser.orgId,
+          userId: appUser.id,
+          resourceKey: orgAgent.agent_key,
+          tokensIn: result.usage?.inputTokens ?? 0,
+          tokensOut: result.usage?.outputTokens ?? 0,
+          durationMs: Date.now() - startTime,
+          status: 'success',
+        })
+      },
+    })
+  } catch {
+    await logUsage({
+      orgId: appUser.orgId,
+      userId: appUser.id,
+      resourceKey: orgAgent.agent_key,
+      tokensIn: 0,
+      tokensOut: 0,
+      durationMs: Date.now() - startTime,
+      status: 'error',
+    })
+    return NextResponse.json({ error: 'Agent stream failed' }, { status: 500 })
+  }
 
   return createUIMessageStreamResponse({
     // Mastra stream chunks use a slightly wider finishReason union than `ai`'s UIMessageChunk.

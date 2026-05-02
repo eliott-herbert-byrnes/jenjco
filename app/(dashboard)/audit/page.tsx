@@ -1,16 +1,54 @@
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Audit",
-}
+import { paths } from "@/app/paths"
+import { AuditNav } from "@/features/audit/components/audit-nav"
+import { InvocationsView } from "@/features/audit/components/invocations-view"
+import { LogsView } from "@/features/audit/components/logs-view"
+import { MetricsView } from "@/features/audit/components/metrics-view"
+import { getServerAuth } from "@/lib/auth"
 
-export default function AuditPage() {
+export const metadata: Metadata = { title: "Audit" }
+
+type Tab = "agents" | "workflows"
+type View = "metrics" | "invocations" | "logs"
+
+export default async function AuditPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>
+}) {
+  const { appUser } = await getServerAuth()
+  if (!appUser) redirect(paths.signIn)
+  if (appUser.role !== "admin") redirect(paths.dashboard)
+
+  const params = await searchParams
+  const { tab = "agents", view = "metrics" } = params
+  const activeTab: Tab = tab === "workflows" ? "workflows" : "agents"
+  const activeView: View = ["metrics", "invocations", "logs"].includes(
+    view ?? ""
+  )
+    ? (view as View)
+    : "metrics"
+
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-lg font-semibold">Audit</h2>
-      <p className="text-sm text-muted-foreground">
-        Phase 6a–6c will add usage metrics and traces here.
-      </p>
+    <div className="flex flex-col gap-6 p-6">
+      <div>
+        <h1 className="text-2xl font-semibold">Audit</h1>
+        <p className="text-sm text-muted-foreground">
+          Usage metrics and invocation history · last 30 days
+        </p>
+      </div>
+
+      <AuditNav activeTab={activeTab} activeView={activeView} />
+
+      {activeView === "metrics" && (
+        <MetricsView tab={activeTab} orgId={appUser.orgId} />
+      )}
+      {activeView === "invocations" && (
+        <InvocationsView tab={activeTab} orgId={appUser.orgId} />
+      )}
+      {activeView === "logs" && <LogsView orgId={appUser.orgId} />}
     </div>
   )
 }

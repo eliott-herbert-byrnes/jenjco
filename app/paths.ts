@@ -15,7 +15,6 @@ export const paths = {
   processes: "/processes",
   orgStructure: "/org-structure",
   audit: "/audit",
-  /** Sample Mastra chat UI */
   chat: "/chat",
   /** Legacy path; redirected to `signIn` in `next.config.mjs` */
   login: "/login",
@@ -46,6 +45,9 @@ export const apiPaths = {
   workflows: '/api/workflows',
   workflowDetail: (id: string) => `/api/workflows/${id}`,
   workflowRun: (id: string) => `/api/workflows/${id}/run`,
+  auditMetrics: '/api/audit/metrics',
+  auditInvocations: '/api/audit/invocations',
+  auditLogs: '/api/audit/logs',
 } as const
 
 /** Static assets referenced from route components */

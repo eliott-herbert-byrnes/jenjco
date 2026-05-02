@@ -62,6 +62,8 @@ export async function POST(
   const encoder = new TextEncoder()
   const send = (obj: unknown) => encoder.encode(`${JSON.stringify(obj)}\n`)
 
+  const startTime = Date.now()
+
   const stream = new ReadableStream({
     async start(controller) {
       try {
@@ -89,8 +91,20 @@ export async function POST(
           resourceType: "workflow",
           tokensIn: 0,
           tokensOut: 0,
+          durationMs: Date.now() - startTime,
+          status: "success",
         })
       } catch (err) {
+        await logUsage({
+          orgId: appUser.orgId,
+          userId: appUser.id,
+          resourceKey: wf.workflow_key,
+          resourceType: "workflow",
+          tokensIn: 0,
+          tokensOut: 0,
+          durationMs: Date.now() - startTime,
+          status: "error",
+        })
         controller.enqueue(send({ type: "error", message: String(err) }))
       } finally {
         controller.close()
