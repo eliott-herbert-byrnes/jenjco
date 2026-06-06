@@ -11,9 +11,12 @@ export const paths = {
   /** App home / main dashboard (same as {@link paths.home}) */
   dashboard: "/",
   agents: "/agents",
+  organisation: "/organisation",
+  organisationUsers: "/organisation/users",
+  integrations: "/organisation/integrations",
   workflows: "/workflows",
-  processes: "/processes",
-  orgStructure: "/org-structure",
+  processes: "/organisation/processes",
+  orgStructure: "/organisation/org-structure",
   audit: "/audit",
   /** Legacy path; redirected to `signIn` in `next.config.mjs` */
   login: "/login",
@@ -23,6 +26,9 @@ export const paths = {
 const PROTECTED_APP_PREFIXES: readonly string[] = [
   paths.dashboard,
   paths.agents,
+  paths.organisation,
+  paths.organisationUsers,
+  paths.integrations,
   paths.workflows,
   paths.processes,
   paths.orgStructure,
@@ -47,6 +53,10 @@ export const apiPaths = {
   auditInvocations: '/api/audit/invocations',
   auditLogs: '/api/audit/logs',
   orgStructure: '/api/org-structure',
+  integrationConnect: (provider: string) =>
+    `/api/integrations/${provider}/connect`,
+  integrationCallback: (provider: string) =>
+    `/api/integrations/${provider}/callback`,
 } as const
 
 /** Static assets referenced from route components */

@@ -4,45 +4,93 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  BotIcon,
+  Building2Icon,
   ClipboardListIcon,
-  FileStackIcon,
   GitBranchIcon,
+  HomeIcon,
   LayoutDashboardIcon,
-  NetworkIcon,
 } from "lucide-react"
 
 import { paths } from "@/app/paths"
+import { NavMain } from "@/components/nav-main"
 import { UserAccountMenu } from "@/components/user-account-menu"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  // SidebarRail,
 } from "@/components/ui/sidebar"
-
-const NAV_ITEMS = [
-  { title: "Dashboard", href: paths.dashboard, icon: LayoutDashboardIcon },
-  { title: "Agents", href: paths.agents, icon: BotIcon },
-  { title: "Workflows", href: paths.workflows, icon: GitBranchIcon },
-  { title: "Processes", href: paths.processes, icon: FileStackIcon },
-  { title: "Org Structure", href: paths.orgStructure, icon: NetworkIcon },
-  { title: "Audit", href: paths.audit, icon: ClipboardListIcon },
-] as const
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/"
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
+function isOrganisationSectionActive(pathname: string) {
+  return (
+    isActivePath(pathname, paths.organisation) ||
+    isActivePath(pathname, paths.orgStructure) ||
+    isActivePath(pathname, paths.processes) ||
+    isActivePath(pathname, paths.integrations) ||
+    isActivePath(pathname, paths.organisationUsers)
+  )
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname() ?? ""
+  const organisationActive = isOrganisationSectionActive(pathname)
+
+  const navItems = [
+    {
+      title: "Dashboard",
+      url: paths.dashboard,
+      icon: HomeIcon,
+      isActive: isActivePath(pathname, paths.workflows),
+    },
+    {
+      title: "Organisation",
+      url: paths.organisation,
+      icon: Building2Icon,
+      isActive: organisationActive,
+      items: [
+        {
+          title: "Org Structure",
+          url: paths.orgStructure,
+          isActive: isActivePath(pathname, paths.orgStructure),
+        },
+        {
+          title: "Processes",
+          url: paths.processes,
+          isActive: isActivePath(pathname, paths.processes),
+        },
+        {
+          title: "Integrations",
+          url: paths.integrations,
+          isActive: isActivePath(pathname, paths.integrations),
+        },
+        {
+          title: "Users",
+          url: paths.organisationUsers,
+          isActive: isActivePath(pathname, paths.organisationUsers),
+        },
+      ],
+    },
+    {
+      title: "Workflows",
+      url: paths.workflows,
+      icon: GitBranchIcon,
+      isActive: isActivePath(pathname, paths.workflows),
+    },
+    {
+      title: "Audit",
+      url: paths.audit,
+      icon: ClipboardListIcon,
+      isActive: isActivePath(pathname, paths.audit),
+    },
+  ]
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
@@ -66,25 +114,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarMenu>
-            {NAV_ITEMS.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item.title}
-                  isActive={isActivePath(pathname, item.href)}
-                >
-                  <Link href={item.href}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
         <UserAccountMenu />
