@@ -34,9 +34,19 @@ export async function GET(req: Request) {
   const { data: rows, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  const agentKeys = [...new Set((rows ?? []).filter((r) => r.resource_type === 'agent').map((r) => r.resource_key))]
+  const agentKeys = [
+    ...new Set(
+      (rows ?? [])
+        .filter((r) => r.resource_type === 'agent' && r.resource_key)
+        .map((r) => r.resource_key as string)
+    ),
+  ]
   const workflowKeys = [
-    ...new Set((rows ?? []).filter((r) => r.resource_type === 'workflow').map((r) => r.resource_key)),
+    ...new Set(
+      (rows ?? [])
+        .filter((r) => r.resource_type === 'workflow' && r.resource_key)
+        .map((r) => r.resource_key as string)
+    ),
   ]
 
   const [{ data: agents }, { data: workflows }] = await Promise.all([
@@ -58,6 +68,9 @@ export async function GET(req: Request) {
   }
 
   return NextResponse.json(
-    (rows ?? []).map((r) => ({ ...r, displayName: nameMap[r.resource_key] ?? r.resource_key }))
+    (rows ?? []).map((r) => ({
+      ...r,
+      displayName: r.resource_key ? (nameMap[r.resource_key] ?? r.resource_key) : 'Unknown',
+    }))
   )
 }

@@ -16,3 +16,8 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   })
   return embedding
 }
+
+/** pgvector columns are typed as string in generated Supabase types. */
+export function formatEmbeddingForPg(embedding: number[]): string {
+  return `[${embedding.join(",")}]`
+}

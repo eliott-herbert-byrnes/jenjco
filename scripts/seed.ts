@@ -11,7 +11,7 @@
 import "dotenv/config"
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
-import { generateEmbedding } from "../lib/embeddings"
+import { formatEmbeddingForPg, generateEmbedding } from "../lib/embeddings"
 
 type DeptRow = { id: string; parent_id: string | null }
 
@@ -141,13 +141,6 @@ async function main() {
 
   const { error: agentsErr } = await supabase.from("org_agents").upsert(
     [
-      {
-        org_id: orgId,
-        agent_key: "weather-agent",
-        display_name: "Weather Assistant",
-        description: "Forecasts and activity planning using live weather data.",
-        is_active: true,
-      },
       {
         org_id: orgId,
         agent_key: "process-assistant",
@@ -358,7 +351,7 @@ Store final summary in the case file with owner and timestamps.`,
     const embedding = await generateEmbedding(text)
     const { error: embErr } = await supabase
       .from("org_processes")
-      .update({ embedding })
+      .update({ embedding: formatEmbeddingForPg(embedding) })
       .eq("id", proc.id)
     if (embErr) throw embErr
   }
