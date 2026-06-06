@@ -19,6 +19,7 @@ export async function InvocationsView({
 }) {
   const supabase = await createClient()
   const since = new Date(sinceCutoffMs).toISOString()
+  // Roll-ups only — workflow tab counts resource_type = 'workflow', not workflow_step.
   const resourceType = tab === "agents" ? "agent" : "workflow"
 
   const { data: rows } = await supabase

@@ -1,0 +1,12 @@
+import { processKnowledgeSummaryWorkflow } from "./definitions/process-knowledge-summary.workflow"
+
+/**
+ * Production workflow registry. Do not register _spike here — it is dev-only (see spike route).
+ */
+export const WORKFLOWS = {
+  "process-knowledge-summary": processKnowledgeSummaryWorkflow,
+} as const
+
+export type WorkflowKey = keyof typeof WORKFLOWS
+
+export { spikeWorkflow } from "./definitions/_spike.workflow"

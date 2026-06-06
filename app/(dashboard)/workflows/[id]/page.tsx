@@ -23,5 +23,5 @@ export default async function WorkflowDetailPage({
 
   if (!workflow) notFound()
 
-  return <WorkflowCanvas workflow={workflow} role={appUser.role} orgId={appUser.orgId} />
+  return <WorkflowCanvas workflow={workflow} role={appUser.role} />
 }

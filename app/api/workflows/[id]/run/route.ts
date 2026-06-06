@@ -1,14 +1,29 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
+import { start } from "workflow/api"
+import {
+  encodeWorkflowStreamChunk,
+  mapWorkflowStreamChunk,
+} from "@/features/workflows/lib/workflow-stream"
 import { getServerAuth } from "@/lib/auth"
-import { logUsage } from "@/lib/usage-logger"
-import { getMastra } from "@/mastra"
+import type { Json } from "@/lib/database.types"
 import { createClient } from "@/lib/supabase/server"
+import { WORKFLOWS, type WorkflowKey } from "@/src/workflows/index"
+import * as ledger from "@/src/workflows/runtime/ledger"
+import { STATUS_STREAM_NAMESPACE } from "@/src/workflows/runtime/status-stream"
+import {
+  recordWorkflowRollup,
+  sumStepUsageForRun,
+} from "@/src/workflows/runtime/usage"
 
 const uuidParam = z.string().uuid()
 
+function isWorkflowKey(key: string): key is WorkflowKey {
+  return key in WORKFLOWS
+}
+
 export async function POST(
-  req: Request,
+  _req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   const { appUser } = await getServerAuth()
@@ -40,72 +55,117 @@ export async function POST(
     return NextResponse.json({ error: "Workflow is inactive" }, { status: 400 })
   }
 
-  let inputData: unknown
-  try {
-    const body = (await req.json()) as { inputData?: unknown }
-    inputData = body.inputData
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
-  }
-
-  const mastra = getMastra()
-  let mastraWorkflow
-  try {
-    mastraWorkflow = mastra.getWorkflowById(wf.workflow_key)
-  } catch {
+  if (!isWorkflowKey(wf.workflow_key)) {
     return NextResponse.json(
       { error: "Workflow is not registered in the runtime" },
       { status: 500 }
     )
   }
 
-  const encoder = new TextEncoder()
-  const send = (obj: unknown) => encoder.encode(`${JSON.stringify(obj)}\n`)
+  const workflowFn = WORKFLOWS[wf.workflow_key]
+  const ledgerRunId = crypto.randomUUID()
+  const startedAt = Date.now()
 
-  const startTime = Date.now()
+  const workflowInput = {
+    orgId: appUser.orgId,
+    ledgerRunId,
+    startedByUserId: appUser.id,
+  }
+
+  const run = await start(workflowFn, [workflowInput])
+
+  await ledger.createRun({
+    id: ledgerRunId,
+    orgId: appUser.orgId,
+    workflowKey: wf.workflow_key,
+    vercelRunId: run.runId,
+    startedBy: appUser.id,
+    trigger: "manual",
+    input: workflowInput as Json,
+  })
 
   const stream = new ReadableStream({
     async start(controller) {
-      try {
-        const run = await mastraWorkflow.createRun()
-        const streamResult = run.stream({ inputData })
+      const statusReader = run
+        .getReadable({ namespace: STATUS_STREAM_NAMESPACE })
+        .getReader()
 
-        const reader = streamResult.fullStream.getReader()
+      const pumpStatus = (async () => {
         try {
           while (true) {
-            const { done, value } = await reader.read()
+            const { done, value } = await statusReader.read()
             if (done) break
-            controller.enqueue(send(value))
+            const chunk = mapWorkflowStreamChunk(value)
+            if (chunk) {
+              controller.enqueue(encodeWorkflowStreamChunk(chunk))
+            }
           }
+        } catch {
+          // Reader cancelled after workflow completes.
         } finally {
-          reader.releaseLock()
+          statusReader.releaseLock()
         }
+      })()
 
-        const result = await streamResult.result
-        controller.enqueue(send({ type: "workflow-result", result }))
+      void pumpStatus
 
-        await logUsage({
+      try {
+        const result = await run.returnValue
+        await statusReader.cancel()
+        await pumpStatus
+
+        const { tokensIn, tokensOut } = await sumStepUsageForRun(ledgerRunId)
+
+        await ledger.completeRun({
+          ledgerRunId,
+          output: result as Json,
+          tokensIn,
+          tokensOut,
+        })
+        await recordWorkflowRollup({
           orgId: appUser.orgId,
           userId: appUser.id,
-          resourceKey: wf.workflow_key,
-          resourceType: "workflow",
-          tokensIn: 0,
-          tokensOut: 0,
-          durationMs: Date.now() - startTime,
+          ledgerRunId,
+          workflowKey: wf.workflow_key,
+          tokensIn,
+          tokensOut,
+          durationMs: Date.now() - startedAt,
           status: "success",
         })
+
+        controller.enqueue(
+          encodeWorkflowStreamChunk({ type: "workflow-result", result })
+        )
       } catch (err) {
-        await logUsage({
+        await statusReader.cancel().catch(() => undefined)
+        await pumpStatus
+
+        const message = err instanceof Error ? err.message : String(err)
+        let tokensIn = 0
+        let tokensOut = 0
+        try {
+          const totals = await sumStepUsageForRun(ledgerRunId)
+          tokensIn = totals.tokensIn
+          tokensOut = totals.tokensOut
+        } catch {
+          // Best-effort token roll-up on failure.
+        }
+
+        await ledger.failRun({ ledgerRunId, error: message })
+        await recordWorkflowRollup({
           orgId: appUser.orgId,
           userId: appUser.id,
-          resourceKey: wf.workflow_key,
-          resourceType: "workflow",
-          tokensIn: 0,
-          tokensOut: 0,
-          durationMs: Date.now() - startTime,
+          ledgerRunId,
+          workflowKey: wf.workflow_key,
+          tokensIn,
+          tokensOut,
+          durationMs: Date.now() - startedAt,
           status: "error",
         })
-        controller.enqueue(send({ type: "error", message: String(err) }))
+
+        controller.enqueue(
+          encodeWorkflowStreamChunk({ type: "error", message })
+        )
       } finally {
         controller.close()
       }

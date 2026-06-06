@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server"
 import { TokenUsageChart } from "./token-usage-chart"
 
 const WINDOW_MS = 30 * 24 * 60 * 60 * 1000
+const dateNow = Date.now() - WINDOW_MS
 
 export async function MetricsView({
   tab,
@@ -19,7 +20,8 @@ export async function MetricsView({
   orgId: string
 }) {
   const supabase = await createClient()
-  const since = new Date(Date.now() - WINDOW_MS).toISOString()
+  const since = new Date(dateNow).toISOString()
+  // Roll-ups only — never include workflow_step detail rows in charts/totals.
   const resourceType = tab === "agents" ? "agent" : "workflow"
 
   const [{ count: totalConversations }, { data: rows }] = await Promise.all([

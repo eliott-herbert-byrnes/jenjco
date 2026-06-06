@@ -20,7 +20,7 @@ export async function logUsage({
   orgId: string
   userId: string
   resourceKey: string
-  resourceType?: 'agent' | 'workflow'
+  resourceType?: 'agent' | 'workflow' | 'workflow_step'
   tokensIn: number
   tokensOut: number
   durationMs?: number

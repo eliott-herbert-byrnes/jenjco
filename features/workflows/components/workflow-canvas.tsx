@@ -111,10 +111,9 @@ const edgeTypes = {
 export type WorkflowCanvasProps = {
   workflow: WorkflowCanvasWorkflow
   role: AppRole
-  orgId: string
 }
 
-export function WorkflowCanvas({ workflow, role, orgId }: WorkflowCanvasProps) {
+export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
   const { steps, edges: edgeMeta, inputSchema } = useMemo(
     () => parseWorkflowConfig(workflow.config_overrides),
     [workflow.config_overrides]
@@ -183,7 +182,6 @@ export function WorkflowCanvas({ workflow, role, orgId }: WorkflowCanvasProps) {
           displayName={workflow.display_name}
           isActive={workflow.is_active}
           role={role}
-          orgId={orgId}
           inputSchema={inputSchema}
           setStepStatuses={setStepStatuses}
           open={drawerOpen}

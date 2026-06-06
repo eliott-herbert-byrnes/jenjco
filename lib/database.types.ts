@@ -269,10 +269,12 @@ export type Database = {
           org_id: string
           resource_key: string | null
           resource_type: string
+          run_id: string | null
           status: string
+          step_id: string | null
           tokens_in: number
           tokens_out: number
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           cost_estimate?: number | null
@@ -282,10 +284,12 @@ export type Database = {
           org_id: string
           resource_key?: string | null
           resource_type?: string
+          run_id?: string | null
           status?: string
+          step_id?: string | null
           tokens_in?: number
           tokens_out?: number
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           cost_estimate?: number | null
@@ -295,10 +299,12 @@ export type Database = {
           org_id?: string
           resource_key?: string | null
           resource_type?: string
+          run_id?: string | null
           status?: string
+          step_id?: string | null
           tokens_in?: number
           tokens_out?: number
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -306,6 +312,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "usage_logs_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_runs"
             referencedColumns: ["id"]
           },
           {
@@ -351,6 +364,113 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          id: string
+          input: Json | null
+          org_id: string
+          output: Json | null
+          started_by: string | null
+          status: string
+          tokens_in: number
+          tokens_out: number
+          trigger: string
+          vercel_run_id: string
+          workflow_key: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          input?: Json | null
+          org_id: string
+          output?: Json | null
+          started_by?: string | null
+          status?: string
+          tokens_in?: number
+          tokens_out?: number
+          trigger?: string
+          vercel_run_id: string
+          workflow_key: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          input?: Json | null
+          org_id?: string
+          output?: Json | null
+          started_by?: string | null
+          status?: string
+          tokens_in?: number
+          tokens_out?: number
+          trigger?: string
+          vercel_run_id?: string
+          workflow_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_runs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_runs_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_step_runs: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          run_id: string
+          status: string
+          step_id: string
+          tokens_in: number
+          tokens_out: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          run_id: string
+          status?: string
+          step_id: string
+          tokens_in?: number
+          tokens_out?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          run_id?: string
+          status?: string
+          step_id?: string
+          tokens_in?: number
+          tokens_out?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_step_runs_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_runs"
             referencedColumns: ["id"]
           },
         ]
