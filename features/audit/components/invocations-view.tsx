@@ -7,6 +7,9 @@ import {
 } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/server"
 
+const WINDOW_MS = 30 * 24 * 60 * 60 * 1000
+const sinceCutoffMs = Date.now() - WINDOW_MS
+
 export async function InvocationsView({
   tab,
   orgId,
@@ -15,7 +18,7 @@ export async function InvocationsView({
   orgId: string
 }) {
   const supabase = await createClient()
-  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  const since = new Date(sinceCutoffMs).toISOString()
   const resourceType = tab === "agents" ? "agent" : "workflow"
 
   const { data: rows } = await supabase
@@ -37,22 +40,34 @@ export async function InvocationsView({
     )
   }
 
-  const keys = [...new Set(rows.map((r) => r.resource_key))]
-  const nameTable = tab === "agents" ? "org_agents" : "org_workflows"
-  const keyCol = tab === "agents" ? "agent_key" : "workflow_key"
+  const keys = [
+    ...new Set(rows.map((r) => r.resource_key).filter((k): k is string => k != null)),
+  ]
 
-  const { data: nameRows } = await supabase
-    .from(nameTable)
-    .select(`${keyCol}, display_name`)
-    .eq("org_id", orgId)
-    .in(keyCol, keys)
-
-  const nameMap = Object.fromEntries(
-    (nameRows ?? []).map((r) => {
-      const row = r as Record<string, string>
-      return [row[keyCol] as string, row.display_name as string]
-    })
-  )
+  const nameMap =
+    tab === "agents"
+      ? Object.fromEntries(
+          (
+            (
+              await supabase
+                .from("org_agents")
+                .select("agent_key, display_name")
+                .eq("org_id", orgId)
+                .in("agent_key", keys.length ? keys : [""])
+            ).data ?? []
+          ).map((r) => [r.agent_key, r.display_name])
+        )
+      : Object.fromEntries(
+          (
+            (
+              await supabase
+                .from("org_workflows")
+                .select("workflow_key, display_name")
+                .eq("org_id", orgId)
+                .in("workflow_key", keys.length ? keys : [""])
+            ).data ?? []
+          ).map((r) => [r.workflow_key, r.display_name])
+        )
 
   return (
     <Card>

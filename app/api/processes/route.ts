@@ -2,7 +2,7 @@ import { randomUUID } from "crypto"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { getServerAuth } from "@/lib/auth"
-import { generateEmbedding } from "@/lib/embeddings"
+import { formatEmbeddingForPg, generateEmbedding } from "@/lib/embeddings"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { withRetry } from "@/lib/with-retry"
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
     )
     const { error: embError } = await admin
       .from("org_processes")
-      .update({ embedding })
+      .update({ embedding: formatEmbeddingForPg(embedding) })
       .eq("id", rowId)
 
     if (embError) throw embError

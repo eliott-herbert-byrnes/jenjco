@@ -15,7 +15,6 @@ export const paths = {
   processes: "/processes",
   orgStructure: "/org-structure",
   audit: "/audit",
-  chat: "/chat",
   /** Legacy path; redirected to `signIn` in `next.config.mjs` */
   login: "/login",
 } as const
@@ -37,7 +36,6 @@ export function isProtectedAppRoute(pathname: string): boolean {
 }
 
 export const apiPaths = {
-  chat: '/api/chat',
   agents: '/api/agents',
   agentChat: (id: string) => `/api/agents/${id}/chat`,
   processes: '/api/processes',

@@ -38,9 +38,19 @@ export async function GET(_req: Request) {
 
   // 4. Per-resource breakdown (join display names separately — simpler than relying on
   //    Supabase's implicit join syntax for a GROUP BY equivalent)
-  const agentKeys = [...new Set(allRows.filter((r) => r.resource_type === 'agent').map((r) => r.resource_key))]
+  const agentKeys = [
+    ...new Set(
+      allRows
+        .filter((r) => r.resource_type === 'agent' && r.resource_key)
+        .map((r) => r.resource_key as string)
+    ),
+  ]
   const workflowKeys = [
-    ...new Set(allRows.filter((r) => r.resource_type === 'workflow').map((r) => r.resource_key)),
+    ...new Set(
+      allRows
+        .filter((r) => r.resource_type === 'workflow' && r.resource_key)
+        .map((r) => r.resource_key as string)
+    ),
   ]
 
   const [{ data: agentNames }, { data: workflowNames }] = await Promise.all([
@@ -65,12 +75,13 @@ export async function GET(_req: Request) {
     allRows.reduce<
       Record<string, { resourceType: string; tokensIn: number; tokensOut: number; invocations: number }>
     >((acc, r) => {
-      if (!acc[r.resource_key]) {
-        acc[r.resource_key] = { resourceType: r.resource_type, tokensIn: 0, tokensOut: 0, invocations: 0 }
+      const key = r.resource_key ?? '__unknown__'
+      if (!acc[key]) {
+        acc[key] = { resourceType: r.resource_type, tokensIn: 0, tokensOut: 0, invocations: 0 }
       }
-      acc[r.resource_key].tokensIn += r.tokens_in ?? 0
-      acc[r.resource_key].tokensOut += r.tokens_out ?? 0
-      acc[r.resource_key].invocations++
+      acc[key].tokensIn += r.tokens_in ?? 0
+      acc[key].tokensOut += r.tokens_out ?? 0
+      acc[key].invocations++
       return acc
     }, {})
   ).map(([key, v]) => ({

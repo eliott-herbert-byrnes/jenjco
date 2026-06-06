@@ -1,7 +1,7 @@
 import { createTool } from "@mastra/core/tools"
 import { z } from "zod"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { generateEmbedding } from "@/lib/embeddings"
+import { formatEmbeddingForPg, generateEmbedding } from "@/lib/embeddings"
 
 const processSearchRequestContextSchema = z.object({
   orgId: z.string().uuid().optional(),
@@ -39,7 +39,7 @@ export const processSearchTool = createTool({
     const supabase = createAdminClient()
 
     const { data, error } = await supabase.rpc("search_processes", {
-      query_embedding: embedding,
+      query_embedding: formatEmbeddingForPg(embedding),
       org_id_filter: orgId,
       match_count: 5,
     })

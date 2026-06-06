@@ -1,5 +1,3 @@
-:
-
 -- Phase 6: Add per-invocation metadata to usage_logs
 -- duration_ms: wall-clock ms from request start to onFinish/error
 -- status: 'success' (default) or 'error' — lets the Invocations view filter failures

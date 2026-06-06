@@ -26,6 +26,12 @@
       "sourceType": "github",
       "computedHash": "db85045827ebeb83ac8dbc992b69188755eeb74dcf01cbf5e694d58aa494a106"
     },
+    "quickstart": {
+      "source": "NangoHQ/skills",
+      "sourceType": "github",
+      "skillPath": "skills/quickstart/SKILL.md",
+      "computedHash": "171b729b9fac12c905779a567c6a5280b82851ce9b7e1f80c872137acda7de86"
+    },
     "streamdown": {
       "source": "vercel/streamdown",
       "sourceType": "github",
@@ -50,6 +56,12 @@
       "source": "vercel/workflow",
       "sourceType": "github",
       "computedHash": "d196ee3765786dfae680a13c5f1d8ae1e1e54f51efd475ca396461091b78c0db"
+    },
+    "workflow-init": {
+      "source": "vercel/workflow",
+      "sourceType": "github",
+      "skillPath": "skills/workflow-init/SKILL.md",
+      "computedHash": "e74ed0468589670865a7dc1dcf4f8cd21c3dce164e5caa66d74c5800d70dfe68"
     }
   }
 }
