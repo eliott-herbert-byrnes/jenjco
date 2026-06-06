@@ -20,11 +20,12 @@ export async function GET(_req: Request) {
     .select('*', { count: 'exact', head: true })
     .eq('org_id', appUser.orgId)
 
-  // 2. Raw usage rows for the 30-day window
+  // 2. Roll-up rows only — exclude workflow_step detail to avoid double-counting.
   const { data: rows } = await supabase
     .from('usage_logs')
     .select('resource_key, resource_type, tokens_in, tokens_out, cost_estimate, created_at')
     .eq('org_id', appUser.orgId)
+    .in('resource_type', ['agent', 'workflow'])
     .eq('status', 'success') // exclude error rows from cost/token totals
     .gte('created_at', since)
     .order('created_at', { ascending: true })

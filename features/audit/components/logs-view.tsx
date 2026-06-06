@@ -16,10 +16,11 @@ export async function LogsView({
   page?: number
 }) {
   const supabase = await createClient()
+  // Intentionally unfiltered: shows roll-up rows (agent/workflow) and workflow_step detail.
   const { data, count } = await supabase
     .from("usage_logs")
     .select(
-      "id, resource_key, resource_type, tokens_in, tokens_out, cost_estimate, duration_ms, status, created_at",
+      "id, resource_key, resource_type, run_id, step_id, tokens_in, tokens_out, cost_estimate, duration_ms, status, created_at",
       { count: "exact" }
     )
     .eq("org_id", orgId)
@@ -47,6 +48,8 @@ export async function LogsView({
                 "Time",
                 "Resource",
                 "Type",
+                "Run ID",
+                "Step",
                 "In",
                 "Out",
                 "Cost",
@@ -70,6 +73,12 @@ export async function LogsView({
                 </td>
                 <td className="px-4 py-1.5">{r.resource_key}</td>
                 <td className="px-4 py-1.5">{r.resource_type}</td>
+                <td className="px-4 py-1.5 text-muted-foreground">
+                  {r.run_id ? r.run_id.slice(0, 8) : "—"}
+                </td>
+                <td className="px-4 py-1.5 text-muted-foreground">
+                  {r.step_id ?? "—"}
+                </td>
                 <td className="px-4 py-1.5 tabular-nums">{r.tokens_in ?? 0}</td>
                 <td className="px-4 py-1.5 tabular-nums">{r.tokens_out ?? 0}</td>
                 <td className="px-4 py-1.5 tabular-nums">

@@ -1,3 +1,4 @@
+import { withWorkflow } from "@workflow/next"
 import { paths } from "./app/paths.ts"
 
 /** @type {import('next').NextConfig} */
@@ -20,4 +21,4 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withWorkflow(nextConfig)

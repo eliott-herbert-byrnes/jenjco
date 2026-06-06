@@ -1,3 +1,4 @@
+import type { MastraCompositeStore } from "@mastra/core/storage"
 import { PostgresStore } from "@mastra/pg"
 
 // Persist the PostgresStore singleton across Next.js / Mastra dev HMR reloads.
@@ -33,9 +34,11 @@ function createMastraStorage(): PostgresStore {
 }
 
 /** Shared Mastra PostgresStore. Cached on `globalThis` so HMR reloads reuse the same pg.Pool. */
-export function getMastraStorage(): PostgresStore {
+export function getMastraStorage(): MastraCompositeStore {
   if (!globalThis.__mastraPgStore) {
     globalThis.__mastraPgStore = createMastraStorage()
   }
-  return globalThis.__mastraPgStore
+  // PostgresStore extends MastraCompositeStore, but TS treats #private fields as
+  // nominal across package boundaries — cast to the type Mastra config expects.
+  return globalThis.__mastraPgStore as unknown as MastraCompositeStore
 }

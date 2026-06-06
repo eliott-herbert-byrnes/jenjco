@@ -1,5 +1,6 @@
 import type { Mastra } from "@mastra/core/mastra"
 import { Mastra as MastraClass } from "@mastra/core/mastra"
+import type { ObservabilityEntrypoint } from "@mastra/core/observability"
 import { PinoLogger } from "@mastra/loggers"
 import {
   Observability,
@@ -7,7 +8,7 @@ import {
   CloudExporter,
   SensitiveDataFilter,
 } from "@mastra/observability"
-import { processKnowledgeSummaryWorkflow } from "./workflows/process-knowledge-summary-workflow"
+import { processSummaryAgent } from "./agents/ai-step-agents"
 import { processAssistantAgent } from "./agents/process-assistant"
 import { getMastraStorage } from "./storage"
 
@@ -23,8 +24,7 @@ declare global {
 export function getMastra(): MastraClass {
   if (!globalThis.__mastraInstance) {
     globalThis.__mastraInstance = new MastraClass({
-      workflows: { processKnowledgeSummaryWorkflow },
-      agents: { processAssistantAgent },
+      agents: { processAssistantAgent, processSummaryAgent },
       storage: getMastraStorage(),
       logger: new PinoLogger({
         name: "Mastra",
@@ -43,7 +43,7 @@ export function getMastra(): MastraClass {
             ],
           },
         },
-      }),
+      }) as unknown as ObservabilityEntrypoint,
     })
   }
   return globalThis.__mastraInstance

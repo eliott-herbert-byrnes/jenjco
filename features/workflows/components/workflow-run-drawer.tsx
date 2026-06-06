@@ -8,7 +8,6 @@ import type { AppRole } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
 import {
   Sheet,
   SheetContent,
@@ -26,15 +25,14 @@ type JsonSchemaProps = {
 }
 
 function defaultInputFromSchema(
-  inputSchema: Record<string, unknown> | undefined,
-  orgId: string
+  inputSchema: Record<string, unknown> | undefined
 ): Record<string, string> {
   const schema = inputSchema as JsonSchemaProps | undefined
   const props = schema?.properties ?? {}
   const out: Record<string, string> = {}
-  if ('orgId' in props) out.orgId = orgId
   for (const key of Object.keys(props)) {
-    if (out[key] === undefined) out[key] = ''
+    if (key === 'orgId') continue
+    out[key] = ''
   }
   return out
 }
@@ -47,16 +45,14 @@ function orderedInputKeys(schema: JsonSchemaProps | undefined): string[] {
   const seen = new Set<string>()
   const out: string[] = []
   for (const k of required) {
-    if (k in props && !seen.has(k)) {
-      out.push(k)
-      seen.add(k)
-    }
+    if (k === 'orgId' || !(k in props) || seen.has(k)) continue
+    out.push(k)
+    seen.add(k)
   }
   for (const k of Object.keys(props)) {
-    if (!seen.has(k)) {
-      out.push(k)
-      seen.add(k)
-    }
+    if (k === 'orgId' || seen.has(k)) continue
+    out.push(k)
+    seen.add(k)
   }
   return out
 }
@@ -113,7 +109,6 @@ export type WorkflowRunDrawerProps = {
   displayName: string
   isActive: boolean
   role: AppRole
-  orgId: string
   inputSchema: Record<string, unknown> | undefined
   setStepStatuses: React.Dispatch<React.SetStateAction<Record<string, StepRunStatus>>>
   open: boolean
@@ -125,7 +120,6 @@ export function WorkflowRunDrawer({
   displayName,
   isActive,
   role,
-  orgId,
   inputSchema,
   setStepStatuses,
   open,
@@ -135,16 +129,16 @@ export function WorkflowRunDrawer({
   const [result, setResult] = useState<unknown>(null)
   const [runError, setRunError] = useState<string | null>(null)
   const [inputData, setInputData] = useState<Record<string, string>>(() =>
-    defaultInputFromSchema(inputSchema, orgId)
+    defaultInputFromSchema(inputSchema)
   )
 
   useEffect(() => {
     if (open) {
-      setInputData(defaultInputFromSchema(inputSchema, orgId))
+      setInputData(defaultInputFromSchema(inputSchema))
       setResult(null)
       setRunError(null)
     }
-  }, [open, inputSchema, orgId])
+  }, [open, inputSchema])
 
   const canRun = role === 'admin' && isActive
 
@@ -161,7 +155,14 @@ export function WorkflowRunDrawer({
     setResult(null)
     setRunError(null)
 
-    const body = { inputData }
+    const body =
+      inputKeys.length > 0
+        ? {
+            inputData: Object.fromEntries(
+              inputKeys.map((key) => [key, inputData[key] ?? ''])
+            ),
+          }
+        : {}
     let streamResult: unknown | undefined
 
     const dispatchEvent = (event: unknown) => {
@@ -229,7 +230,7 @@ export function WorkflowRunDrawer({
     } finally {
       setRunning(false)
     }
-  }, [canRun, workflowId, inputData, setStepStatuses])
+  }, [canRun, workflowId, inputData, inputKeys, setStepStatuses])
 
   const summaryMarkdown =
     result && typeof result === 'object' && result !== null && 'summary' in result
@@ -262,7 +263,6 @@ export function WorkflowRunDrawer({
               inputKeys.map((key) => {
                 const meta = inputProps[key]
                 const description = meta?.description
-                const isOrgId = key === 'orgId'
                 return (
                   <div key={key} className="space-y-2">
                     <div>
@@ -273,14 +273,11 @@ export function WorkflowRunDrawer({
                     </div>
                     <Input
                       id={`workflow-input-${key}`}
-                      readOnly={isOrgId}
                       value={inputData[key] ?? ''}
-                      onChange={
-                        isOrgId
-                          ? undefined
-                          : (e) => setInputData((prev) => ({ ...prev, [key]: e.target.value }))
+                      onChange={(e) =>
+                        setInputData((prev) => ({ ...prev, [key]: e.target.value }))
                       }
-                      className={cn('font-mono text-xs', isOrgId && 'bg-muted')}
+                      className="font-mono text-xs"
                     />
                   </div>
                 )

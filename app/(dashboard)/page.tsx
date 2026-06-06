@@ -47,6 +47,7 @@ export default async function DashboardHomePage() {
       .from("usage_logs")
       .select("created_at, tokens_in, tokens_out")
       .eq("org_id", appUser.orgId)
+      .in("resource_type", ["agent", "workflow"])
       .gte("created_at", since)
       .order("created_at", { ascending: true }),
   ])
