@@ -33,9 +33,9 @@ export function SignInForm({
 }: SignInFormProps) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8" action={signInWithDemo}>
+      <Card className="my-auto mx-auto overflow-hidden p-0 w-[400px] max-w-[400px]">
+        <CardContent className="grid p-0 md:grid-cols-1 ">
+          <form className="p-8 md:p-10" action={signInWithDemo}>
             {nextPath ? (
               <input type="hidden" name="next" value={nextPath} />
             ) : null}
@@ -44,30 +44,13 @@ export function SignInForm({
                 <h1 className="text-2xl font-bold">Welcome back</h1>
                 <p className="text-balance text-muted-foreground">
                   Sign in to your Jenjco account (demo)
+                  {errorMessage ? (
+                    <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
+                      {errorMessage}
+                    </p>
+                  ) : null}
                 </p>
               </div>
-              {errorMessage ? (
-                <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
-                  {errorMessage}
-                </p>
-              ) : null}
-              {/* <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  disabled
-                  autoComplete="off"
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <span className="ml-auto text-sm text-muted-foreground">Demo</span>
-                </div>
-                <Input id="password" type="password" disabled autoComplete="off" />
-              </Field> */}
               <Field>
                 <Button type="submit" className="w-full">
                   Sign in with Demo
@@ -166,13 +149,13 @@ export function SignInForm({
               </FieldDescription>
             </FieldGroup>
           </form>
-          <div className="relative hidden bg-muted md:block">
+          {/* <div className="relative hidden bg-muted md:block">
             <img
               src={assetPaths.placeholder}
               alt=""
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
-          </div>
+          </div> */}
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
