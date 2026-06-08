@@ -51,12 +51,13 @@ export const apiPaths = {
   workflowRun: (id: string) => `/api/workflows/${id}/run`,
   auditMetrics: '/api/audit/metrics',
   auditInvocations: '/api/audit/invocations',
+  auditIntegrations: '/api/audit/integrations',
   auditLogs: '/api/audit/logs',
   orgStructure: '/api/org-structure',
   integrationConnect: (provider: string) =>
     `/api/integrations/${provider}/connect`,
-  integrationCallback: (provider: string) =>
-    `/api/integrations/${provider}/callback`,
+  integrationComplete: (provider: string) =>
+    `/api/integrations/${provider}/complete`,
 } as const
 
 /** Static assets referenced from route components */

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 
 import { paths } from "@/app/paths"
 import { AuditNav } from "@/features/audit/components/audit-nav"
+import { IntegrationsInvocationsView } from "@/features/audit/components/integrations-invocations-view"
 import { InvocationsView } from "@/features/audit/components/invocations-view"
 import { LogsView } from "@/features/audit/components/logs-view"
 import { MetricsView } from "@/features/audit/components/metrics-view"
@@ -10,7 +11,7 @@ import { getServerAuth } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Audit" }
 
-type Tab = "agents" | "workflows"
+type Tab = "agents" | "workflows" | "integrations"
 type View = "metrics" | "invocations" | "logs"
 
 export default async function AuditPage({
@@ -24,7 +25,12 @@ export default async function AuditPage({
 
   const params = await searchParams
   const { tab = "agents", view = "metrics" } = params
-  const activeTab: Tab = tab === "workflows" ? "workflows" : "agents"
+  const activeTab: Tab =
+    tab === "workflows"
+      ? "workflows"
+      : tab === "integrations"
+        ? "integrations"
+        : "agents"
   const activeView: View = ["metrics", "invocations", "logs"].includes(
     view ?? ""
   )
@@ -42,13 +48,19 @@ export default async function AuditPage({
 
       <AuditNav activeTab={activeTab} activeView={activeView} />
 
-      {activeView === "metrics" && (
-        <MetricsView tab={activeTab} orgId={appUser.orgId} />
+      {activeTab === "integrations" ? (
+        <IntegrationsInvocationsView orgId={appUser.orgId} />
+      ) : (
+        <>
+          {activeView === "metrics" && (
+            <MetricsView tab={activeTab} orgId={appUser.orgId} />
+          )}
+          {activeView === "invocations" && (
+            <InvocationsView tab={activeTab} orgId={appUser.orgId} />
+          )}
+          {activeView === "logs" && <LogsView orgId={appUser.orgId} />}
+        </>
       )}
-      {activeView === "invocations" && (
-        <InvocationsView tab={activeTab} orgId={appUser.orgId} />
-      )}
-      {activeView === "logs" && <LogsView orgId={appUser.orgId} />}
     </div>
   )
 }

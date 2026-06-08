@@ -9,6 +9,7 @@ import {
   SensitiveDataFilter,
 } from "@mastra/observability"
 import { processSummaryAgent } from "./agents/ai-step-agents"
+import { driveAssistantAgent } from "./agents/drive-assistant"
 import { processAssistantAgent } from "./agents/process-assistant"
 import { getMastraStorage } from "./storage"
 
@@ -24,7 +25,11 @@ declare global {
 export function getMastra(): MastraClass {
   if (!globalThis.__mastraInstance) {
     globalThis.__mastraInstance = new MastraClass({
-      agents: { processAssistantAgent, processSummaryAgent },
+      agents: {
+        processAssistantAgent,
+        processSummaryAgent,
+        driveAssistantAgent,
+      },
       storage: getMastraStorage(),
       logger: new PinoLogger({
         name: "Mastra",

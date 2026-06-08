@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 
 import { paths } from "@/app/paths"
+import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardDescription,
@@ -43,6 +44,7 @@ const ORGANISATION_LINKS = [
     description: "Connected accounts and external services",
     href: paths.integrations,
     icon: PlugIcon,
+    adminOnly: true,
   },
 ] as const
 
@@ -64,9 +66,12 @@ export default async function OrganisationPage() {
           <Link key={item.href} href={item.href} className="block">
             <Card className="h-full transition-colors hover:bg-muted/50">
               <CardHeader>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <item.icon className="size-5 text-muted-foreground" />
                   <CardTitle>{item.title}</CardTitle>
+                  {"adminOnly" in item && item.adminOnly ? (
+                    <Badge variant="secondary">Admin only</Badge>
+                  ) : null}
                 </div>
                 <CardDescription>{item.description}</CardDescription>
               </CardHeader>

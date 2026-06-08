@@ -10,16 +10,20 @@ export default async function AgentsLayout({ children }: { children: React.React
   if (!appUser) redirect(paths.signIn)
 
   const supabase = await createClient()
-  const { data: agents } = await supabase
+  const { data: rawAgents } = await supabase
     .from('org_agents')
-    .select('id, display_name, description, is_active')
+    .select('id, agent_key, display_name, description, is_active')
     .eq('org_id', appUser.orgId)
     .order('display_name')
+
+  const agents = (rawAgents ?? []).filter(
+    (agent) => appUser.role === 'admin' || agent.agent_key !== 'drive-assistant'
+  )
 
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
       <aside className="w-72 shrink-0 overflow-y-auto border-r">
-        <AgentListPanel agents={agents ?? []} />
+        <AgentListPanel agents={agents} />
       </aside>
       <main className="flex flex-1 overflow-hidden">
         {children}

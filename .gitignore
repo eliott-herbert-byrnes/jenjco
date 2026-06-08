@@ -52,5 +52,8 @@ src/mastra/public/mastra.*
 # secrets
 .env
 
+# nango BYO spike local state (connection_id from step b)
+scripts/nango-tests/.byo-spike-state.json
+
 # cursor
 /.cursor/
