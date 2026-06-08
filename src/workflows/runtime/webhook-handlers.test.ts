@@ -4,7 +4,7 @@ import {
   classifyNangoWebhook,
   resolveOrgIdFromPayload,
   type NangoWebhookPayload,
-} from "./webhook-handlers"
+} from "./webhook-classification"
 
 const ORG_ID = "98ad35ae-d557-4d08-89c8-617c80cfeb54"
 
