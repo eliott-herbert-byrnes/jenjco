@@ -15,7 +15,8 @@
     "seed": "tsx scripts/seed.ts",
     "supabase:types": "node scripts/gen-supabase-types.mjs",
     "supabase:migration:list": "node scripts/run-supabase-cli.mjs migration list",
-    "supabase:link": "pnpm exec supabase link --project-ref vnqokeemyxzsyiotamys"
+    "supabase:link": "pnpm exec supabase link --project-ref vnqokeemyxzsyiotamys",
+    "supabase:migration": "node scripts/run-supabase-cli.mjs db push"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.53",

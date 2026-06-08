@@ -1,6 +1,12 @@
 import { start } from "workflow/api"
+import type { Json } from "@/lib/database.types"
 import { googleDriveIngestWorkflow } from "@/src/workflows/definitions/google-drive-ingest.workflow"
+import * as ledger from "@/src/workflows/runtime/ledger"
 import { STATUS_STREAM_NAMESPACE } from "@/src/workflows/runtime/status-stream"
+import {
+  recordWorkflowRollup,
+  sumStepUsageForRun,
+} from "@/src/workflows/runtime/usage"
 
 const encoder = new TextEncoder()
 const ndjson = (obj: unknown) => encoder.encode(`${JSON.stringify(obj)}\n`)
@@ -25,7 +31,25 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const run = await start(googleDriveIngestWorkflow, [{ orgId }])
+  const ledgerRunId = crypto.randomUUID()
+  const startedAt = Date.now()
+  const workflowInput = {
+    orgId,
+    ledgerRunId,
+    startedByUserId: null,
+  }
+
+  const run = await start(googleDriveIngestWorkflow, [workflowInput])
+
+  await ledger.createRun({
+    id: ledgerRunId,
+    orgId,
+    workflowKey: "google-drive-ingest",
+    vercelRunId: run.runId,
+    startedBy: null,
+    trigger: "manual",
+    input: workflowInput as Json,
+  })
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -54,6 +78,25 @@ export async function POST(request: Request) {
         await statusReader.cancel()
         await pumpStatus
 
+        const { tokensIn, tokensOut } = await sumStepUsageForRun(ledgerRunId)
+
+        await ledger.completeRun({
+          ledgerRunId,
+          output: result as Json,
+          tokensIn,
+          tokensOut,
+        })
+        await recordWorkflowRollup({
+          orgId,
+          userId: null,
+          ledgerRunId,
+          workflowKey: "google-drive-ingest",
+          tokensIn,
+          tokensOut,
+          durationMs: Date.now() - startedAt,
+          status: "success",
+        })
+
         for (const value of statusEvents) {
           controller.enqueue(ndjson(value))
         }
@@ -64,13 +107,36 @@ export async function POST(request: Request) {
         await statusReader.cancel().catch(() => undefined)
         await pumpStatus
 
+        const message = err instanceof Error ? err.message : String(err)
+        let tokensIn = 0
+        let tokensOut = 0
+        try {
+          const totals = await sumStepUsageForRun(ledgerRunId)
+          tokensIn = totals.tokensIn
+          tokensOut = totals.tokensOut
+        } catch {
+          // Best-effort token roll-up on failure.
+        }
+
+        await ledger.failRun({ ledgerRunId, error: message })
+        await recordWorkflowRollup({
+          orgId,
+          userId: null,
+          ledgerRunId,
+          workflowKey: "google-drive-ingest",
+          tokensIn,
+          tokensOut,
+          durationMs: Date.now() - startedAt,
+          status: "error",
+        })
+
         for (const value of statusEvents) {
           controller.enqueue(ndjson(value))
         }
         controller.enqueue(
           ndjson({
             type: "error",
-            message: err instanceof Error ? err.message : String(err),
+            message,
             vercelRunId: run.runId,
           })
         )

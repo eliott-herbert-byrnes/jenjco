@@ -20,7 +20,7 @@ export async function recordStepUsage({
   status = "success",
 }: {
   orgId: string
-  userId: string
+  userId: string | null
   ledgerRunId: string
   stepId: string
   resourceKey: string
@@ -80,7 +80,7 @@ export async function recordWorkflowRollup({
   status = "success",
 }: {
   orgId: string
-  userId: string
+  userId: string | null
   ledgerRunId: string
   workflowKey: string
   tokensIn: number

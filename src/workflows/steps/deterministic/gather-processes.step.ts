@@ -7,7 +7,7 @@ export type GatherProcessesOutput = {
   processes: string
   orgId: string
   ledgerRunId: string
-  startedByUserId: string
+  startedByUserId: string | null
 }
 
 export async function gatherProcessesStep(

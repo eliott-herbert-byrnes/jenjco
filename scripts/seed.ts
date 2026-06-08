@@ -163,47 +163,57 @@ async function main() {
   if (agentsErr) throw agentsErr
 
   const { error: wfErr } = await supabase.from("org_workflows").upsert(
-    {
-      org_id: orgId,
-      workflow_key: "process-knowledge-summary",
-      display_name: "Process Knowledge Summary",
-      description:
-        "Generates an AI summary of all process documents in the knowledge base.",
-      is_active: true,
-      config_overrides: {
-        steps: [
-          {
-            id: "validate-input",
-            label: "Validate Input",
-            description: "Schema validation",
-          },
-          {
-            id: "gather-processes",
-            label: "Gather Processes",
-            description: "Retrieve process docs",
-          },
-          {
-            id: "generate-summary",
-            label: "Generate Summary",
-            description: "AI-generated content",
-          },
-        ],
-        edges: [
-          { source: "validate-input", target: "gather-processes" },
-          { source: "gather-processes", target: "generate-summary" },
-        ],
-        inputSchema: {
-          type: "object",
-          properties: {
-            orgId: {
-              type: "string",
-              description: "Your organisation ID (pre-filled)",
+    [
+      {
+        org_id: orgId,
+        workflow_key: "process-knowledge-summary",
+        display_name: "Process Knowledge Summary",
+        description:
+          "Generates an AI summary of all process documents in the knowledge base.",
+        is_active: true,
+        config_overrides: {
+          steps: [
+            {
+              id: "validate-input",
+              label: "Validate Input",
+              description: "Schema validation",
             },
+            {
+              id: "gather-processes",
+              label: "Gather Processes",
+              description: "Retrieve process docs",
+            },
+            {
+              id: "generate-summary",
+              label: "Generate Summary",
+              description: "AI-generated content",
+            },
+          ],
+          edges: [
+            { source: "validate-input", target: "gather-processes" },
+            { source: "gather-processes", target: "generate-summary" },
+          ],
+          inputSchema: {
+            type: "object",
+            properties: {
+              orgId: {
+                type: "string",
+                description: "Your organisation ID (pre-filled)",
+              },
+            },
+            required: ["orgId"],
           },
-          required: ["orgId"],
         },
       },
-    },
+      {
+        org_id: orgId,
+        workflow_key: "google-drive-ingest",
+        display_name: "Google Drive Ingest",
+        description:
+          "Lists files from the organisation's connected Google Drive.",
+        is_active: true,
+      },
+    ],
     { onConflict: "org_id,workflow_key" }
   )
   if (wfErr) throw wfErr

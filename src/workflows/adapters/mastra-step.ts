@@ -4,7 +4,7 @@ import { recordStepUsage } from "@/src/workflows/runtime/usage"
 
 export type MastraProcessSummaryParams = {
   orgId: string
-  userId: string
+  userId: string | null
   ledgerRunId: string
   stepId: string
   resourceKey: string
