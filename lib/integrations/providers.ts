@@ -26,6 +26,14 @@ export function getProvider(id: string): ProviderConfig | undefined {
   return PROVIDERS[id]
 }
 
+export function getProviderByNangoIntegrationId(
+  nangoIntegrationId: string
+): ProviderConfig | undefined {
+  return Object.values(PROVIDERS).find(
+    (p) => p.nangoIntegrationId === nangoIntegrationId
+  )
+}
+
 export function isProviderId(id: string): id is ProviderId {
   return id in PROVIDERS
 }

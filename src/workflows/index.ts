@@ -1,3 +1,4 @@
+import { googleDriveIngestWorkflow } from "./definitions/google-drive-ingest.workflow"
 import { processKnowledgeSummaryWorkflow } from "./definitions/process-knowledge-summary.workflow"
 
 /**
@@ -5,6 +6,7 @@ import { processKnowledgeSummaryWorkflow } from "./definitions/process-knowledge
  */
 export const WORKFLOWS = {
   "process-knowledge-summary": processKnowledgeSummaryWorkflow,
+  "google-drive-ingest": googleDriveIngestWorkflow,
 } as const
 
 export type WorkflowKey = keyof typeof WORKFLOWS

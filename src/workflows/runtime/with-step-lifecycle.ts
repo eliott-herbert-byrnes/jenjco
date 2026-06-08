@@ -7,7 +7,7 @@ export type StepLifecycleContext = {
   stepId: string
   kind: ledger.StepKind
   orgId: string
-  userId: string
+  userId: string | null
   resourceKey: string
 }
 

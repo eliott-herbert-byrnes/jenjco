@@ -366,6 +366,7 @@ export type Database = {
           id: string
           is_active: boolean
           org_id: string
+          schedule_cron: string | null
           workflow_key: string
         }
         Insert: {
@@ -376,6 +377,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           org_id: string
+          schedule_cron?: string | null
           workflow_key: string
         }
         Update: {
@@ -386,6 +388,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           org_id?: string
+          schedule_cron?: string | null
           workflow_key?: string
         }
         Relationships: [
@@ -526,6 +529,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      webhook_deliveries: {
+        Row: {
+          idempotency_key: string
+          processed_at: string
+          source: string
+        }
+        Insert: {
+          idempotency_key: string
+          processed_at?: string
+          source?: string
+        }
+        Update: {
+          idempotency_key?: string
+          processed_at?: string
+          source?: string
+        }
+        Relationships: []
       }
       workflow_runs: {
         Row: {

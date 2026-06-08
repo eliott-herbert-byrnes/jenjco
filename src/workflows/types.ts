@@ -2,7 +2,7 @@
 export type WorkflowRunInput = {
   orgId: string
   ledgerRunId: string
-  startedByUserId: string
+  startedByUserId: string | null
 }
 
 export const WORKFLOW_KEY_PROCESS_KNOWLEDGE_SUMMARY =

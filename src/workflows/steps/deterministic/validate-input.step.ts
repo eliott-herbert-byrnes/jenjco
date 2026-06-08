@@ -10,7 +10,7 @@ const UUID_RE =
 export type ValidateInputOutput = {
   orgId: string
   ledgerRunId: string
-  startedByUserId: string
+  startedByUserId: string | null
 }
 
 export async function validateInputStep(

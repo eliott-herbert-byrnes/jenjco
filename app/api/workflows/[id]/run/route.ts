@@ -1,20 +1,17 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { start } from "workflow/api"
 import {
   encodeWorkflowStreamChunk,
   mapWorkflowStreamChunk,
 } from "@/features/workflows/lib/workflow-stream"
 import { getServerAuth } from "@/lib/auth"
-import type { Json } from "@/lib/database.types"
 import { createClient } from "@/lib/supabase/server"
 import { WORKFLOWS, type WorkflowKey } from "@/src/workflows/index"
-import * as ledger from "@/src/workflows/runtime/ledger"
 import { STATUS_STREAM_NAMESPACE } from "@/src/workflows/runtime/status-stream"
 import {
-  recordWorkflowRollup,
-  sumStepUsageForRun,
-} from "@/src/workflows/runtime/usage"
+  finalizeWorkflowRun,
+  startWorkflowRun,
+} from "@/src/workflows/runtime/triggers"
 
 const uuidParam = z.string().uuid()
 
@@ -62,27 +59,25 @@ export async function POST(
     )
   }
 
-  const workflowFn = WORKFLOWS[wf.workflow_key]
-  const ledgerRunId = crypto.randomUUID()
+  const workflowKey = wf.workflow_key
   const startedAt = Date.now()
 
-  const workflowInput = {
+  const startResult = await startWorkflowRun({
     orgId: appUser.orgId,
-    ledgerRunId,
+    workflowKey,
+    trigger: "manual",
     startedByUserId: appUser.id,
+    orgWorkflowId: wf.id,
+  })
+
+  if ("skipped" in startResult) {
+    return NextResponse.json(
+      { error: "Workflow is already running" },
+      { status: 409 }
+    )
   }
 
-  const run = await start(workflowFn, [workflowInput])
-
-  await ledger.createRun({
-    id: ledgerRunId,
-    orgId: appUser.orgId,
-    workflowKey: wf.workflow_key,
-    vercelRunId: run.runId,
-    startedBy: appUser.id,
-    trigger: "manual",
-    input: workflowInput as Json,
-  })
+  const { ledgerRunId, run } = startResult
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -114,23 +109,13 @@ export async function POST(
         await statusReader.cancel()
         await pumpStatus
 
-        const { tokensIn, tokensOut } = await sumStepUsageForRun(ledgerRunId)
-
-        await ledger.completeRun({
+        await finalizeWorkflowRun({
+          run,
           ledgerRunId,
-          output: result as Json,
-          tokensIn,
-          tokensOut,
-        })
-        await recordWorkflowRollup({
           orgId: appUser.orgId,
-          userId: appUser.id,
-          ledgerRunId,
           workflowKey: wf.workflow_key,
-          tokensIn,
-          tokensOut,
-          durationMs: Date.now() - startedAt,
-          status: "success",
+          startedByUserId: appUser.id,
+          startedAt,
         })
 
         controller.enqueue(
@@ -141,26 +126,14 @@ export async function POST(
         await pumpStatus
 
         const message = err instanceof Error ? err.message : String(err)
-        let tokensIn = 0
-        let tokensOut = 0
-        try {
-          const totals = await sumStepUsageForRun(ledgerRunId)
-          tokensIn = totals.tokensIn
-          tokensOut = totals.tokensOut
-        } catch {
-          // Best-effort token roll-up on failure.
-        }
 
-        await ledger.failRun({ ledgerRunId, error: message })
-        await recordWorkflowRollup({
-          orgId: appUser.orgId,
-          userId: appUser.id,
+        await finalizeWorkflowRun({
+          run,
           ledgerRunId,
+          orgId: appUser.orgId,
           workflowKey: wf.workflow_key,
-          tokensIn,
-          tokensOut,
-          durationMs: Date.now() - startedAt,
-          status: "error",
+          startedByUserId: appUser.id,
+          startedAt,
         })
 
         controller.enqueue(

@@ -1,6 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 
-export type InvocationTriggerType = "agent" | "workflow_step" | "manual"
+export type InvocationTriggerType =
+  | "agent"
+  | "workflow_step"
+  | "manual"
+  | "cron"
+  | "event"
 
 export type LogInvocationInput = {
   orgId: string
