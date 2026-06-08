@@ -70,6 +70,10 @@ export async function POST(
     return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
   }
 
+  if (orgAgent.agent_key === 'drive-assistant' && appUser.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const { messages } = await req.json()
 
   const { threadId, error: threadErr } = await getOrCreateCurrentThreadId(supabase, {
@@ -157,6 +161,10 @@ export async function GET(
 
   if (!orgAgent) return NextResponse.json([], { status: 200 })
 
+  if (orgAgent.agent_key === 'drive-assistant' && appUser.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const threadId = await getCurrentThreadId(supabase, {
     orgId: appUser.orgId,
     userId: appUser.id,
@@ -188,12 +196,16 @@ export async function DELETE(
 
   const { data: orgAgent } = await supabase
     .from('org_agents')
-    .select('id')
+    .select('id, agent_key')
     .eq('id', orgAgentId)
     .eq('org_id', appUser.orgId)
     .single()
 
   if (!orgAgent) return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
+
+  if (orgAgent.agent_key === 'drive-assistant' && appUser.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   const threadId = `${appUser.orgId}-${appUser.id}-${orgAgentId}-${Date.now()}`
   const { error } = await supabase.from('conversations').insert({

@@ -149,6 +149,14 @@ async function main() {
           "Answers questions about internal processes and documentation.",
         is_active: true,
       },
+      {
+        org_id: orgId,
+        agent_key: "drive-assistant",
+        display_name: "Drive Assistant",
+        description:
+          "Search and browse files in the organisation's connected Google Drive.",
+        is_active: true,
+      },
     ],
     { onConflict: "org_id,agent_key" }
   )

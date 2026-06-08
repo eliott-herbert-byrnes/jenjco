@@ -10,3 +10,4 @@ export const WORKFLOWS = {
 export type WorkflowKey = keyof typeof WORKFLOWS
 
 export { spikeWorkflow } from "./definitions/_spike.workflow"
+export { googleDriveIngestWorkflow } from "./definitions/google-drive-ingest.workflow"

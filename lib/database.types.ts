@@ -100,6 +100,76 @@ export type Database = {
           },
         ]
       }
+      integration_invocations: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          endpoint: string | null
+          error_code: string | null
+          id: string
+          method: string | null
+          org_connection_id: string | null
+          org_id: string
+          provider: string
+          resource_key: string | null
+          status: string
+          trigger_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          endpoint?: string | null
+          error_code?: string | null
+          id?: string
+          method?: string | null
+          org_connection_id?: string | null
+          org_id: string
+          provider: string
+          resource_key?: string | null
+          status: string
+          trigger_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          endpoint?: string | null
+          error_code?: string | null
+          id?: string
+          method?: string | null
+          org_connection_id?: string | null
+          org_id?: string
+          provider?: string
+          resource_key?: string | null
+          status?: string
+          trigger_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_invocations_org_connection_id_fkey"
+            columns: ["org_connection_id"]
+            isOneToOne: false
+            referencedRelation: "org_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_invocations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_invocations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_agents: {
         Row: {
           agent_key: string
@@ -140,6 +210,57 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "org_agents_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_connections: {
+        Row: {
+          connected_by_user_id: string | null
+          created_at: string
+          id: string
+          nango_connection_id: string
+          org_id: string
+          owner_type: string
+          provider: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          connected_by_user_id?: string | null
+          created_at?: string
+          id?: string
+          nango_connection_id: string
+          org_id: string
+          owner_type?: string
+          provider: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          connected_by_user_id?: string | null
+          created_at?: string
+          id?: string
+          nango_connection_id?: string
+          org_id?: string
+          owner_type?: string
+          provider?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_connections_connected_by_user_id_fkey"
+            columns: ["connected_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_connections_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -191,6 +312,44 @@ export type Database = {
           },
           {
             foreignKeyName: "org_processes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_provider_credentials: {
+        Row: {
+          client_id: string
+          client_secret: string
+          created_at: string
+          id: string
+          org_id: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          client_secret: string
+          created_at?: string
+          id?: string
+          org_id: string
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          client_secret?: string
+          created_at?: string
+          id?: string
+          org_id?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_provider_credentials_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
