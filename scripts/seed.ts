@@ -126,6 +126,7 @@ async function main() {
         email: ADMIN_EMAIL,
         role: "admin",
         display_name: "John Pye Admin",
+        is_active: true,
       },
       {
         org_id: orgId,
@@ -133,6 +134,7 @@ async function main() {
         email: VIEWER_EMAIL,
         role: "viewer",
         display_name: "John Pye Viewer",
+        is_active: true,
       },
     ],
     { onConflict: "supabase_auth_id" }

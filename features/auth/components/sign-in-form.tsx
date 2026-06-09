@@ -44,12 +44,15 @@ export function SignInForm({
                 <h1 className="text-2xl font-bold">Welcome back</h1>
                 <p className="text-balance text-muted-foreground">
                   Sign in to your Jenjco account (demo)
-                  {errorMessage ? (
-                    <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
-                      {errorMessage}
-                    </p>
-                  ) : null}
                 </p>
+                {errorMessage ? (
+                  <div
+                    role="alert"
+                    className="w-full rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-center text-sm text-destructive"
+                  >
+                    {errorMessage}
+                  </div>
+                ) : null}
               </div>
               <Field>
                 <Button type="submit" className="w-full">

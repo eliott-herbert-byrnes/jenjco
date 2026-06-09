@@ -12,6 +12,7 @@ const PROFILE_SELECT = `
   email,
   role,
   display_name,
+  is_active,
   organizations (
     id,
     name,
@@ -42,6 +43,11 @@ export async function getServerAuth(): Promise<ServerAuthContext> {
 
   if (error || !row) {
     return { authUser, appUser: null, organization: null }
+  }
+
+  if (row.is_active === false) {
+    await supabase.auth.signOut()
+    return { authUser: null, appUser: null, organization: null }
   }
 
   const mapped = mapUsersProfileRow(row as unknown as UsersProfileRow)

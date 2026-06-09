@@ -13,6 +13,7 @@ import {
 
 import { paths } from "@/app/paths"
 import { NavMain } from "@/components/nav-main"
+import { useUser } from "@/hooks/use-user"
 import { UserAccountMenu } from "@/components/user-account-menu"
 import {
   Sidebar,
@@ -41,7 +42,36 @@ function isOrganisationSectionActive(pathname: string) {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname() ?? ""
+  const { appUser } = useUser()
+  const isAdmin = appUser?.role === "admin"
   const organisationActive = isOrganisationSectionActive(pathname)
+
+  const organisationSubItems = [
+    {
+      title: "Org Structure",
+      url: paths.orgStructure,
+      isActive: isActivePath(pathname, paths.orgStructure),
+    },
+    {
+      title: "Processes",
+      url: paths.processes,
+      isActive: isActivePath(pathname, paths.processes),
+    },
+    ...(isAdmin
+      ? [
+          {
+            title: "Integrations",
+            url: paths.integrations,
+            isActive: isActivePath(pathname, paths.integrations),
+          },
+          {
+            title: "Users",
+            url: paths.organisationUsers,
+            isActive: isActivePath(pathname, paths.organisationUsers),
+          },
+        ]
+      : []),
+  ]
 
   const navItems = [
     {
@@ -55,28 +85,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: paths.organisation,
       icon: Building2Icon,
       isActive: organisationActive,
-      items: [
-        {
-          title: "Org Structure",
-          url: paths.orgStructure,
-          isActive: isActivePath(pathname, paths.orgStructure),
-        },
-        {
-          title: "Processes",
-          url: paths.processes,
-          isActive: isActivePath(pathname, paths.processes),
-        },
-        {
-          title: "Integrations",
-          url: paths.integrations,
-          isActive: isActivePath(pathname, paths.integrations),
-        },
-        {
-          title: "Users",
-          url: paths.organisationUsers,
-          isActive: isActivePath(pathname, paths.organisationUsers),
-        },
-      ],
+      items: organisationSubItems,
     },
     {
       title: "Workflows",

@@ -498,6 +498,8 @@ export type Database = {
           display_name: string | null
           email: string
           id: string
+          invited_at: string | null
+          is_active: boolean
           org_id: string
           role: string
           supabase_auth_id: string
@@ -507,6 +509,8 @@ export type Database = {
           display_name?: string | null
           email: string
           id?: string
+          invited_at?: string | null
+          is_active?: boolean
           org_id: string
           role: string
           supabase_auth_id: string
@@ -516,6 +520,8 @@ export type Database = {
           display_name?: string | null
           email?: string
           id?: string
+          invited_at?: string | null
+          is_active?: boolean
           org_id?: string
           role?: string
           supabase_auth_id?: string

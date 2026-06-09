@@ -9,6 +9,7 @@ export type AppUser = {
   email: string
   role: AppRole
   displayName: string | null
+  isActive: boolean
 }
 
 
