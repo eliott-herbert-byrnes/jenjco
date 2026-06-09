@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { toast } from "sonner"
+
+import { useServerAction } from "@/lib/hooks/use-server-action"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -29,29 +30,23 @@ type CredentialFormProps = {
 export function CredentialForm({ provider, onSaved }: CredentialFormProps) {
   const [clientId, setClientId] = useState("")
   const [clientSecret, setClientSecret] = useState("")
-  const [pending, setPending] = useState(false)
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const { execute, pending } = useServerAction(saveCredentials, {
+    successMessage: "OAuth credentials saved",
+    onSuccess: () => {
+      setClientId("")
+      setClientSecret("")
+      onSaved()
+    },
+  })
+
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    setPending(true)
-
-    const result = await saveCredentials({
+    void execute({
       provider: provider.id,
       clientId: clientId.trim(),
       clientSecret: clientSecret.trim(),
     })
-
-    setPending(false)
-
-    if (!result.success) {
-      toast.error(result.error)
-      return
-    }
-
-    toast.success("OAuth credentials saved")
-    setClientId("")
-    setClientSecret("")
-    onSaved()
   }
 
   return (
@@ -64,7 +59,7 @@ export function CredentialForm({ provider, onSaved }: CredentialFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={(event) => void handleSubmit(event)}>
+        <form onSubmit={handleSubmit}>
           <FieldGroup>
             {provider.hasCredentials ? (
               <p className="text-sm text-muted-foreground">

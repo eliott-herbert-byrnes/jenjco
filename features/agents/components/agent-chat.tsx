@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { DefaultChatTransport } from 'ai'
 import { useChat } from '@ai-sdk/react'
-import { toast } from 'sonner'
 import { apiPaths } from '@/app/paths'
+import { useAgentConversation } from '../hooks/use-agent-conversation'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AgentChatInput } from './agent-chat-input'
 import { AgentChatMessages } from './agent-chat-messages'
@@ -19,22 +19,12 @@ export function AgentChat({ orgAgentId }: { orgAgentId: string }) {
     transport: new DefaultChatTransport({ api: chatEndpoint }),
   })
 
-  useEffect(() => {
-    let ignore = false
-    const controller = new AbortController()
-      ; (async () => {
-        try {
-          const res = await fetch(chatEndpoint, { signal: controller.signal })
-          if (!ignore && res.ok) setMessages(await res.json())
-        } catch {
-          /* aborted or network */
-        }
-      })()
-    return () => {
-      ignore = true
-      controller.abort()
-    }
-  }, [chatEndpoint, setMessages])
+  const { clearConversation, clearing } = useAgentConversation({
+    chatEndpoint,
+    setMessages,
+    stop,
+    status,
+  })
 
   const handleSubmit = () => {
     if (!input.trim()) return
@@ -44,21 +34,6 @@ export function AgentChat({ orgAgentId }: { orgAgentId: string }) {
 
   const handleSuggestionClick = (suggestion: string) => {
     sendMessage({ text: suggestion })
-  }
-
-  const handleClearConversation = async () => {
-    try {
-      if (status === 'streaming' || status === 'submitted') stop()
-      const res = await fetch(chatEndpoint, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Failed to clear')
-      setMessages([])
-      toast.success('Conversation cleared')
-    } catch (e) {
-      const message =
-        e instanceof Error ? e.message : 'Could not clear conversation'
-      toast.error(message)
-      throw e instanceof Error ? e : new Error(message)
-    }
   }
 
   return (
@@ -71,7 +46,7 @@ export function AgentChat({ orgAgentId }: { orgAgentId: string }) {
       >
         Share
       </Button>
-      <ClearConversationButton onConfirm={handleClearConversation} />
+      <ClearConversationButton disabled={clearing} onConfirm={clearConversation} />
       <AgentChatMessages messages={messages} status={status} />
       {error && (
         <Alert variant="destructive" className="mt-2 shrink-0">

@@ -6,13 +6,7 @@ import { useSelectedLayoutSegment } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { paths } from '@/app/paths'
-
-type OrgWorkflow = {
-  id: string
-  display_name: string
-  description: string | null
-  is_active: boolean
-}
+import type { OrgWorkflow } from '@/features/workflows/types'
 
 export function WorkflowListPanel({ workflows }: { workflows: OrgWorkflow[] }) {
   const [search, setSearch] = useState('')
