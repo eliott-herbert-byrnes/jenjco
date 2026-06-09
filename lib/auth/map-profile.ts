@@ -9,6 +9,7 @@ export type UsersProfileRow = {
   email: string
   role: string
   display_name: string | null
+  is_active?: boolean | null
   organizations: OrgRow | OrgRow[] | null
 }
 
@@ -31,6 +32,7 @@ export function mapUsersProfileRow(row: UsersProfileRow): {
     email: row.email,
     role,
     displayName: row.display_name,
+    isActive: row.is_active ?? true,
   }
 
   const organization: OrganizationSummary | null = orgRow

@@ -38,6 +38,7 @@ const ORGANISATION_LINKS = [
     description: "Invite teammates and manage roles",
     href: paths.organisationUsers,
     icon: UsersIcon,
+    adminOnly: true,
   },
   {
     title: "Integrations",
@@ -62,7 +63,9 @@ export default async function OrganisationPage() {
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2">
-        {ORGANISATION_LINKS.map((item) => (
+        {ORGANISATION_LINKS.filter(
+          (item) => appUser.role === "admin" || !("adminOnly" in item && item.adminOnly)
+        ).map((item) => (
           <Link key={item.href} href={item.href} className="block">
             <Card className="h-full transition-colors hover:bg-muted/50">
               <CardHeader>

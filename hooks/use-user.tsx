@@ -24,6 +24,7 @@ const PROFILE_SELECT = `
   email,
   role,
   display_name,
+  is_active,
   organizations (
     id,
     name,
