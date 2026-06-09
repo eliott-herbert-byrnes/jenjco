@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useWorkflowRun } from '../hooks/use-workflow-run'
 import { ReactFlowProvider } from '@xyflow/react'
 import type { Node as RFNode, NodeProps } from '@xyflow/react'
 import { Canvas } from '@/components/ai-elements/canvas'
@@ -17,64 +18,14 @@ import { Panel } from '@/components/ai-elements/panel'
 import { Button } from '@/components/ui/button'
 import type { AppRole } from '@/lib/auth'
 import { cn } from '@/lib/utils'
-import { buildNodes, decorateEdgesForRunState, type EdgeMeta, type StepMeta, type StepRunStatus } from '../lib/layout'
+import { buildNodes, decorateEdgesForRunState } from '../lib/layout'
+import type { StepMeta, StepRunStatus, WorkflowCanvasWorkflow } from '../types'
+import { parseWorkflowConfig } from '../utils/config'
 import { WorkflowRunDrawer } from './workflow-run-drawer'
-
-export type WorkflowCanvasWorkflow = {
-  id: string
-  workflow_key: string
-  display_name: string
-  description: string | null
-  is_active: boolean
-  config_overrides: unknown
-  created_at: string
-}
 
 type StepNodeData = StepMeta & { status?: StepRunStatus }
 
 type WorkflowStepRfNode = RFNode<StepNodeData, 'workflowStep'>
-
-function parseWorkflowConfig(raw: unknown): {
-  steps: StepMeta[]
-  edges: EdgeMeta[]
-  inputSchema?: Record<string, unknown>
-} {
-  if (!raw || typeof raw !== 'object') return { steps: [], edges: [] }
-  const o = raw as Record<string, unknown>
-  const steps: StepMeta[] = []
-  const edges: EdgeMeta[] = []
-
-  if (Array.isArray(o.steps)) {
-    for (const s of o.steps) {
-      if (!s || typeof s !== 'object') continue
-      const r = s as Record<string, unknown>
-      const id = typeof r.id === 'string' ? r.id : null
-      if (!id) continue
-      steps.push({
-        id,
-        label: typeof r.label === 'string' ? r.label : id,
-        description: typeof r.description === 'string' ? r.description : '',
-      })
-    }
-  }
-
-  if (Array.isArray(o.edges)) {
-    for (const e of o.edges) {
-      if (!e || typeof e !== 'object') continue
-      const r = e as Record<string, unknown>
-      if (typeof r.source === 'string' && typeof r.target === 'string') {
-        edges.push({ source: r.source, target: r.target })
-      }
-    }
-  }
-
-  const inputSchema =
-    o.inputSchema && typeof o.inputSchema === 'object'
-      ? (o.inputSchema as Record<string, unknown>)
-      : undefined
-
-  return { steps, edges, inputSchema }
-}
 
 function WorkflowStepNode({ data }: NodeProps<WorkflowStepRfNode>) {
   const status = data.status ?? 'idle'
@@ -119,8 +70,17 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
     [workflow.config_overrides]
   )
 
-  const [stepStatuses, setStepStatuses] = useState<Record<string, StepRunStatus>>({})
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const canRun = role === 'admin' && workflow.is_active
+  const { stepStatuses, run, running, result, runError, reset } = useWorkflowRun({
+    workflowId: workflow.id,
+    canRun,
+  })
+
+  const handleDrawerOpenChange = (next: boolean) => {
+    if (next) reset()
+    setDrawerOpen(next)
+  }
 
   const nodes = useMemo(
     () =>
@@ -178,14 +138,16 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
         </Canvas>
 
         <WorkflowRunDrawer
-          workflowId={workflow.id}
           displayName={workflow.display_name}
           isActive={workflow.is_active}
           role={role}
           inputSchema={inputSchema}
-          setStepStatuses={setStepStatuses}
           open={drawerOpen}
-          onOpenChange={setDrawerOpen}
+          onOpenChange={handleDrawerOpenChange}
+          run={run}
+          running={running}
+          result={result}
+          runError={runError}
         />
       </div>
     </ReactFlowProvider>

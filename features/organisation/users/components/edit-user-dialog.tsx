@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { toast } from "sonner"
+
+import { useServerAction } from "@/lib/hooks/use-server-action"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -44,33 +45,26 @@ type EditUserFormProps = {
 function EditUserForm({ user, onOpenChange, onSuccess }: EditUserFormProps) {
   const [role, setRole] = useState<"admin" | "viewer">(user.role)
   const [displayName, setDisplayName] = useState(user.display_name ?? "")
-  const [pending, setPending] = useState(false)
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const { execute, pending } = useServerAction(updateUser, {
+    successMessage: "User updated",
+    onSuccess: () => {
+      onOpenChange(false)
+      onSuccess()
+    },
+  })
+
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-
-    setPending(true)
-
-    const result = await updateUser({
+    void execute({
       userId: user.id,
       role,
       displayName: displayName.trim() || null,
     })
-
-    setPending(false)
-
-    if (!result.success) {
-      toast.error(result.error)
-      return
-    }
-
-    toast.success("User updated")
-    onOpenChange(false)
-    onSuccess()
   }
 
   return (
-    <form onSubmit={(event) => void handleSubmit(event)}>
+    <form onSubmit={handleSubmit}>
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="edit-email">Email</FieldLabel>

@@ -4,6 +4,8 @@ import { useState } from "react"
 import { CopyIcon } from "lucide-react"
 import { toast } from "sonner"
 
+import { useServerAction } from "@/lib/hooks/use-server-action"
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -36,33 +38,27 @@ export function InviteUserForm({ onSuccess }: InviteUserFormProps) {
   const [email, setEmail] = useState("")
   const [role, setRole] = useState<"admin" | "viewer">("viewer")
   const [displayName, setDisplayName] = useState("")
-  const [pending, setPending] = useState(false)
   const [inviteLink, setInviteLink] = useState<string | null>(null)
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setPending(true)
-    setInviteLink(null)
+  const { execute, pending } = useServerAction(inviteUser, {
+    successMessage: "Invite created — copy the link below",
+    onSuccess: (result) => {
+      setInviteLink(result.inviteLink ?? null)
+      setEmail("")
+      setDisplayName("")
+      setRole("viewer")
+      onSuccess()
+    },
+  })
 
-    const result = await inviteUser({
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    setInviteLink(null)
+    void execute({
       email: email.trim(),
       role,
       displayName: displayName.trim() || undefined,
     })
-
-    setPending(false)
-
-    if (!result.success) {
-      toast.error(result.error)
-      return
-    }
-
-    toast.success("Invite created — copy the link below")
-    setInviteLink(result.inviteLink ?? null)
-    setEmail("")
-    setDisplayName("")
-    setRole("viewer")
-    onSuccess()
   }
 
   const handleCopyLink = async () => {
@@ -86,7 +82,7 @@ export function InviteUserForm({ onSuccess }: InviteUserFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={(event) => void handleSubmit(event)}>
+        <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="invite-email">Email</FieldLabel>

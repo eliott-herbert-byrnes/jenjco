@@ -1,52 +1,16 @@
 import { NextResponse } from 'next/server'
-import type { SupabaseClient } from '@supabase/supabase-js'
 import { createUIMessageStreamResponse } from 'ai'
 import { RequestContext } from '@mastra/core/request-context'
 import { toAISdkStream } from '@mastra/ai-sdk'
 import { toAISdkV5Messages } from '@mastra/ai-sdk/ui'
+import {
+  getCurrentThreadId,
+  getOrCreateCurrentThreadId,
+} from '@/features/agents/lib/thread'
 import { getServerAuth } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { getMastra } from '@/mastra'
 import { logUsage } from '@/lib/usage-logger'
-
-/** Most recent conversation row for this user + agent (current thread). */
-async function getCurrentThreadId(
-  supabase: SupabaseClient,
-  { orgId, userId, orgAgentId }: { orgId: string; userId: string; orgAgentId: string }
-): Promise<string | null> {
-  const { data } = await supabase
-    .from('conversations')
-    .select('thread_id')
-    .eq('org_id', orgId)
-    .eq('user_id', userId)
-    .eq('org_agent_id', orgAgentId)
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  return data?.thread_id ?? null
-}
-
-/**
- * Resolves the current thread or creates a new row. POST uses this so the latest
- * `updated_at` row remains the active thread (see also Phase 8 DELETE rotation).
- */
-async function getOrCreateCurrentThreadId(
-  supabase: SupabaseClient,
-  { orgId, userId, orgAgentId }: { orgId: string; userId: string; orgAgentId: string }
-): Promise<{ threadId: string; error: Error | null }> {
-  const existing = await getCurrentThreadId(supabase, { orgId, userId, orgAgentId })
-  if (existing) return { threadId: existing, error: null }
-
-  const threadId = `${orgId}-${userId}-${orgAgentId}-${Date.now()}`
-  const { error } = await supabase.from('conversations').insert({
-    org_id: orgId,
-    user_id: userId,
-    org_agent_id: orgAgentId,
-    thread_id: threadId,
-  })
-  return { threadId, error: error ? new Error(error.message) : null }
-}
 
 export async function POST(
   req: Request,

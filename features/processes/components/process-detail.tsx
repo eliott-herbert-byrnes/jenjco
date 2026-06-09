@@ -6,25 +6,8 @@ import type { AppRole } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Trash2 } from 'lucide-react'
-
-export type ProcessDetailData = {
-  id: string
-  title: string
-  content: string
-  departmentName: string | null
-  updatedAt: string
-}
-
-function formatUpdatedAt(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
-}
+import type { ProcessDetailData } from '../types'
+import { formatUpdatedAt } from '../utils/format'
 
 export function ProcessDetail({
   process,

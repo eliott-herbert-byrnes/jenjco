@@ -1,9 +1,8 @@
 'use client'
 
 import { code } from '@streamdown/code'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Streamdown } from 'streamdown'
-import { apiPaths } from '@/app/paths'
 import type { AppRole } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,129 +15,50 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import type { StepRunStatus } from '../lib/layout'
-
-type JsonSchemaProps = {
-  type?: string
-  properties?: Record<string, { type?: string; description?: string }>
-  required?: string[]
-}
-
-function defaultInputFromSchema(
-  inputSchema: Record<string, unknown> | undefined
-): Record<string, string> {
-  const schema = inputSchema as JsonSchemaProps | undefined
-  const props = schema?.properties ?? {}
-  const out: Record<string, string> = {}
-  for (const key of Object.keys(props)) {
-    if (key === 'orgId') continue
-    out[key] = ''
-  }
-  return out
-}
-
-/** Property keys: required fields first (schema order), then remaining keys in definition order. */
-function orderedInputKeys(schema: JsonSchemaProps | undefined): string[] {
-  if (!schema?.properties) return []
-  const props = schema.properties
-  const required = schema.required ?? []
-  const seen = new Set<string>()
-  const out: string[] = []
-  for (const k of required) {
-    if (k === 'orgId' || !(k in props) || seen.has(k)) continue
-    out.push(k)
-    seen.add(k)
-  }
-  for (const k of Object.keys(props)) {
-    if (k === 'orgId' || seen.has(k)) continue
-    out.push(k)
-    seen.add(k)
-  }
-  return out
-}
-
-function applyWorkflowStreamChunk(
-  raw: unknown,
-  setStepStatuses: React.Dispatch<React.SetStateAction<Record<string, StepRunStatus>>>
-): 'workflow-result' | 'error' | 'continue' {
-  if (!raw || typeof raw !== 'object') return 'continue'
-  const e = raw as Record<string, unknown>
-  const type = e.type
-
-  if (type === 'workflow-step-start') {
-    const payload = e.payload as { id?: string } | undefined
-    const id = payload?.id
-    if (id) setStepStatuses((p) => ({ ...p, [id]: 'running' }))
-    return 'continue'
-  }
-
-  if (type === 'workflow-step-result') {
-    const payload = e.payload as { id?: string; status?: string } | undefined
-    const id = payload?.id
-    const st = payload?.status
-    if (id && st === 'success') setStepStatuses((p) => ({ ...p, [id]: 'success' }))
-    if (id && st === 'failed') setStepStatuses((p) => ({ ...p, [id]: 'error' }))
-    return 'continue'
-  }
-
-  // Plan / legacy names (if emitted by other versions)
-  if (type === 'step-start') {
-    const id = (e.stepId ?? e.id) as string | undefined
-    if (id) setStepStatuses((p) => ({ ...p, [id]: 'running' }))
-    return 'continue'
-  }
-  if (type === 'step-complete') {
-    const id = (e.stepId ?? e.id) as string | undefined
-    if (id) setStepStatuses((p) => ({ ...p, [id]: 'success' }))
-    return 'continue'
-  }
-  if (type === 'step-failed') {
-    const id = (e.stepId ?? e.id) as string | undefined
-    if (id) setStepStatuses((p) => ({ ...p, [id]: 'error' }))
-    return 'continue'
-  }
-
-  if (type === 'workflow-result') return 'workflow-result'
-  if (type === 'error') return 'error'
-
-  return 'continue'
-}
+import type { WorkflowRunInput } from '../hooks/use-workflow-run'
+import type { JsonSchemaProps } from '../types'
+import { defaultInputFromSchema, orderedInputKeys } from '../utils/schema'
 
 export type WorkflowRunDrawerProps = {
-  workflowId: string
   displayName: string
   isActive: boolean
   role: AppRole
   inputSchema: Record<string, unknown> | undefined
-  setStepStatuses: React.Dispatch<React.SetStateAction<Record<string, StepRunStatus>>>
   open: boolean
   onOpenChange: (open: boolean) => void
+  run: (input: WorkflowRunInput) => Promise<void>
+  running: boolean
+  result: unknown | null
+  runError: string | null
 }
 
 export function WorkflowRunDrawer({
-  workflowId,
   displayName,
   isActive,
   role,
   inputSchema,
-  setStepStatuses,
   open,
   onOpenChange,
+  run,
+  running,
+  result,
+  runError,
 }: WorkflowRunDrawerProps) {
-  const [running, setRunning] = useState(false)
-  const [result, setResult] = useState<unknown>(null)
-  const [runError, setRunError] = useState<string | null>(null)
   const [inputData, setInputData] = useState<Record<string, string>>(() =>
     defaultInputFromSchema(inputSchema)
   )
+  const [prevOpen, setPrevOpen] = useState(open)
+  const [prevInputSchema, setPrevInputSchema] = useState(inputSchema)
 
-  useEffect(() => {
-    if (open) {
-      setInputData(defaultInputFromSchema(inputSchema))
-      setResult(null)
-      setRunError(null)
-    }
-  }, [open, inputSchema])
+  if (open !== prevOpen) {
+    setPrevOpen(open)
+    if (open) setInputData(defaultInputFromSchema(inputSchema))
+  }
+
+  if (inputSchema !== prevInputSchema) {
+    setPrevInputSchema(inputSchema)
+    if (open) setInputData(defaultInputFromSchema(inputSchema))
+  }
 
   const canRun = role === 'admin' && isActive
 
@@ -147,90 +67,6 @@ export function WorkflowRunDrawer({
     [inputSchema]
   )
   const inputProps = (inputSchema as JsonSchemaProps | undefined)?.properties ?? {}
-
-  const handleRun = useCallback(async () => {
-    if (!canRun) return
-    setRunning(true)
-    setStepStatuses({})
-    setResult(null)
-    setRunError(null)
-
-    const body =
-      inputKeys.length > 0
-        ? {
-            inputData: Object.fromEntries(
-              inputKeys.map((key) => [key, inputData[key] ?? ''])
-            ),
-          }
-        : {}
-    let streamResult: unknown | undefined
-
-    const dispatchEvent = (event: unknown) => {
-      const outcome = applyWorkflowStreamChunk(event, setStepStatuses)
-      if (outcome === 'workflow-result') {
-        streamResult = (event as { result?: unknown }).result
-      }
-      if (outcome === 'error') {
-        setRunError(String((event as { message?: unknown }).message ?? 'Unknown error'))
-      }
-    }
-
-    try {
-      const res = await fetch(apiPaths.workflowRun(workflowId), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      if (!res.ok) {
-        const j = (await res.json().catch(() => null)) as { error?: string } | null
-        setRunError(j?.error ?? `Request failed (${res.status})`)
-        return
-      }
-
-      const reader = res.body?.getReader()
-      if (!reader) {
-        setRunError('No response body')
-        return
-      }
-
-      const decoder = new TextDecoder()
-      let buffer = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        buffer += decoder.decode(value, { stream: !done })
-        const lines = buffer.split('\n')
-        buffer = done ? '' : (lines.pop() ?? '')
-
-        for (const line of lines) {
-          const trimmed = line.trim()
-          if (!trimmed) continue
-          try {
-            dispatchEvent(JSON.parse(trimmed) as unknown)
-          } catch {
-            continue
-          }
-        }
-        if (done) break
-      }
-
-      const tail = buffer.trim()
-      if (tail) {
-        try {
-          dispatchEvent(JSON.parse(tail) as unknown)
-        } catch {
-          // ignore trailing partial JSON
-        }
-      }
-
-      if (streamResult !== undefined) setResult(streamResult)
-    } catch (err) {
-      setRunError(err instanceof Error ? err.message : String(err))
-    } finally {
-      setRunning(false)
-    }
-  }, [canRun, workflowId, inputData, inputKeys, setStepStatuses])
 
   const summaryMarkdown =
     result && typeof result === 'object' && result !== null && 'summary' in result
@@ -300,7 +136,10 @@ export function WorkflowRunDrawer({
         </div>
 
         <SheetFooter className="border-t">
-          <Button disabled={!canRun || running} onClick={() => void handleRun()}>
+          <Button
+            disabled={!canRun || running}
+            onClick={() => void run({ inputKeys, inputData })}
+          >
             {running ? 'Running…' : 'Run'}
           </Button>
         </SheetFooter>
