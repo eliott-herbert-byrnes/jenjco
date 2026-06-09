@@ -8,7 +8,6 @@ import {
   ClipboardListIcon,
   GitBranchIcon,
   HomeIcon,
-  LayoutDashboardIcon,
 } from "lucide-react"
 
 import { paths } from "@/app/paths"
@@ -24,6 +23,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import Image from "next/image"
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/"
@@ -108,9 +108,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href={paths.dashboard}>
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <LayoutDashboardIcon className="size-4" />
-                </div>
+                <Image
+                  width="8"
+                  height="8"
+                  src="/logo.svg"
+                  alt="JENJCO"
+                  className="size-8 shrink-0"
+                />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">JENJCO</span>
                   <span className="truncate text-xs text-muted-foreground">
