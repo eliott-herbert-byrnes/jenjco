@@ -32,7 +32,6 @@ function isActivePath(pathname: string, href: string) {
 
 function isOrganisationSectionActive(pathname: string) {
   return (
-    isActivePath(pathname, paths.organisation) ||
     isActivePath(pathname, paths.orgStructure) ||
     isActivePath(pathname, paths.processes) ||
     isActivePath(pathname, paths.integrations) ||
@@ -82,7 +81,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       title: "Organisation",
-      url: paths.organisation,
       icon: Building2Icon,
       isActive: organisationActive,
       items: organisationSubItems,

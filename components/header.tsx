@@ -20,7 +20,7 @@ export function Header({ className, page, description }: { className?: string, p
           <span className="">{page}</span>
         </h1>
         <Separator orientation="vertical" className="my-auto ml-4 mr-2 h-6" />
-        <h2 className="truncate font-semibold tracking-tight text-muted-foreground ml-1">
+        <h2 className="truncate tracking-tight text-muted-foreground ml-1">
           <span>
             {description}
           </span>

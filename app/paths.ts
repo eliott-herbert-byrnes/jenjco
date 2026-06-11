@@ -26,7 +26,6 @@ export const paths = {
 const PROTECTED_APP_PREFIXES: readonly string[] = [
   paths.dashboard,
   paths.agents,
-  paths.organisation,
   paths.organisationUsers,
   paths.integrations,
   paths.workflows,

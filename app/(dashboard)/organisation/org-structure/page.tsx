@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+
 import { paths } from "@/app/paths"
+import { Header } from "@/components/header"
 import { OrgStructureCanvas } from "@/features/org-structure/components/org-structure-canvas"
 import type { DeptRow } from "@/features/org-structure/lib/layout"
 import { getServerAuth } from "@/lib/auth"
@@ -15,7 +17,9 @@ export default async function OrgStructurePage() {
   const supabase = await createClient()
   const { data } = await supabase
     .from("departments")
-    .select("id, name, parent_id, sort_order, org_processes(id)")
+    .select(
+      "id, name, parent_id, sort_order, org_processes(id, title), org_workflows(id, display_name)"
+    )
     .eq("org_id", appUser.orgId)
     .order("sort_order")
 
@@ -25,14 +29,27 @@ export default async function OrgStructurePage() {
     parent_id: r.parent_id,
     sort_order: r.sort_order,
     process_count: Array.isArray(r.org_processes) ? r.org_processes.length : 0,
+    workflow_count: Array.isArray(r.org_workflows) ? r.org_workflows.length : 0,
+    process_names: Array.isArray(r.org_processes)
+      ? r.org_processes.map((p: { title: string }) => p.title)
+      : [],
+    workflow_names: Array.isArray(r.org_workflows)
+      ? r.org_workflows.map((w: { display_name: string }) => w.display_name)
+      : [],
   }))
 
   return (
-    <div className="h-[calc(100vh-4rem)] w-full">
-      <OrgStructureCanvas
-        orgName={organization?.name ?? "Organisation"}
-        departments={departments}
+    <>
+      <Header
+        page="Organisation"
+        description="Get a high level overview of your organisation"
       />
-    </div>
+      <div className="h-[calc(100vh-8rem)] w-full">
+        <OrgStructureCanvas
+          orgName={organization?.name ?? "Organisation"}
+          departments={departments}
+        />
+      </div>
+    </>
   )
 }
