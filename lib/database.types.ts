@@ -361,6 +361,7 @@ export type Database = {
         Row: {
           config_overrides: Json | null
           created_at: string
+          department_id: string | null
           description: string | null
           display_name: string
           id: string
@@ -372,6 +373,7 @@ export type Database = {
         Insert: {
           config_overrides?: Json | null
           created_at?: string
+          department_id?: string | null
           description?: string | null
           display_name: string
           id?: string
@@ -383,6 +385,7 @@ export type Database = {
         Update: {
           config_overrides?: Json | null
           created_at?: string
+          department_id?: string | null
           description?: string | null
           display_name?: string
           id?: string
@@ -392,6 +395,13 @@ export type Database = {
           workflow_key?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "org_workflows_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "org_workflows_org_id_fkey"
             columns: ["org_id"]
