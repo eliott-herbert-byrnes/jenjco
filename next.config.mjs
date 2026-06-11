@@ -17,6 +17,11 @@ const nextConfig = {
         destination: paths.orgStructure,
         permanent: false,
       },
+      {
+        source: paths.organisation,
+        destination: paths.orgStructure,
+        permanent: false,
+      },
     ]
   },
 }

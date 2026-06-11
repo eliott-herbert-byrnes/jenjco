@@ -22,7 +22,7 @@ import {
 
 export type NavMainItem = {
   title: string
-  url: string
+  url?: string
   icon: LucideIcon
   isActive?: boolean
   items?: {
@@ -51,16 +51,28 @@ export function NavMain({
               defaultOpen={true}
             >
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item.title}
-                  isActive={item.isActive}
-                >
-                  <Link href={item.url}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
+                {item.url ? (
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={item.isActive}
+                  >
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                ) : (
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      isActive={item.isActive}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                )}
                 <CollapsibleTrigger asChild>
                   <SidebarMenuAction className="data-[state=open]:rotate-90">
                     <ChevronRightIcon />
@@ -92,7 +104,7 @@ export function NavMain({
                 tooltip={item.title}
                 isActive={item.isActive}
               >
-                <Link href={item.url}>
+                <Link href={item.url!}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>

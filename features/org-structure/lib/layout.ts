@@ -2,7 +2,8 @@ import dagre from "@dagrejs/dagre"
 import { type Edge, type Node, Position } from "@xyflow/react"
 
 export const NODE_WIDTH = 180
-export const NODE_HEIGHT = 60
+export const NODE_HEIGHT = 90
+export const ROOT_NODE_HEIGHT = 80
 
 export type DeptRow = {
   id: string
@@ -10,12 +11,16 @@ export type DeptRow = {
   parent_id: string | null
   sort_order: number
   process_count: number
+  workflow_count: number
+  process_names: string[]
+  workflow_names: string[]
 }
 
 export type OrgNodeData = {
   label: string
   isRoot: boolean
   processCount?: number
+  workflowCount?: number
 }
 
 const ROOT_ID = "__org_root__"
@@ -28,7 +33,7 @@ export function buildOrgLayout(
   g.setDefaultEdgeLabel(() => ({}))
   g.setGraph({ rankdir: "TB", ranksep: 80, nodesep: 40 })
 
-  g.setNode(ROOT_ID, { width: NODE_WIDTH, height: NODE_HEIGHT })
+  g.setNode(ROOT_ID, { width: NODE_WIDTH, height: ROOT_NODE_HEIGHT })
 
   for (const dept of departments) {
     g.setNode(dept.id, { width: NODE_WIDTH, height: NODE_HEIGHT })
@@ -40,17 +45,20 @@ export function buildOrgLayout(
 
   dagre.layout(g)
 
-  const toRfNode = (id: string, data: OrgNodeData): Node<OrgNodeData> => ({
-    id,
-    type: "orgNode",
-    position: {
-      x: g.node(id).x - NODE_WIDTH / 2,
-      y: g.node(id).y - NODE_HEIGHT / 2,
-    },
-    targetPosition: Position.Top,
-    sourcePosition: Position.Bottom,
-    data,
-  })
+  const toRfNode = (id: string, data: OrgNodeData): Node<OrgNodeData> => {
+    const dagreNode = g.node(id)
+    return {
+      id,
+      type: "orgNode",
+      position: {
+        x: dagreNode.x - dagreNode.width / 2,
+        y: dagreNode.y - dagreNode.height / 2,
+      },
+      targetPosition: Position.Top,
+      sourcePosition: Position.Bottom,
+      data,
+    }
+  }
 
   const rootNode = toRfNode(ROOT_ID, { label: orgName, isRoot: true })
 
@@ -59,6 +67,7 @@ export function buildOrgLayout(
       label: d.name,
       isRoot: false,
       processCount: d.process_count,
+      workflowCount: d.workflow_count,
     })
   )
 

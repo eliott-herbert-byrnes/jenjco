@@ -6,11 +6,16 @@ import "@xyflow/react/dist/style.css"
 
 type CanvasProps = ReactFlowProps & {
   children?: ReactNode
+  showBackground?: boolean
 }
 
 const deleteKeyCode = ["Backspace", "Delete"]
 
-export const Canvas = ({ children, ...props }: CanvasProps) => (
+export const Canvas = ({
+  children,
+  showBackground = true,
+  ...props
+}: CanvasProps) => (
   <ReactFlow
     deleteKeyCode={deleteKeyCode}
     fitView
@@ -20,7 +25,7 @@ export const Canvas = ({ children, ...props }: CanvasProps) => (
     zoomOnDoubleClick={false}
     {...props}
   >
-    <Background bgColor="var(--sidebar)" />
+    {showBackground && <Background bgColor="var(--sidebar)" />}
     {children}
   </ReactFlow>
 )
