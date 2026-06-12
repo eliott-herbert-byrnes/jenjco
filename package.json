@@ -47,6 +47,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
+    "fumadocs-core": "^16.10.2",
     "lucide-react": "^1.8.0",
     "mastra": "^1.12.2",
     "media-chrome": "^4.18.3",

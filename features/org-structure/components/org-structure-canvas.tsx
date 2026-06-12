@@ -70,7 +70,7 @@ export function OrgStructureCanvas({
           }}
         >
           <Panel 
-          style={{ marginLeft: 35, marginTop: 0 }}
+          style={{ marginLeft: 35, marginTop: 35 }}
           className="flex max-w-xs flex-col gap-1 rounded-md border bg-card/95 p-3 shadow-sm backdrop-blur-sm">
             <p className="text-sm font-semibold">{orgName}</p>
             <p className="text-xs text-muted-foreground">
