@@ -3,6 +3,7 @@ import { paths } from '@/app/paths'
 import { ProcessListPanel } from '@/features/processes/components/process-list-panel'
 import { getServerAuth } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
+import { Header } from '@/components/header'
 
 export default async function ProcessesLayout({
   children,
@@ -31,11 +32,17 @@ export default async function ProcessesLayout({
   }))
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      <aside className="w-72 shrink-0 overflow-y-auto border-r">
-        <ProcessListPanel departments={grouped} role={appUser.role} />
-      </aside>
-      <main className="flex flex-1 overflow-hidden">{children}</main>
-    </div>
+    <>
+      <Header
+        page="Processes"
+        description="Review and manage your organisation processes"
+      />
+      <div className="flex overflow-hidden h-[calc(100vh-4.5rem)]">
+        <aside className="w-72 shrink-0 overflow-y-auto border-r">
+          <ProcessListPanel departments={grouped} role={appUser.role} />
+        </aside>
+        <main className="flex flex-1 overflow-hidden">{children}</main>
+      </div>
+    </>
   )
 }

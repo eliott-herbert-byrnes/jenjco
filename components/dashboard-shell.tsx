@@ -17,7 +17,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <SidebarInset className="overflow-x-hidden">
             <div
               className={cn(
-                "flex flex-1 flex-col gap-6 p-0",
+                "flex flex-1 flex-col gap-0 p-0",
               )}
             >
               {children}

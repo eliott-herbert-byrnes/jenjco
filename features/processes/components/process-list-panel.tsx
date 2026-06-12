@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useDeferredValue, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSelectedLayoutSegment } from 'next/navigation'
 import { ChevronDown } from 'lucide-react'
@@ -34,18 +34,26 @@ export function ProcessListPanel({
   role: AppRole
 }) {
   const [search, setSearch] = useState('')
-  const activeSegment = useSelectedLayoutSegment()
+  const deferredSearch = useDeferredValue(search)
+  const activeLayoutSegment = useSelectedLayoutSegment()
 
-  const filteredDepartments = useMemo(() => {
-    const q = search.toLowerCase().trim()
-    if (!q) return departments
-    return departments.map((d) => ({
-      ...d,
-      processes: d.processes.filter((p) =>
-        p.title.toLowerCase().includes(q)
-      ),
-    }))
-  }, [departments, search])
+  const { visibleDepartments, hasQuery } = useMemo(() => {
+    const q = deferredSearch.toLowerCase().trim()
+    if (!q) {
+      return { visibleDepartments: departments, hasQuery: false }
+    }
+
+    const mapped = departments
+      .map((d) => ({
+        ...d,
+        processes: d.processes.filter((p) =>
+          p.title.toLowerCase().includes(q)
+        ),
+      }))
+      .filter((d) => d.processes.length > 0)
+
+    return { visibleDepartments: mapped, hasQuery: true }
+  }, [departments, deferredSearch])
 
   return (
     <div className="flex h-full flex-col gap-3 p-4">
@@ -55,14 +63,21 @@ export function ProcessListPanel({
         onChange={(e) => setSearch(e.target.value)}
       />
       <nav className="flex flex-col gap-1">
-        {filteredDepartments.map((dept) => (
-          <DepartmentSection
-            key={dept.id}
-            department={dept}
-            role={role}
-            activeSegment={activeSegment}
-          />
-        ))}
+        {hasQuery && visibleDepartments.length === 0 ? (
+          <p className="px-2 py-4 text-sm text-muted-foreground">
+            No matching processes
+          </p>
+        ) : (
+          visibleDepartments.map((dept) => (
+            <DepartmentSection
+              key={dept.id}
+              department={dept}
+              role={role}
+              activeLayoutSegment={activeLayoutSegment}
+              forceOpen={hasQuery}
+            />
+          ))
+        )}
       </nav>
     </div>
   )
@@ -71,15 +86,18 @@ export function ProcessListPanel({
 function DepartmentSection({
   department,
   // role,
-  activeSegment,
+  activeLayoutSegment,
+  forceOpen = false,
 }: {
   department: ProcessListDepartment
   role: AppRole
-  activeSegment: string | null
+  activeLayoutSegment: string | null
+  forceOpen?: boolean
 }) {
   return (
     <Collapsible
       defaultOpen={department.name === 'Operations'}
+      open={forceOpen ? true : undefined}
       className="group"
     >
       <div className="flex items-center gap-0.5">
@@ -120,7 +138,7 @@ function DepartmentSection({
             <ProcessRow
               key={process.id}
               process={process}
-              isSelected={process.id === activeSegment}
+              isSelected={process.id === activeLayoutSegment}
             />
           ))
         )}

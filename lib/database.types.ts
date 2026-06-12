@@ -432,6 +432,39 @@ export type Database = {
         }
         Relationships: []
       }
+      process_workflows: {
+        Row: {
+          process_id: string
+          sort_order: number
+          workflow_id: string
+        }
+        Insert: {
+          process_id: string
+          sort_order?: number
+          workflow_id: string
+        }
+        Update: {
+          process_id?: string
+          sort_order?: number
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "process_workflows_process_id_fkey"
+            columns: ["process_id"]
+            isOneToOne: false
+            referencedRelation: "org_processes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "process_workflows_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "org_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usage_logs: {
         Row: {
           cost_estimate: number | null

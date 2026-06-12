@@ -4,7 +4,8 @@
  *   OPENAI_API_KEY (for org_processes embeddings — text-embedding-3-small).
  *
  * Creates: John Pye org, auth + app users (admin + viewer), org agents, workflow,
- * department tree (Operations → Sales & Customer Service; root siblings Finance, HR), and three process documents.
+ * department tree (Operations → Sales & Customer Service; root siblings Finance, HR),
+ * three process documents (markdown contract), and process_workflows demo links.
  *
  * Run: pnpm run seed
  */
@@ -295,17 +296,27 @@ async function main() {
       department_id: salesDept.id,
       title: "Sales Pipeline",
       slug: "sales-pipeline",
-      content: `# Sales Pipeline
-
-## Purpose
+      content: `## Overview
 Standard stages and responsibilities for opportunities from first contact to close.
 
-## Stages
-1. **Lead** — Capture source, fit, and budget signals.
-2. **Qualified** — Confirm need, timeline, and decision-makers.
-3. **Proposal** — Align scope, pricing, and success criteria.
-4. **Negotiation** — Resolve terms, legal, and procurement.
-5. **Closed won / lost** — Handover to delivery or nurture.
+## Tools
+- CRM pipeline board
+- Operations escalation channel
+
+## Step 1: Lead
+Capture source, fit, and budget signals.
+
+## Step 2: Qualified
+Confirm need, timeline, and decision-makers.
+
+## Step 3: Proposal
+Align scope, pricing, and success criteria.
+
+## Step 4: Negotiation
+Resolve terms, legal, and procurement.
+
+## Step 5: Closed won / lost
+Handover to delivery or nurture.
 
 ## Escalation
 Escalate deal-blockers to the Operations lead when SLA risk appears.`,
@@ -315,27 +326,32 @@ Escalate deal-blockers to the Operations lead when SLA risk appears.`,
       department_id: opsDept.id,
       title: "Product Content Retrieval",
       slug: "product-content-retrieval",
-      content: `# Product Content Retrieval
-
-## Purpose
+      content: `## Overview
 How teams find accurate product facts, assets, and positioning without duplicating sources of truth.
 
-## Steps
-1. Search the internal knowledge base by SKU or family name.
-2. If missing, open a content request with Product Marketing (template COM-12).
-3. Never publish customer-facing copy without **approved** snippets from the repository.
+## Tools
+- Internal knowledge base
+- Google Drive (connected org files)
+- Product Marketing request template (COM-12)
+- ERP (canonical pricing)
 
-## Notes
-Link to canonical pricing in the ERP; do not paste estimates from email threads.`,
+## Step 1: Search the knowledge base (User)
+Search the internal knowledge base by SKU or family name.
+
+## Step 2: Request missing content (User)
+If missing, open a content request with Product Marketing (template COM-12).
+
+## Step 3: Use approved snippets only (User)
+Never publish customer-facing copy without **approved** snippets from the repository.
+- Link to canonical pricing in the ERP
+- Do not paste estimates from email threads`,
     },
     {
       org_id: orgId,
       department_id: csDept.id,
       title: "Complaints Reporting",
       slug: "complaints-reporting",
-      content: `# Complaints Reporting
-
-## Purpose
+      content: `## Overview
 Consistent intake, severity, and closure for customer complaints.
 
 ## Intake
@@ -362,9 +378,53 @@ Store final summary in the case file with owner and timestamps.`,
 
   const { data: processRows, error: procSelErr } = await supabase
     .from("org_processes")
-    .select("id, title, content")
+    .select("id, title, slug, content")
     .eq("org_id", orgId)
   if (procSelErr) throw procSelErr
+
+  const { data: workflowRows, error: wfSelErr } = await supabase
+    .from("org_workflows")
+    .select("id, workflow_key")
+    .eq("org_id", orgId)
+  if (wfSelErr) throw wfSelErr
+
+  const processBySlug = Object.fromEntries(
+    (processRows ?? []).map((p) => [p.slug, p.id])
+  )
+  const workflowByKey = Object.fromEntries(
+    (workflowRows ?? []).map((w) => [w.workflow_key, w.id])
+  )
+
+  const processWorkflowLinks = [
+    {
+      process_slug: "product-content-retrieval",
+      workflow_key: "google-drive-ingest",
+      sort_order: 0,
+    },
+    {
+      process_slug: "product-content-retrieval",
+      workflow_key: "process-knowledge-summary",
+      sort_order: 1,
+    },
+    {
+      process_slug: "sales-pipeline",
+      workflow_key: "process-knowledge-summary",
+      sort_order: 0,
+    },
+  ]
+    .map((link) => ({
+      process_id: processBySlug[link.process_slug],
+      workflow_id: workflowByKey[link.workflow_key],
+      sort_order: link.sort_order,
+    }))
+    .filter((link) => link.process_id && link.workflow_id)
+
+  if (processWorkflowLinks.length > 0) {
+    const { error: pwErr } = await supabase
+      .from("process_workflows")
+      .insert(processWorkflowLinks)
+    if (pwErr) throw pwErr
+  }
 
   for (const proc of processRows ?? []) {
     const text = `${proc.title}\n\n${proc.content ?? ""}`
@@ -384,6 +444,9 @@ Store final summary in the case file with owner and timestamps.`,
   )
   console.log(
     "  Processes: Sales Pipeline, Product Content Retrieval, Complaints Reporting"
+  )
+  console.log(
+    "  process_workflows: Product Content Retrieval → Google Drive Ingest, Process Knowledge Summary; Sales Pipeline → Process Knowledge Summary"
   )
 }
 
