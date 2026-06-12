@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 import { paths } from "@/app/paths"
+import { sendInviteEmail } from "@/lib/email/send-invite"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 import {
@@ -53,16 +54,17 @@ export async function inviteUser(
 
   const admin = createAdminClient()
 
-  const { data: existingMember } = await admin
-    .from("users")
-    .select("id")
-    .eq("org_id", appUser.orgId)
-    .eq("email", email)
-    .maybeSingle()
+  const [{ data: org }, { data: existingMember }] = await Promise.all([
+    admin.from("organizations").select("name").eq("id", appUser.orgId).single(),
+    admin
+      .from("users")
+      .select("id")
+      .eq("org_id", appUser.orgId)
+      .eq("email", email)
+      .maybeSingle(),
+  ])
 
-  if (existingMember) {
-    return { success: false, error: "Already a member" }
-  }
+  const isReinvite = !!existingMember
 
   const { data: profileByEmail } = await admin
     .from("users")
@@ -145,23 +147,37 @@ export async function inviteUser(
     inviteLink = buildInviteCallbackLink(origin, hashedToken)
   }
 
-  const { error: insertError } = await admin.from("users").insert({
-    org_id: appUser.orgId,
-    supabase_auth_id: supabaseAuthId,
-    email,
-    role,
-    display_name: displayName ?? null,
-    is_active: true,
-    invited_at: new Date().toISOString(),
-  })
+  if (!isReinvite) {
+    const { error: insertError } = await admin.from("users").insert({
+      org_id: appUser.orgId,
+      supabase_auth_id: supabaseAuthId,
+      email,
+      role,
+      display_name: displayName ?? null,
+      is_active: true,
+      invited_at: new Date().toISOString(),
+    })
 
-  if (insertError) {
-    if (createdNewAuthUser) {
-      await admin.auth.admin.deleteUser(supabaseAuthId)
+    if (insertError) {
+      if (createdNewAuthUser) {
+        await admin.auth.admin.deleteUser(supabaseAuthId)
+      }
+      return { success: false, error: insertError.message }
     }
-    return { success: false, error: insertError.message }
   }
 
+  const { error: emailErr } = await sendInviteEmail({
+    to: email,
+    inviteeName: displayName,
+    orgName: org?.name ?? "your organization",
+    inviterName: appUser.displayName ?? appUser.email,
+    inviteLink,
+  })
+
   revalidatePath(paths.organisationUsers)
-  return { success: true, inviteLink }
+  return {
+    success: true,
+    inviteLink,
+    emailError: emailErr !== null,
+  }
 }

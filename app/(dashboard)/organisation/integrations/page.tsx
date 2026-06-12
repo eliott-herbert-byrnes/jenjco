@@ -64,13 +64,14 @@ export default async function IntegrationsPage() {
   )
 
   return (
-    <div className="flex flex-col gap-6 p-0">
+    <>
       <Header
         page="Integrations"
         description="Connect external services for your organisation"
       />
-
-      <IntegrationsView providers={providers} />
-    </div>
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-8">
+        <IntegrationsView providers={providers} />
+      </main>
+    </>
   )
 }
