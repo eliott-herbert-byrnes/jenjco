@@ -10,6 +10,7 @@ import type {
 import { getServerAuth } from "@/lib/auth"
 import { PROVIDERS, type ProviderId } from "@/lib/integrations/providers"
 import { createClient } from "@/lib/supabase/server"
+import { Header } from "@/components/header"
 
 export const metadata: Metadata = { title: "Integrations" }
 
@@ -63,13 +64,11 @@ export default async function IntegrationsPage() {
   )
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Integrations</h1>
-        <p className="text-sm text-muted-foreground">
-          Connect external services for your organisation
-        </p>
-      </div>
+    <div className="flex flex-col gap-6 p-0">
+      <Header
+        page="Integrations"
+        description="Connect external services for your organisation"
+      />
 
       <IntegrationsView providers={providers} />
     </div>

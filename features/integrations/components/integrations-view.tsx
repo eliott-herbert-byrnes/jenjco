@@ -18,7 +18,7 @@ export function IntegrationsView({ providers }: IntegrationsViewProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 px-10">
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-medium">Connected services</h2>
         {providers.map((provider) => (

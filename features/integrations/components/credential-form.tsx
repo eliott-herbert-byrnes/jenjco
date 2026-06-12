@@ -61,12 +61,6 @@ export function CredentialForm({ provider, onSaved }: CredentialFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit}>
           <FieldGroup>
-            {provider.hasCredentials ? (
-              <p className="text-sm text-muted-foreground">
-                Credentials are configured for {provider.label}. Enter new
-                values below to replace them.
-              </p>
-            ) : null}
             <Field>
               <FieldLabel htmlFor={`${provider.id}-client-id`}>
                 Client ID
