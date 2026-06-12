@@ -56,4 +56,4 @@ src/mastra/public/mastra.*
 scripts/nango-tests/.byo-spike-state.json
 
 # cursor
-/.cursor/
+.cursor/

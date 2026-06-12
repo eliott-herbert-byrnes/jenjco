@@ -42,9 +42,10 @@ function statusBadge(provider: ProviderState) {
 
 type ProviderCardProps = {
   provider: ProviderState
+  onSetupClick?: () => void
 }
 
-export function ProviderCard({ provider }: ProviderCardProps) {
+export function ProviderCard({ provider, onSetupClick }: ProviderCardProps) {
   const router = useRouter()
   const [disconnectOpen, setDisconnectOpen] = useState(false)
   const [disconnectPending, setDisconnectPending] = useState(false)
@@ -79,7 +80,10 @@ export function ProviderCard({ provider }: ProviderCardProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap items-center gap-2">
-        <ConnectButton provider={provider} />
+        <ConnectButton
+          provider={provider}
+          onMissingCredentials={onSetupClick}
+        />
         {showDisconnect ? (
           <AlertDialog open={disconnectOpen} onOpenChange={setDisconnectOpen}>
             <AlertDialogTrigger asChild>
@@ -114,7 +118,21 @@ export function ProviderCard({ provider }: ProviderCardProps) {
         ) : null}
         {!provider.hasCredentials ? (
           <p className="w-full text-sm text-muted-foreground">
-            Save OAuth credentials below before connecting.
+            {onSetupClick ? (
+              <>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="h-auto p-0 text-sm"
+                  onClick={onSetupClick}
+                >
+                  Configure credentials in Integration setup
+                </Button>{" "}
+                before connecting.
+              </>
+            ) : (
+              "Save OAuth credentials before connecting."
+            )}
           </p>
         ) : null}
       </CardContent>
