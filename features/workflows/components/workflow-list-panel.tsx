@@ -51,6 +51,8 @@ export function WorkflowListPanel({ workflows }: { workflows: OrgWorkflow[] }) {
 }
 
 function WorkflowCard({ workflow, isSelected }: { workflow: OrgWorkflow; isSelected: boolean }) {
+  const isOnline = workflow.status === 'active'
+
   return (
     <Link
       href={`${paths.workflows}/${workflow.id}`}
@@ -59,14 +61,16 @@ function WorkflowCard({ workflow, isSelected }: { workflow: OrgWorkflow; isSelec
       <div className="flex items-center justify-between gap-2">
         <span className="font-medium text-sm">{workflow.display_name}</span>
         <Badge
-          variant={workflow.is_active ? 'default' : 'secondary'}
+          variant={isOnline ? 'default' : 'secondary'}
           className={
-            workflow.is_active
+            isOnline
               ? 'bg-emerald-600/5 border-emerald-600 text-emerald-600'
-              : 'bg-red-600/5 border-red-600 text-red-600'
+              : workflow.status === 'flagged'
+                ? 'bg-amber-600/5 border-amber-600 text-amber-600'
+                : 'bg-red-600/5 border-red-600 text-red-600'
           }
         >
-          {workflow.is_active ? 'Online' : 'Offline'}
+          {isOnline ? 'Online' : workflow.status === 'flagged' ? 'Flagged' : 'Offline'}
         </Badge>
       </div>
       {workflow.description && (

@@ -179,8 +179,8 @@ export type Database = {
           display_name: string
           enabled_tools: Json | null
           id: string
-          is_active: boolean
           org_id: string
+          status: string
           system_prompt_override: string | null
         }
         Insert: {
@@ -191,8 +191,8 @@ export type Database = {
           display_name: string
           enabled_tools?: Json | null
           id?: string
-          is_active?: boolean
           org_id: string
+          status?: string
           system_prompt_override?: string | null
         }
         Update: {
@@ -203,8 +203,8 @@ export type Database = {
           display_name?: string
           enabled_tools?: Json | null
           id?: string
-          is_active?: boolean
           org_id?: string
+          status?: string
           system_prompt_override?: string | null
         }
         Relationships: [
@@ -365,9 +365,9 @@ export type Database = {
           description: string | null
           display_name: string
           id: string
-          is_active: boolean
           org_id: string
           schedule_cron: string | null
+          status: string
           workflow_key: string
         }
         Insert: {
@@ -377,9 +377,9 @@ export type Database = {
           description?: string | null
           display_name: string
           id?: string
-          is_active?: boolean
           org_id: string
           schedule_cron?: string | null
+          status?: string
           workflow_key: string
         }
         Update: {
@@ -389,9 +389,9 @@ export type Database = {
           description?: string | null
           display_name?: string
           id?: string
-          is_active?: boolean
           org_id?: string
           schedule_cron?: string | null
+          status?: string
           workflow_key?: string
         }
         Relationships: [
@@ -431,6 +431,32 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      process_connections: {
+        Row: {
+          process_id: string
+          provider: string
+          sort_order: number
+        }
+        Insert: {
+          process_id: string
+          provider: string
+          sort_order?: number
+        }
+        Update: {
+          process_id?: string
+          provider?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "process_connections_process_id_fkey"
+            columns: ["process_id"]
+            isOneToOne: false
+            referencedRelation: "org_processes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       process_workflows: {
         Row: {
@@ -706,10 +732,40 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      workflow_run_stats: {
+        Row: {
+          last_executed: string | null
+          org_id: string | null
+          run_count: number | null
+          workflow_key: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_runs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       current_user_org_id: { Args: never; Returns: string }
+      get_workflows_hub: {
+        Args: { p_org_id: string }
+        Returns: {
+          department_id: string
+          department_name: string
+          description: string
+          display_name: string
+          id: string
+          last_executed: string
+          run_count: number
+          status: string
+          workflow_key: string
+        }[]
+      }
       search_processes: {
         Args: {
           match_count?: number

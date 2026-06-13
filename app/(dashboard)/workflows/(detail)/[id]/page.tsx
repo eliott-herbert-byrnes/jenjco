@@ -16,7 +16,7 @@ export default async function WorkflowDetailPage({
   const supabase = await createClient()
   const { data: workflow } = await supabase
     .from('org_workflows')
-    .select('id, workflow_key, display_name, description, is_active, config_overrides, created_at')
+    .select('id, workflow_key, display_name, description, status, config_overrides, created_at')
     .eq('id', id)
     .eq('org_id', appUser.orgId)
     .single()

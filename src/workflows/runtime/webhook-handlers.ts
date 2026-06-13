@@ -87,7 +87,7 @@ async function hasActiveOrgWorkflow(
     .select("id")
     .eq("org_id", orgId)
     .eq("workflow_key", workflowKey)
-    .eq("is_active", true)
+    .eq("status", "active")
     .limit(1)
     .maybeSingle()
 

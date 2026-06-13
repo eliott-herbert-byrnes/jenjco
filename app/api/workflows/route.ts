@@ -12,7 +12,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("org_workflows")
     .select(
-      "id, workflow_key, display_name, description, is_active, config_overrides"
+      "id, workflow_key, display_name, description, status, config_overrides"
     )
     .eq("org_id", appUser.orgId)
     .order("display_name")

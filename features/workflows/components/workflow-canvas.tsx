@@ -71,7 +71,7 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
   )
 
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const canRun = role === 'admin' && workflow.is_active
+  const canRun = role === 'admin' && workflow.status === 'active'
   const { stepStatuses, run, running, result, runError, reset } = useWorkflowRun({
     workflowId: workflow.id,
     canRun,
@@ -128,7 +128,7 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
                 type="button"
                 size="sm"
                 className="w-fit"
-                disabled={!workflow.is_active}
+                disabled={workflow.status !== 'active'}
                 onClick={() => setDrawerOpen(true)}
               >
                 Run workflow
@@ -139,7 +139,7 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
 
         <WorkflowRunDrawer
           displayName={workflow.display_name}
-          isActive={workflow.is_active}
+          status={workflow.status}
           role={role}
           inputSchema={inputSchema}
           open={drawerOpen}

@@ -150,7 +150,7 @@ async function main() {
         display_name: "Process Assistant",
         description:
           "Answers questions about internal processes and documentation.",
-        is_active: true,
+        status: "active",
       },
       {
         org_id: orgId,
@@ -158,7 +158,7 @@ async function main() {
         display_name: "Drive Assistant",
         description:
           "Search and browse files in the organisation's connected Google Drive.",
-        is_active: true,
+        status: "active",
       },
     ],
     { onConflict: "org_id,agent_key" }
@@ -173,7 +173,7 @@ async function main() {
         display_name: "Process Knowledge Summary",
         description:
           "Generates an AI summary of all process documents in the knowledge base.",
-        is_active: true,
+        status: "active",
         config_overrides: {
           steps: [
             {
@@ -214,7 +214,7 @@ async function main() {
         display_name: "Google Drive Ingest",
         description:
           "Lists files from the organisation's connected Google Drive.",
-        is_active: true,
+        status: "active",
       },
     ],
     { onConflict: "org_id,workflow_key" }
@@ -426,6 +426,27 @@ Store final summary in the case file with owner and timestamps.`,
     if (pwErr) throw pwErr
   }
 
+  const processConnections = [
+    { process_slug: "product-content-retrieval", providers: ["google", "notion", "browser"] },
+    { process_slug: "sales-pipeline", providers: ["google", "crm"] },
+    { process_slug: "complaints-reporting", providers: ["email", "phone"] },
+  ]
+    .flatMap(({ process_slug, providers }) =>
+      providers.map((provider, sort_order) => ({
+        process_id: processBySlug[process_slug],
+        provider,
+        sort_order,
+      }))
+    )
+    .filter((row) => row.process_id)
+
+  if (processConnections.length > 0) {
+    const { error: pcErr } = await supabase
+      .from("process_connections")
+      .insert(processConnections)
+    if (pcErr) throw pcErr
+  }
+
   for (const proc of processRows ?? []) {
     const text = `${proc.title}\n\n${proc.content ?? ""}`
     const embedding = await generateEmbedding(text)
@@ -447,6 +468,9 @@ Store final summary in the case file with owner and timestamps.`,
   )
   console.log(
     "  process_workflows: Product Content Retrieval → Google Drive Ingest, Process Knowledge Summary; Sales Pipeline → Process Knowledge Summary"
+  )
+  console.log(
+    "  process_connections: Product Content Retrieval → google, notion, browser; Sales Pipeline → google, crm; Complaints Reporting → email, phone"
   )
 }
 

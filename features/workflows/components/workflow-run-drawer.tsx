@@ -21,7 +21,7 @@ import { defaultInputFromSchema, orderedInputKeys } from '../utils/schema'
 
 export type WorkflowRunDrawerProps = {
   displayName: string
-  isActive: boolean
+  status: string
   role: AppRole
   inputSchema: Record<string, unknown> | undefined
   open: boolean
@@ -34,7 +34,7 @@ export type WorkflowRunDrawerProps = {
 
 export function WorkflowRunDrawer({
   displayName,
-  isActive,
+  status,
   role,
   inputSchema,
   open,
@@ -60,7 +60,7 @@ export function WorkflowRunDrawer({
     if (open) setInputData(defaultInputFromSchema(inputSchema))
   }
 
-  const canRun = role === 'admin' && isActive
+  const canRun = role === 'admin' && status === 'active'
 
   const inputKeys = useMemo(
     () => orderedInputKeys(inputSchema as JsonSchemaProps | undefined),
