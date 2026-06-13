@@ -12,7 +12,7 @@ export default async function AgentsLayout({ children }: { children: React.React
   const supabase = await createClient()
   const { data: rawAgents } = await supabase
     .from('org_agents')
-    .select('id, agent_key, display_name, description, is_active')
+    .select('id, agent_key, display_name, description, status')
     .eq('org_id', appUser.orgId)
     .order('display_name')
 

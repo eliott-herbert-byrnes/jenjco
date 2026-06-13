@@ -11,7 +11,7 @@ export default async function WorkflowsLayout({ children }: { children: React.Re
   const supabase = await createClient()
   const { data: workflows } = await supabase
     .from('org_workflows')
-    .select('id, display_name, description, is_active')
+    .select('id, display_name, description, status')
     .eq('org_id', appUser.orgId)
     .order('display_name')
 

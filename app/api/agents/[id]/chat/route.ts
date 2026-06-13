@@ -25,7 +25,7 @@ export async function POST(
   // Verify the agent belongs to this org
   const { data: orgAgent, error: agentErr } = await supabase
     .from('org_agents')
-    .select('id, agent_key, display_name, system_prompt_override, is_active')
+    .select('id, agent_key, display_name, system_prompt_override, status')
     .eq('id', orgAgentId)
     .eq('org_id', appUser.orgId)
     .single()
@@ -36,6 +36,10 @@ export async function POST(
 
   if (orgAgent.agent_key === 'drive-assistant' && appUser.role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  if (orgAgent.status !== 'active') {
+    return NextResponse.json({ error: 'Agent is inactive' }, { status: 400 })
   }
 
   const { messages } = await req.json()

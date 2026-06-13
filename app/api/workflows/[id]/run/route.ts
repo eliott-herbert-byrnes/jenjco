@@ -40,7 +40,7 @@ export async function POST(
   const supabase = await createClient()
   const { data: wf, error: wfErr } = await supabase
     .from("org_workflows")
-    .select("id, workflow_key, is_active")
+    .select("id, workflow_key, status")
     .eq("id", idParsed.data)
     .eq("org_id", appUser.orgId)
     .single()
@@ -48,7 +48,7 @@ export async function POST(
   if (wfErr || !wf) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
-  if (!wf.is_active) {
+  if (wf.status !== 'active') {
     return NextResponse.json({ error: "Workflow is inactive" }, { status: 400 })
   }
 

@@ -4,7 +4,19 @@ export type OrgWorkflow = {
   id: string
   display_name: string
   description: string | null
-  is_active: boolean
+  status: string
+}
+
+export type WorkflowHubRow = {
+  id: string
+  workflow_key: string
+  display_name: string
+  description: string | null
+  status: string
+  department_id: string | null
+  department_name: string | null
+  run_count: number
+  last_executed: string | null
 }
 
 export type WorkflowCanvasWorkflow = {
@@ -12,7 +24,7 @@ export type WorkflowCanvasWorkflow = {
   workflow_key: string
   display_name: string
   description: string | null
-  is_active: boolean
+  status: string
   config_overrides: unknown
   created_at: string
 }

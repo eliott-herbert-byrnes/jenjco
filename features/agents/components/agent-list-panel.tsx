@@ -11,7 +11,7 @@ type OrgAgent = {
   id: string
   display_name: string
   description: string | null
-  is_active: boolean
+  status: string
 }
 
 export function AgentListPanel({ agents }: { agents: OrgAgent[] }) {
@@ -55,6 +55,8 @@ export function AgentListPanel({ agents }: { agents: OrgAgent[] }) {
 }
 
 function AgentCard({ agent, isSelected }: { agent: OrgAgent; isSelected: boolean }) {
+  const isOnline = agent.status === 'active'
+
   return (
     <Link
       href={`${paths.agents}/${agent.id}`}
@@ -62,8 +64,8 @@ function AgentCard({ agent, isSelected }: { agent: OrgAgent; isSelected: boolean
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-medium text-sm">{agent.display_name}</span>
-        <Badge variant={agent.is_active ? 'default' : 'secondary'} className={agent.is_active ?'bg-emerald-600/5 border-emerald-600 text-emerald-600' : 'bg-red-600/5 border-red-600 text-red-600'}>
-          {agent.is_active ? 'Online' : 'Offline'}
+        <Badge variant={isOnline ? 'default' : 'secondary'} className={isOnline ?'bg-emerald-600/5 border-emerald-600 text-emerald-600' : 'bg-red-600/5 border-red-600 text-red-600'}>
+          {isOnline ? 'Online' : 'Offline'}
         </Badge>
       </div>
       {agent.description && (

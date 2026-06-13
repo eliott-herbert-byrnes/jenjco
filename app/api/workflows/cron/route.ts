@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   const { data: rows, error } = await supabase
     .from("org_workflows")
     .select("id, org_id, workflow_key")
-    .eq("is_active", true)
+    .eq("status", "active")
     .not("schedule_cron", "is", null)
 
   if (error) {

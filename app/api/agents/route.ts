@@ -10,7 +10,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from('org_agents')
     .select(`
-      id, agent_key, display_name, description, is_active,
+      id, agent_key, display_name, description, status,
       conversations!left(updated_at)
     `)
     .eq('org_id', appUser.orgId)
