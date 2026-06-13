@@ -6,6 +6,7 @@ import { UsersView } from "@/features/organisation/users/components/users-view"
 import type { OrgUserRow } from "@/features/organisation/users/types"
 import { getServerAuth } from "@/lib/auth"
 import { createClient } from "@/lib/supabase/server"
+import { Header } from "@/components/header"
 
 export const metadata: Metadata = { title: "Users" }
 
@@ -31,15 +32,15 @@ export default async function OrganisationUsersPage() {
   const users = (rows ?? []) as OrgUserRow[]
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Users</h1>
-        <p className="text-sm text-muted-foreground">
-          Invite teammates and manage roles for your organisation
-        </p>
-      </div>
+    <>
+      <Header
+        page="Users"
+        description="Invite teammates and manage roles for your organisation"
+      />
+      <div className="flex flex-col gap-6 p-6">
 
-      <UsersView users={users} currentUserId={appUser.id} />
-    </div>
+        <UsersView users={users} currentUserId={appUser.id} />
+      </div>
+    </>
   )
 }

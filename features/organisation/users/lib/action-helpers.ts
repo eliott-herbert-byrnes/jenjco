@@ -9,7 +9,7 @@ import type { Database } from "@/lib/database.types"
 import type { GuardContext, GuardUser } from "./user-guards"
 
 export type ActionResult =
-  | { success: true; inviteLink?: string }
+  | { success: true; inviteLink?: string; emailError?: boolean }
   | { success: false; error: string }
 
 export type TargetUserRow = {

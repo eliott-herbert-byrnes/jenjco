@@ -64,7 +64,7 @@ export default async function IntegrationsPage() {
   )
 
   return (
-    <div className="flex flex-col gap-6 p-0">
+    <>
       <Header
         page="Integrations"
         description="Connect external services for your organisation"
