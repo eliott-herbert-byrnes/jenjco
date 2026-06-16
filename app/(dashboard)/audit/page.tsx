@@ -8,6 +8,7 @@ import { InvocationsView } from "@/features/audit/components/invocations-view"
 import { LogsView } from "@/features/audit/components/logs-view"
 import { MetricsView } from "@/features/audit/components/metrics-view"
 import { getServerAuth } from "@/lib/auth"
+import { Header } from "@/components/header"
 
 export const metadata: Metadata = { title: "Audit" }
 
@@ -38,13 +39,9 @@ export default async function AuditPage({
     : "metrics"
 
   return (
+    <>
+      <Header page="Audit" description="Usage and invocation history"/>
     <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Audit</h1>
-        <p className="text-sm text-muted-foreground">
-          Usage metrics and invocation history · last 30 days
-        </p>
-      </div>
 
       <AuditNav activeTab={activeTab} activeView={activeView} />
 
@@ -62,5 +59,6 @@ export default async function AuditPage({
         </>
       )}
     </div>
+      </>
   )
 }
