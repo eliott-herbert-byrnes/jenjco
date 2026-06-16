@@ -7,60 +7,60 @@ import type { AppRole } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { Separator } from '@/components/ui/separator'
 import type { WorkflowRunInput } from '../hooks/use-workflow-run'
-import type { JsonSchemaProps } from '../types'
+import type { JsonSchemaProps, StepMeta, WorkflowCanvasWorkflow } from '../types'
 import { defaultInputFromSchema, orderedInputKeys } from '../utils/schema'
 
-export type WorkflowRunDrawerProps = {
-  displayName: string
-  status: string
+/** Until workflows with step detail views exist, default the panel to run mode. */
+const STEPS_PANEL_ENABLED = false
+
+export type WorkflowStepPanelProps = {
+  steps: StepMeta[]
+  selectedStep: StepMeta | null
+  panelMode: 'step' | 'run'
   role: AppRole
+  workflow: WorkflowCanvasWorkflow
   inputSchema: Record<string, unknown> | undefined
-  open: boolean
-  onOpenChange: (open: boolean) => void
   run: (input: WorkflowRunInput) => Promise<void>
   running: boolean
   result: unknown | null
   runError: string | null
+  onSwitchToRun: () => void
+  onBackToStep: () => void
 }
 
-export function WorkflowRunDrawer({
-  displayName,
-  status,
+export function WorkflowStepPanel({
+  selectedStep,
+  panelMode,
   role,
+  workflow,
   inputSchema,
-  open,
-  onOpenChange,
   run,
   running,
   result,
   runError,
-}: WorkflowRunDrawerProps) {
+  onBackToStep,
+}: WorkflowStepPanelProps) {
+  const showRunPanel = !STEPS_PANEL_ENABLED || panelMode === 'run'
+
   const [inputData, setInputData] = useState<Record<string, string>>(() =>
     defaultInputFromSchema(inputSchema)
   )
-  const [prevOpen, setPrevOpen] = useState(open)
+  const [prevShowRunPanel, setPrevShowRunPanel] = useState(showRunPanel)
   const [prevInputSchema, setPrevInputSchema] = useState(inputSchema)
 
-  if (open !== prevOpen) {
-    setPrevOpen(open)
-    if (open) setInputData(defaultInputFromSchema(inputSchema))
+  if (showRunPanel !== prevShowRunPanel) {
+    setPrevShowRunPanel(showRunPanel)
+    if (showRunPanel) setInputData(defaultInputFromSchema(inputSchema))
   }
 
   if (inputSchema !== prevInputSchema) {
     setPrevInputSchema(inputSchema)
-    if (open) setInputData(defaultInputFromSchema(inputSchema))
+    if (showRunPanel) setInputData(defaultInputFromSchema(inputSchema))
   }
 
-  const canRun = role === 'admin' && status === 'active'
+  const canRun = role === 'admin' && workflow.status === 'active'
 
   const inputKeys = useMemo(
     () => orderedInputKeys(inputSchema as JsonSchemaProps | undefined),
@@ -75,15 +75,22 @@ export function WorkflowRunDrawer({
         ? `\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``
         : ''
 
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full gap-0 sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>Run workflow</SheetTitle>
-          <SheetDescription>{displayName}</SheetDescription>
-        </SheetHeader>
+  if (showRunPanel) {
+    return (
+      <div className="flex h-full flex-col">
+        <div className="shrink-0 border-b px-4 py-3">
+          {STEPS_PANEL_ENABLED ? (
+            <Button type="button" variant="ghost" size="sm" onClick={onBackToStep}>
+              ← Back to steps
+            </Button>
+          ) : null}
+          <h2 className={STEPS_PANEL_ENABLED ? 'mt-2 text-base font-semibold' : 'text-base font-semibold'}>
+            Run workflow
+          </h2>
+          <p className="text-muted-foreground mt-0.5 text-xs">{workflow.display_name}</p>
+        </div>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-6">
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
           {!canRun && (
             <p className="text-muted-foreground text-xs">
               {role !== 'admin'
@@ -94,7 +101,9 @@ export function WorkflowRunDrawer({
 
           <div className="space-y-4">
             {inputKeys.length === 0 ? (
-              <p className="text-muted-foreground text-xs">This workflow has no configurable inputs.</p>
+              <p className="text-muted-foreground text-xs">
+                This workflow has no configurable inputs.
+              </p>
             ) : (
               inputKeys.map((key) => {
                 const meta = inputProps[key]
@@ -121,11 +130,11 @@ export function WorkflowRunDrawer({
             )}
           </div>
 
-          {runError && <p className="text-destructive text-xs">{runError}</p>}
+          {runError ? <p className="text-destructive text-xs">{runError}</p> : null}
 
           {summaryMarkdown ? (
             <div className="border-t pt-4">
-              <p className="mb-2 text-xs font-medium text-muted-foreground">Result</p>
+              <p className="text-muted-foreground mb-2 text-xs font-medium">Result</p>
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <Streamdown mode="static" plugins={{ code }}>
                   {summaryMarkdown}
@@ -135,15 +144,55 @@ export function WorkflowRunDrawer({
           ) : null}
         </div>
 
-        <SheetFooter className="border-t">
+        <div className="shrink-0 border-t px-4 py-3">
           <Button
+            type="button"
+            className="w-full"
             disabled={!canRun || running}
             onClick={() => void run({ inputKeys, inputData })}
           >
             {running ? 'Running…' : 'Run'}
           </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        </div>
+      </div>
+    )
+  }
+
+  if (!selectedStep) {
+    return (
+      <div className="flex h-full items-center justify-center px-4 py-8">
+        <p className="text-muted-foreground text-sm">Select a step to view details.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="shrink-0 px-4 py-4">
+        <h2 className="text-base font-semibold">{selectedStep.label}</h2>
+        {selectedStep.description ? (
+          <p className="text-muted-foreground mt-1 text-sm">{selectedStep.description}</p>
+        ) : null}
+      </div>
+
+      <Separator />
+
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
+        <div>
+          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+            Preview
+          </p>
+          <div className="mt-3 flex gap-2">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="size-6 rounded bg-muted" />
+            ))}
+          </div>
+        </div>
+
+        <Button type="button" variant="outline" className="w-full" disabled>
+          Upload — Coming soon
+        </Button>
+      </div>
+    </div>
   )
 }

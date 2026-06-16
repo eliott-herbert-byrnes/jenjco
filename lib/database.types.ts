@@ -364,6 +364,7 @@ export type Database = {
           department_id: string | null
           description: string | null
           display_name: string
+          has_output: boolean
           id: string
           org_id: string
           schedule_cron: string | null
@@ -376,6 +377,7 @@ export type Database = {
           department_id?: string | null
           description?: string | null
           display_name: string
+          has_output?: boolean
           id?: string
           org_id: string
           schedule_cron?: string | null
@@ -388,6 +390,7 @@ export type Database = {
           department_id?: string | null
           description?: string | null
           display_name?: string
+          has_output?: boolean
           id?: string
           org_id?: string
           schedule_cron?: string | null
