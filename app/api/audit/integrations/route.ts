@@ -1,3 +1,9 @@
+/**
+ * NOTE: This route is not currently consumed by the UI (which uses
+ * Server Components with direct Supabase queries instead).
+ * Retained for potential external use or future client-side migration.
+ * TODO: evaluate for removal or adoption in a future PR.
+ */
 import { NextResponse } from "next/server"
 
 import { getServerAuth } from "@/lib/auth"

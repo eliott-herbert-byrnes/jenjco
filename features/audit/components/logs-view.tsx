@@ -1,12 +1,24 @@
+import { paths } from "@/app/paths"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { createClient } from "@/lib/supabase/server"
 
-const PAGE_SIZE = 50
+const PAGE_SIZE = 20
+
+function pageHref(base: string, p: number) {
+  return `${base}&page=${p}`
+}
 
 export async function LogsView({
   orgId,
@@ -26,6 +38,9 @@ export async function LogsView({
     .eq("org_id", orgId)
     .order("created_at", { ascending: false })
     .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+
+  const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))
+  const baseHref = `${paths.audit}?tab=logs`
 
   if (!data?.length) {
     return (
@@ -92,9 +107,39 @@ export async function LogsView({
             ))}
           </tbody>
         </table>
-        <p className="px-4 py-3 text-xs text-muted-foreground">
-          Showing {data.length} of {count ?? "?"} entries
-        </p>
+        {totalPages > 1 ? (
+          <div className="flex items-center justify-between border-t px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              Page {page + 1} of {totalPages} · {count ?? 0} entries
+            </p>
+            <Pagination className="mx-0 w-auto">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={pageHref(baseHref, page - 1)}
+                    className={
+                      page === 0 ? "pointer-events-none opacity-50" : undefined
+                    }
+                    tabIndex={page === 0 ? -1 : undefined}
+                    aria-disabled={page === 0}
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    href={pageHref(baseHref, page + 1)}
+                    className={
+                      page >= totalPages - 1
+                        ? "pointer-events-none opacity-50"
+                        : undefined
+                    }
+                    tabIndex={page >= totalPages - 1 ? -1 : undefined}
+                    aria-disabled={page >= totalPages - 1}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   )
