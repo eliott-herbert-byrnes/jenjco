@@ -58,17 +58,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     ...(isAdmin
       ? [
-          {
-            title: "Integrations",
-            url: paths.integrations,
-            isActive: isActivePath(pathname, paths.integrations),
-          },
-          {
-            title: "Users",
-            url: paths.organisationUsers,
-            isActive: isActivePath(pathname, paths.organisationUsers),
-          },
-        ]
+        {
+          title: "Integrations",
+          url: paths.integrations,
+          isActive: isActivePath(pathname, paths.integrations),
+        },
+        {
+          title: "Users",
+          url: paths.organisationUsers,
+          isActive: isActivePath(pathname, paths.organisationUsers),
+        },
+      ]
       : []),
   ]
 
@@ -106,18 +106,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href={paths.dashboard}>
-                <Image
-                  width="8"
-                  height="8"
-                  src="/logo.svg"
-                  alt="JENJCO"
-                  className="size-8 shrink-0"
-                />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">JENJCO</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    v 1.0.0
-                  </span>
+                  <Image
+                    width="7"
+                    height="7"
+                    src="/logo.svg"
+                    alt="JENJCO"
+                    className="size-7 shrink-0 ml-1 mt-1"
+                  />
+                  <div className="grid flex-1 text-left text-sm leading-tight mt-1.5">
+                    <span className="truncate font-semibold">JENJCO</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      v 0.1.0
+                    </span>
                 </div>
               </Link>
             </SidebarMenuButton>
