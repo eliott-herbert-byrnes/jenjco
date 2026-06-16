@@ -25,7 +25,9 @@ export const Canvas = ({
     zoomOnDoubleClick={false}
     {...props}
   >
-    {showBackground && <Background bgColor="var(--sidebar)" />}
+    {showBackground && (
+      <Background bgColor="var(--sidebar)" color="transparent" />
+    )}
     {children}
   </ReactFlow>
 )

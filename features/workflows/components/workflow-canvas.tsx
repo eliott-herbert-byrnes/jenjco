@@ -1,9 +1,11 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useWorkflowRun } from '../hooks/use-workflow-run'
 import { ReactFlowProvider } from '@xyflow/react'
 import type { Node as RFNode, NodeProps } from '@xyflow/react'
+import { paths } from '@/app/paths'
 import { Canvas } from '@/components/ai-elements/canvas'
 import { Controls } from '@/components/ai-elements/controls'
 import { Edge } from '@/components/ai-elements/edge'
@@ -14,18 +16,42 @@ import {
   NodeHeader,
   NodeTitle,
 } from '@/components/ai-elements/node'
-import { Panel } from '@/components/ai-elements/panel'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import type { AppRole } from '@/lib/auth'
 import { cn } from '@/lib/utils'
-import { buildNodes, decorateEdgesForRunState } from '../lib/layout'
+import {
+  buildNodes,
+  decorateEdgesForRunState,
+  type SectionHeaderData,
+} from '../lib/layout'
 import type { StepMeta, StepRunStatus, WorkflowCanvasWorkflow } from '../types'
 import { parseWorkflowConfig } from '../utils/config'
-import { WorkflowRunDrawer } from './workflow-run-drawer'
+import { WorkflowStepPanel } from './workflow-step-panel'
+import { ChevronLeft } from 'lucide-react'
 
 type StepNodeData = StepMeta & { status?: StepRunStatus }
 
 type WorkflowStepRfNode = RFNode<StepNodeData, 'workflowStep'>
+type SectionHeaderRfNode = RFNode<SectionHeaderData, 'sectionHeader'>
+
+function WorkflowSectionNode({ data }: NodeProps<SectionHeaderRfNode>) {
+  return (
+    <div className="pointer-events-none flex select-none flex-col gap-0.5">
+      <p className="text-muted-foreground text-xs font-semibold tracking-widest uppercase">
+        {data.label}
+      </p>
+      {data.subtitle ? (
+        <p className="text-muted-foreground text-xs">{data.subtitle}</p>
+      ) : null}
+    </div>
+  )
+}
 
 function WorkflowStepNode({ data }: NodeProps<WorkflowStepRfNode>) {
   const status = data.status ?? 'idle'
@@ -39,7 +65,11 @@ function WorkflowStepNode({ data }: NodeProps<WorkflowStepRfNode>) {
           : ''
 
   return (
-    <Node handles={{ source: true, target: true }} className={cn('w-sm', statusRing)}>
+    <Node
+      handles={{ source: true, target: true }}
+      orientation="vertical"
+      className={cn('w-sm', statusRing)}
+    >
       <NodeHeader>
         <NodeTitle>{data.label}</NodeTitle>
       </NodeHeader>
@@ -52,6 +82,7 @@ function WorkflowStepNode({ data }: NodeProps<WorkflowStepRfNode>) {
 
 const nodeTypes = {
   workflowStep: WorkflowStepNode,
+  sectionHeader: WorkflowSectionNode,
 }
 
 const edgeTypes = {
@@ -70,28 +101,31 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
     [workflow.config_overrides]
   )
 
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [selectedStep, setSelectedStep] = useState<StepMeta | null>(steps[0] ?? null)
+  const [panelMode, setPanelMode] = useState<'step' | 'run'>('step')
   const canRun = role === 'admin' && workflow.status === 'active'
   const { stepStatuses, run, running, result, runError, reset } = useWorkflowRun({
     workflowId: workflow.id,
     canRun,
   })
 
-  const handleDrawerOpenChange = (next: boolean) => {
-    if (next) reset()
-    setDrawerOpen(next)
-  }
+  const triggerLabel = workflow.schedule_cron
+    ? `Cron: ${workflow.schedule_cron}`
+    : 'Manual'
 
   const nodes = useMemo(
     () =>
-      buildNodes(steps).map((n) => ({
-        ...n,
-        data: {
-          ...(n.data as StepMeta),
-          status: stepStatuses[n.id] ?? 'idle',
-        } satisfies StepNodeData,
-      })),
-    [steps, stepStatuses]
+      buildNodes(steps, triggerLabel, workflow.has_output).map((n) => {
+        if (n.type === 'sectionHeader') return n
+        return {
+          ...n,
+          data: {
+            ...(n.data as StepMeta),
+            status: stepStatuses[n.id] ?? 'idle',
+          } satisfies StepNodeData,
+        }
+      }),
+    [steps, triggerLabel, workflow.has_output, stepStatuses]
   )
 
   const edges = useMemo(
@@ -99,56 +133,88 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
     [edgeMeta, stepStatuses]
   )
 
+  const handleNodeClick = (_: React.MouseEvent, node: RFNode) => {
+    const step = steps.find((s) => s.id === node.id)
+    if (step) {
+      setSelectedStep(step)
+      if (panelMode === 'run') setPanelMode('step')
+    }
+  }
+
+  const handleBackToStep = () => {
+    reset()
+    setPanelMode('step')
+  }
+
+  const handleSwitchToRun = () => {
+    reset()
+    setPanelMode('run')
+  }
+
   return (
     <ReactFlowProvider>
-      <div className="relative flex h-full min-h-0 w-full flex-1 flex-col">
-        <Canvas
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          nodesDraggable={false}
-          nodesConnectable={false}
-          elementsSelectable={false}
-          deleteKeyCode={null}
-          selectionOnDrag={false}
-          fitView
-          className="h-full w-full"
-        >
-          <Controls className="shadow-none!" />
-          <Panel className="m-4 flex max-w-md flex-col gap-2 rounded-md border bg-card/95 p-3 shadow-sm backdrop-blur-sm">
-            <div>
-              <h1 className="text-sm font-semibold">{workflow.display_name}</h1>
-              {workflow.description ? (
-                <p className="text-muted-foreground mt-1 text-xs">{workflow.description}</p>
-              ) : null}
-            </div>
-            {role === 'admin' && (
-              <Button
-                type="button"
-                size="sm"
-                className="w-fit"
-                disabled={workflow.status !== 'active'}
-                onClick={() => setDrawerOpen(true)}
-              >
-                Run workflow
-              </Button>
-            )}
-          </Panel>
-        </Canvas>
+      <div className="flex h-[calc(100vh-4.5rem)] flex-col">
+        <TooltipProvider>
+          <div className="flex shrink-0 items-center gap-2 border-b px-4 py-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={paths.workflows}>
+              <ChevronLeft /> 
+              Workflows
+              </Link>
+            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0}>
+                  <Button variant="outline" size="sm" disabled>
+                    Test
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Disabled for MVP</TooltipContent>
+            </Tooltip>
+            <Button size="sm" disabled={!canRun} onClick={handleSwitchToRun}>
+              Run
+            </Button>
+          </div>
+        </TooltipProvider>
 
-        <WorkflowRunDrawer
-          displayName={workflow.display_name}
-          status={workflow.status}
-          role={role}
-          inputSchema={inputSchema}
-          open={drawerOpen}
-          onOpenChange={handleDrawerOpenChange}
-          run={run}
-          running={running}
-          result={result}
-          runError={runError}
-        />
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+          <div className="min-h-0 flex-1 lg:w-2/3">
+            <Canvas
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              nodesDraggable={false}
+              nodesConnectable={false}
+              elementsSelectable={false}
+              deleteKeyCode={null}
+              selectionOnDrag={false}
+              fitView
+              className="h-full w-full"
+              onNodeClick={handleNodeClick}
+            >
+              <Controls className="shadow-none!" />
+            </Canvas>
+          </div>
+
+          <div className="w-full shrink-0 overflow-y-auto border-t lg:w-1/3 lg:border-t-0 lg:border-l">
+            <WorkflowStepPanel
+              steps={steps}
+              selectedStep={selectedStep}
+              panelMode={panelMode}
+              role={role}
+              workflow={workflow}
+              inputSchema={inputSchema}
+              run={run}
+              running={running}
+              result={result}
+              runError={runError}
+              onSwitchToRun={handleSwitchToRun}
+              onBackToStep={handleBackToStep}
+            />
+          </div>
+        </div>
       </div>
     </ReactFlowProvider>
   )

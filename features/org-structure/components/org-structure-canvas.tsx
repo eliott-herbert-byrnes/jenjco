@@ -63,7 +63,6 @@ export function OrgStructureCanvas({
           deleteKeyCode={null}
           selectionOnDrag={false}
           fitView
-          showBackground={false}
           className="h-full w-full"
           onNodeClick={(_e, node) => {
             if (!node.data.isRoot) setSelectedDeptId(node.id)

@@ -27,6 +27,8 @@ export type WorkflowCanvasWorkflow = {
   status: string
   config_overrides: unknown
   created_at: string
+  schedule_cron: string | null
+  has_output: boolean
 }
 
 export type JsonSchemaProps = {

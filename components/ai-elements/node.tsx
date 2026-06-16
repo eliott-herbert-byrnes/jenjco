@@ -16,21 +16,38 @@ export type NodeProps = ComponentProps<typeof Card> & {
     target: boolean
     source: boolean
   }
+  orientation?: "horizontal" | "vertical"
 }
 
-export const Node = ({ handles, className, ...props }: NodeProps) => (
-  <Card
-    className={cn(
-      "node-container relative size-full h-auto w-sm gap-0 rounded-md p-0",
-      className
-    )}
-    {...props}
-  >
-    {handles.target && <Handle position={Position.Left} type="target" />}
-    {handles.source && <Handle position={Position.Right} type="source" />}
-    {props.children}
-  </Card>
-)
+export const Node = ({
+  handles,
+  orientation = "horizontal",
+  className,
+  ...props
+}: NodeProps) => {
+  const targetPosition =
+    orientation === "vertical" ? Position.Top : Position.Left
+  const sourcePosition =
+    orientation === "vertical" ? Position.Bottom : Position.Right
+
+  return (
+    <Card
+      className={cn(
+        "node-container relative size-full h-auto w-sm gap-0 rounded-xl p-0",
+        className
+      )}
+      {...props}
+    >
+      {handles.target && (
+        <Handle position={targetPosition} type="target" />
+      )}
+      {handles.source && (
+        <Handle position={sourcePosition} type="source" />
+      )}
+      {props.children}
+    </Card>
+  )
+}
 
 export type NodeHeaderProps = ComponentProps<typeof CardHeader>
 
