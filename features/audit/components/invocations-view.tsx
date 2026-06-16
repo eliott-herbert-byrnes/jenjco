@@ -1,3 +1,4 @@
+import { paths } from "@/app/paths"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -5,38 +6,48 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { createClient } from "@/lib/supabase/server"
 
-const WINDOW_MS = 30 * 24 * 60 * 60 * 1000
-const sinceCutoffMs = Date.now() - WINDOW_MS
+const PAGE_SIZE = 20
+
+function pageHref(base: string, p: number) {
+  return `${base}&page=${p}`
+}
 
 export async function InvocationsView({
-  tab,
   orgId,
+  page = 0,
 }: {
-  tab: "agents" | "workflows"
   orgId: string
+  page?: number
 }) {
   const supabase = await createClient()
-  const since = new Date(sinceCutoffMs).toISOString()
-  // Roll-ups only — workflow tab counts resource_type = 'workflow', not workflow_step.
-  const resourceType = tab === "agents" ? "agent" : "workflow"
 
-  const { data: rows } = await supabase
+  const { data: rows, count } = await supabase
     .from("usage_logs")
     .select(
-      "id, resource_key, resource_type, tokens_in, tokens_out, duration_ms, status, created_at"
+      "id, resource_key, resource_type, tokens_in, tokens_out, duration_ms, status, created_at",
+      { count: "exact" }
     )
     .eq("org_id", orgId)
-    .eq("resource_type", resourceType)
-    .gte("created_at", since)
+    .eq("resource_type", "workflow")
     .order("created_at", { ascending: false })
-    .limit(50)
+    .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+
+  const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))
+  const baseHref = `${paths.audit}?tab=workflows`
 
   if (!rows?.length) {
     return (
       <p className="py-8 text-center text-sm text-muted-foreground">
-        No invocations in the last 30 days
+        No workflow invocations found
       </p>
     )
   }
@@ -45,30 +56,17 @@ export async function InvocationsView({
     ...new Set(rows.map((r) => r.resource_key).filter((k): k is string => k != null)),
   ]
 
-  const nameMap =
-    tab === "agents"
-      ? Object.fromEntries(
-          (
-            (
-              await supabase
-                .from("org_agents")
-                .select("agent_key, display_name")
-                .eq("org_id", orgId)
-                .in("agent_key", keys.length ? keys : [""])
-            ).data ?? []
-          ).map((r) => [r.agent_key, r.display_name])
-        )
-      : Object.fromEntries(
-          (
-            (
-              await supabase
-                .from("org_workflows")
-                .select("workflow_key, display_name")
-                .eq("org_id", orgId)
-                .in("workflow_key", keys.length ? keys : [""])
-            ).data ?? []
-          ).map((r) => [r.workflow_key, r.display_name])
-        )
+  const nameMap = Object.fromEntries(
+    (
+      (
+        await supabase
+          .from("org_workflows")
+          .select("workflow_key, display_name")
+          .eq("org_id", orgId)
+          .in("workflow_key", keys.length ? keys : [""])
+      ).data ?? []
+    ).map((r) => [r.workflow_key, r.display_name])
+  )
 
   return (
     <Card>
@@ -125,6 +123,39 @@ export async function InvocationsView({
             ))}
           </tbody>
         </table>
+        {totalPages > 1 ? (
+          <div className="flex items-center justify-between border-t px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              Page {page + 1} of {totalPages} · {count ?? 0} invocations
+            </p>
+            <Pagination className="mx-0 w-auto">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={pageHref(baseHref, page - 1)}
+                    className={
+                      page === 0 ? "pointer-events-none opacity-50" : undefined
+                    }
+                    tabIndex={page === 0 ? -1 : undefined}
+                    aria-disabled={page === 0}
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    href={pageHref(baseHref, page + 1)}
+                    className={
+                      page >= totalPages - 1
+                        ? "pointer-events-none opacity-50"
+                        : undefined
+                    }
+                    tabIndex={page >= totalPages - 1 ? -1 : undefined}
+                    aria-disabled={page >= totalPages - 1}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   )

@@ -5,41 +5,30 @@ import Link from "next/link"
 import { paths } from "@/app/paths"
 import { cn } from "@/lib/utils"
 
-type Tab = "agents" | "workflows" | "integrations"
-type View = "metrics" | "invocations" | "logs"
+type Tab = "workflows" | "integrations" | "logs"
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "agents", label: "Agents" },
   { id: "workflows", label: "Workflows" },
   { id: "integrations", label: "Integrations" },
-]
-const VIEWS: { id: View; label: string }[] = [
-  { id: "metrics", label: "Metrics" },
-  { id: "invocations", label: "Invocations" },
-  { id: "logs", label: "Logs" },
+  { id: "logs", label: "System Logs" },
 ]
 
-function tabHref(tab: Tab, view: View) {
+function tabHref(tab: Tab) {
   if (tab === "integrations") return `${paths.audit}?tab=integrations`
-  return `${paths.audit}?tab=${tab}&view=${view}`
+  if (tab === "logs") return `${paths.audit}?tab=logs`
+  return `${paths.audit}?tab=workflows`
 }
 
-export function AuditNav({
-  activeTab,
-  activeView,
-}: {
-  activeTab: Tab
-  activeView: View
-}) {
+export function AuditNav({ activeTab }: { activeTab: Tab }) {
   return (
     <div className="flex flex-col gap-2 border-b pb-4">
       <div className="flex gap-1">
         {TABS.map((t) => (
           <Link
             key={t.id}
-            href={tabHref(t.id, activeView)}
+            href={tabHref(t.id)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "rounded-3xl px-3 py-2 text-sm font-medium transition-colors",
               activeTab === t.id
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted"
@@ -49,24 +38,6 @@ export function AuditNav({
           </Link>
         ))}
       </div>
-      {activeTab !== "integrations" && (
-        <div className="flex gap-1">
-          {VIEWS.map((v) => (
-            <Link
-              key={v.id}
-              href={tabHref(activeTab, v.id)}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                activeView === v.id
-                  ? "bg-secondary text-secondary-foreground"
-                  : "text-muted-foreground hover:bg-muted"
-              )}
-            >
-              {v.label}
-            </Link>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
