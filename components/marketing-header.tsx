@@ -35,7 +35,7 @@ export function MarketingHeader({ isAuthenticated }: MarketingHeaderProps) {
             height={50}
             className="h-5 w-auto text-foreground"
           />
-          <span className="font-semibold">JENJCO</span>
+          <span className="font-bold">JENJCO</span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
