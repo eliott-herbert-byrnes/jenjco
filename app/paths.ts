@@ -8,8 +8,8 @@ export const paths = {
   signUp: "/sign-up",
   /** OAuth / magic-link callback (Supabase redirect URL) */
   authCallback: "/callback",
-  /** App home / main dashboard (same as {@link paths.home}) */
-  dashboard: "/",
+  /** Main dashboard (protected app home) */
+  dashboard: "/dashboard",
   agents: "/agents",
   organisation: "/organisation",
   organisationUsers: "/organisation/users",
