@@ -20,7 +20,7 @@ export default function LandingPage() {
         Your Workflow Automation Partner
       </h1>
 
-      <p className="mt-2 max-w-md z-100 text-neutral-800">
+      <p className="mt-2 max-w-md text-center z-100 text-neutral-800">
         Keeping humans in the loop without the loop
       </p>
 
