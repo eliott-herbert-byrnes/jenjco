@@ -5,6 +5,7 @@ import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 
 function ThemeProvider({
   children,
+  scriptProps,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
@@ -14,6 +15,12 @@ function ThemeProvider({
       enableSystem
       disableTransitionOnChange
       {...props}
+      scriptProps={{
+        ...scriptProps,
+        ...(typeof window !== "undefined"
+          ? { type: "application/json" as const }
+          : {}),
+      }}
     >
       <ThemeHotkey />
       {children}
