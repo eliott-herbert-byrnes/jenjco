@@ -32,6 +32,7 @@ import {
 } from '../lib/layout'
 import type { StepMeta, StepRunStatus, WorkflowCanvasWorkflow } from '../types'
 import { parseWorkflowConfig } from '../utils/config'
+import { WorkflowAuditPanel } from './workflow-audit-panel'
 import { WorkflowStepPanel } from './workflow-step-panel'
 import { ChevronLeft } from 'lucide-react'
 
@@ -95,14 +96,15 @@ export type WorkflowCanvasProps = {
   role: AppRole
 }
 
+type PanelMode = 'run' | 'audit'
+
 export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
   const { steps, edges: edgeMeta, inputSchema } = useMemo(
     () => parseWorkflowConfig(workflow.config_overrides),
     [workflow.config_overrides]
   )
 
-  const [selectedStep, setSelectedStep] = useState<StepMeta | null>(steps[0] ?? null)
-  const [panelMode, setPanelMode] = useState<'step' | 'run'>('step')
+  const [panelMode, setPanelMode] = useState<PanelMode>('audit')
   const canRun = role === 'admin' && workflow.status === 'active'
   const { stepStatuses, run, running, result, runError, reset } = useWorkflowRun({
     workflowId: workflow.id,
@@ -132,19 +134,6 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
     () => decorateEdgesForRunState(edgeMeta, stepStatuses),
     [edgeMeta, stepStatuses]
   )
-
-  const handleNodeClick = (_: React.MouseEvent, node: RFNode) => {
-    const step = steps.find((s) => s.id === node.id)
-    if (step) {
-      setSelectedStep(step)
-      if (panelMode === 'run') setPanelMode('step')
-    }
-  }
-
-  const handleBackToStep = () => {
-    reset()
-    setPanelMode('step')
-  }
 
   const handleSwitchToRun = () => {
     reset()
@@ -192,27 +181,57 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
               selectionOnDrag={false}
               fitView
               className="h-full w-full"
-              onNodeClick={handleNodeClick}
             >
               <Controls className="shadow-none!" />
             </Canvas>
           </div>
 
-          <div className="w-full shrink-0 overflow-y-auto border-t lg:w-1/3 lg:border-t-0 lg:border-l">
-            <WorkflowStepPanel
-              steps={steps}
-              selectedStep={selectedStep}
-              panelMode={panelMode}
-              role={role}
-              workflow={workflow}
-              inputSchema={inputSchema}
-              run={run}
-              running={running}
-              result={result}
-              runError={runError}
-              onSwitchToRun={handleSwitchToRun}
-              onBackToStep={handleBackToStep}
-            />
+          <div className="flex w-full shrink-0 flex-col overflow-hidden border-t lg:w-1/3 lg:border-t-0 lg:border-l">
+            <div className="flex shrink-0 border-b">
+              <button
+                type="button"
+                onClick={() => setPanelMode('audit')}
+                className={cn(
+                  'border-b-2 px-4 py-2 text-sm font-medium transition-colors',
+                  panelMode === 'audit'
+                    ? 'border-primary text-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Audit Logs
+              </button>
+              <button
+                type="button"
+                onClick={() => setPanelMode('run')}
+                className={cn(
+                  'border-b-2 px-4 py-2 text-sm font-medium transition-colors',
+                  panelMode === 'run'
+                    ? 'border-primary text-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Run
+              </button>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {panelMode === 'audit' ? (
+                <WorkflowAuditPanel
+                  workflowKey={workflow.workflow_key}
+                  running={running}
+                />
+              ) : (
+                <WorkflowStepPanel
+                  role={role}
+                  workflow={workflow}
+                  inputSchema={inputSchema}
+                  run={run}
+                  running={running}
+                  result={result}
+                  runError={runError}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>

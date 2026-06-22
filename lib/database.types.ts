@@ -695,6 +695,7 @@ export type Database = {
       workflow_step_runs: {
         Row: {
           created_at: string
+          error: Json | null
           id: string
           kind: string
           run_id: string
@@ -705,6 +706,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          error?: Json | null
           id?: string
           kind: string
           run_id: string
@@ -715,6 +717,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          error?: Json | null
           id?: string
           kind?: string
           run_id?: string

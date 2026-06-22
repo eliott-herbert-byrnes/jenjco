@@ -36,3 +36,25 @@ export type JsonSchemaProps = {
   properties?: Record<string, { type?: string; description?: string }>
   required?: string[]
 }
+
+export type WorkflowStepRunRow = {
+  id: string
+  step_id: string
+  kind: string
+  status: string
+  error: { reason: string; description: string } | null
+  created_at: string
+}
+
+export type WorkflowRunRow = {
+  id: string
+  workflow_key: string
+  status: string
+  trigger: string
+  error: string | null
+  started_by: string | null
+  created_at: string
+  completed_at: string | null
+  users: { display_name: string | null } | null
+  workflow_step_runs: WorkflowStepRunRow[]
+}

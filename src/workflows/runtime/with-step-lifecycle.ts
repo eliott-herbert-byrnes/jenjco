@@ -80,6 +80,7 @@ export async function withStepLifecycle<T>(
       stepId,
       kind,
       status: "failed",
+      error: { reason: message, description: "" },
     })
     await writeStatusInStep({ type: "step-failed", stepId, message })
     throw err
