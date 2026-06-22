@@ -758,6 +758,30 @@ export type Database = {
     }
     Functions: {
       current_user_org_id: { Args: never; Returns: string }
+      get_analytics_overview: {
+        Args: { p_org_id: string }
+        Returns: {
+          avg_run_time_ms: number
+          failure_rate_month: number
+          total_failures_month: number
+          total_runs_month: number
+          total_runs_today: number
+          total_runs_week: number
+        }[]
+      }
+      get_analytics_workflow_summary: {
+        Args: { p_org_id: string }
+        Returns: {
+          avg_duration_ms: number
+          department_id: string
+          department_name: string
+          display_name: string
+          failed_runs: number
+          last_run_at: string
+          total_runs: number
+          workflow_key: string
+        }[]
+      }
       get_workflows_hub: {
         Args: { p_org_id: string }
         Returns: {

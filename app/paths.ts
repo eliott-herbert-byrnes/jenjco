@@ -17,7 +17,10 @@ export const paths = {
   workflows: "/workflows",
   processes: "/organisation/processes",
   orgStructure: "/organisation/org-structure",
-  audit: "/audit",
+  analytics: "/analytics",
+  analyticsOverview: "/analytics/overview",
+  analyticsIntegrations: "/analytics/integrations",
+  analyticsSystemLogs: "/analytics/system-logs",
   /** Legacy path; redirected to `signIn` in `next.config.mjs` */
   login: "/login",
 } as const
@@ -31,7 +34,7 @@ const PROTECTED_APP_PREFIXES: readonly string[] = [
   paths.workflows,
   paths.processes,
   paths.orgStructure,
-  paths.audit,
+  "/analytics",
 ]
 
 export function isProtectedAppRoute(pathname: string): boolean {
@@ -48,10 +51,6 @@ export const apiPaths = {
   workflows: '/api/workflows',
   workflowDetail: (id: string) => `/api/workflows/${id}`,
   workflowRun: (id: string) => `/api/workflows/${id}/run`,
-  auditMetrics: '/api/audit/metrics',
-  auditInvocations: '/api/audit/invocations',
-  auditIntegrations: '/api/audit/integrations',
-  auditLogs: '/api/audit/logs',
   orgStructure: '/api/org-structure',
   integrationConnect: (provider: string) =>
     `/api/integrations/${provider}/connect`,
