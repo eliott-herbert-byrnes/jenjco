@@ -24,6 +24,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+import { formatDuration } from '@/features/workflows/lib/format-duration'
 import { cn } from '@/lib/utils'
 import { AUDIT_LOGS_PAGE_SIZE, useAuditLogs } from '../hooks/use-audit-logs'
 import type { WorkflowRunRow, WorkflowStepRunRow } from '../types'
@@ -45,17 +46,6 @@ function runStatusBadgeVariant(status: RunStatusLabel) {
   if (status === 'success') return 'default' as const
   if (status === 'failed') return 'destructive' as const
   return 'secondary' as const
-}
-
-function formatDuration(start: string, end: string | null): string {
-  if (!end) return '—'
-  const ms = new Date(end).getTime() - new Date(start).getTime()
-  if (ms < 0) return '—'
-  const totalSeconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(totalSeconds / 60)
-  const seconds = totalSeconds % 60
-  if (minutes > 0) return `${minutes}m ${seconds}s`
-  return `${seconds}s`
 }
 
 function groupRunsByDay(runs: WorkflowRunRow[]): [string, WorkflowRunRow[]][] {

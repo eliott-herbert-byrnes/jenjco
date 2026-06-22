@@ -782,6 +782,27 @@ export type Database = {
           workflow_key: string
         }[]
       }
+      get_workflow_daily_runs: {
+        Args: { p_workflow_key: string }
+        Returns: {
+          failed_runs: number
+          run_date: string
+          successful_runs: number
+        }[]
+      }
+      get_workflow_detail_stats: {
+        Args: { p_workflow_key: string }
+        Returns: {
+          avg_duration_ms: number
+          failed_runs: number
+          failure_rate: number
+          latest_run_completed_at: string
+          latest_run_created_at: string
+          latest_run_status: string
+          successful_runs: number
+          total_runs: number
+        }[]
+      }
       get_workflows_hub: {
         Args: { p_org_id: string }
         Returns: {

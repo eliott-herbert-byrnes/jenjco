@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { NetworkIcon } from 'lucide-react'
 
 import { paths } from '@/app/paths'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -15,6 +16,9 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { FlagWorkflowDialog } from '@/features/workflows/components/flag-workflow-dialog'
+import { WorkflowRunChart } from '@/features/workflows/components/workflow-run-chart'
+import { WorkflowStatCards } from '@/features/workflows/components/workflow-stat-cards'
+import { useWorkflowDetailStats } from '@/features/workflows/hooks/use-workflow-detail-stats'
 import { extractMarkdownSection } from '@/features/workflows/lib/extract-markdown-section'
 import type { WorkflowHubRow } from '@/features/workflows/types'
 import { createClient } from '@/lib/supabase/client'
@@ -56,16 +60,26 @@ export function WorkflowDetailSheet({
 }: WorkflowDetailSheetProps) {
   const router = useRouter()
   const workflowId = workflow?.id
+  const workflowKey = workflow?.workflow_key
   const [processes, setProcesses] = useState<LinkedProcess[]>([])
-  const [loading, setLoading] = useState(false)
+  const [processesLoading, setProcessesLoading] = useState(false)
   const [prevWorkflowId, setPrevWorkflowId] = useState<string | undefined>(
     workflowId
   )
 
+  const {
+    stats,
+    dailyRuns,
+    loading: statsLoading,
+  } = useWorkflowDetailStats({
+    workflowKey,
+    enabled: open && !!workflowKey,
+  })
+
   if (workflowId !== prevWorkflowId) {
     setPrevWorkflowId(workflowId)
     setProcesses([])
-    setLoading(false)
+    setProcessesLoading(false)
   }
 
   useEffect(() => {
@@ -75,7 +89,7 @@ export function WorkflowDetailSheet({
     let cancelled = false
 
     async function load() {
-      setLoading(true)
+      setProcessesLoading(true)
 
       const supabase = createClient()
       const { data, error } = await supabase
@@ -96,7 +110,7 @@ export function WorkflowDetailSheet({
 
       if (error) {
         setProcesses([])
-        setLoading(false)
+        setProcessesLoading(false)
         return
       }
 
@@ -105,7 +119,7 @@ export function WorkflowDetailSheet({
         .filter((process): process is LinkedProcess => process !== null)
 
       setProcesses(linked ?? [])
-      setLoading(false)
+      setProcessesLoading(false)
     }
 
     void load()
@@ -115,6 +129,8 @@ export function WorkflowDetailSheet({
     }
   }, [open, workflowId])
 
+  const loading = processesLoading || statsLoading
+
   const overview = useMemo(() => {
     const fromContent = extractMarkdownSection(
       processes[0]?.content,
@@ -122,31 +138,21 @@ export function WorkflowDetailSheet({
     )
     return fromContent ?? workflow?.description ?? ''
   }, [processes, workflow?.description])
-  const tools = useMemo(() => {
-    const seen = new Set<string>()
-    const providers: ProcessConnection[] = []
-
-    for (const process of processes) {
-      for (const connection of process.process_connections ?? []) {
-        if (seen.has(connection.provider)) continue
-        seen.add(connection.provider)
-        providers.push(connection)
-      }
-    }
-
-    return providers.toSorted((a, b) => a.sort_order - b.sort_order)
-  }, [processes])
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="rounded-3xl p-2">
+      <SheetContent side="right" className="w-[480px] rounded-3xl p-2">
         <SheetHeader>
-          <SheetTitle>{workflow?.display_name ?? 'Workflow'}</SheetTitle>
+          <SheetTitle className="flex items-center gap-2">
+            {workflow?.display_name ?? 'Workflow'}
+          </SheetTitle>
         </SheetHeader>
 
         <div className="flex flex-col gap-6 overflow-y-auto px-6 pb-8">
           {loading ? (
-            <p className="text-xs text-muted-foreground">Loading workflow details…</p>
+            <p className="text-xs text-muted-foreground">
+              Loading workflow details…
+            </p>
           ) : (
             <>
               <section className="flex flex-col gap-2">
@@ -159,6 +165,18 @@ export function WorkflowDetailSheet({
               </section>
               <Separator />
 
+              <section className="flex flex-col gap-3">
+                <WorkflowStatCards stats={stats} />
+              </section>
+              <Separator />
+
+              <section className="flex flex-col gap-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Daily Run Count
+                </p>
+                <WorkflowRunChart dailyRuns={dailyRuns} />
+              </section>
+              <Separator />
 
               <section className="flex flex-col gap-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -175,22 +193,6 @@ export function WorkflowDetailSheet({
                       </div>
                     </Fragment>
                   ))
-                )}
-              </section>
-              <Separator />
-
-              <section className="flex flex-col gap-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Tools
-                </p>
-                {tools.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No tools connected</p>
-                ) : (
-                  <ul className="space-y-1 text-sm text-muted-foreground">
-                    {tools.map((tool) => (
-                      <li key={tool.provider}>{tool.provider.toLocaleUpperCase().slice(0, 1) + tool.provider.slice(1)}</li>
-                    ))}
-                  </ul>
                 )}
               </section>
             </>

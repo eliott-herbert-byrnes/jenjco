@@ -58,3 +58,20 @@ export type WorkflowRunRow = {
   users: { display_name: string | null } | null
   workflow_step_runs: WorkflowStepRunRow[]
 }
+
+export type WorkflowDetailStats = {
+  total_runs: number
+  successful_runs: number
+  failed_runs: number
+  failure_rate: number
+  avg_duration_ms: number | null
+  latest_run_status: string | null
+  latest_run_created_at: string | null
+  latest_run_completed_at: string | null
+}
+
+export type WorkflowDailyRunRow = {
+  run_date: string
+  successful_runs: number
+  failed_runs: number
+}
