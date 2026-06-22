@@ -18,11 +18,12 @@ import { createClient } from "@/lib/supabase/server"
 
 const PAGE_SIZE = 20
 
-function pageHref(base: string, p: number) {
-  return `${base}&page=${p}`
+function pageHref(path: string, p: number) {
+  if (p <= 0) return path
+  return `${path}?page=${p}`
 }
 
-export async function IntegrationsInvocationsView({
+export async function IntegrationsView({
   orgId,
   page = 0,
 }: {
@@ -31,18 +32,20 @@ export async function IntegrationsInvocationsView({
 }) {
   const supabase = await createClient()
 
-  const { data: rows, count } = await supabase
+  const { data: rows, count, error } = await supabase
     .from("integration_invocations")
     .select(
-      "id, provider, endpoint, method, status, duration_ms, error_code, created_at",
+      "id, provider, endpoint, method, status, error_code, created_at",
       { count: "exact" }
     )
     .eq("org_id", orgId)
     .order("created_at", { ascending: false })
     .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
 
+  if (error) throw new Error(error.message)
+
   const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))
-  const baseHref = `${paths.audit}?tab=integrations`
+  const baseHref = paths.analyticsIntegrations
 
   if (!rows?.length) {
     return (
@@ -61,14 +64,7 @@ export async function IntegrationsInvocationsView({
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/50">
             <tr>
-              {[
-                "Provider",
-                "Endpoint",
-                "Status",
-                "Duration",
-                "Error",
-                "Time",
-              ].map((h) => (
+              {["Provider", "Endpoint", "Status", "Error", "Time"].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2 text-left font-medium text-muted-foreground"
@@ -102,9 +98,6 @@ export async function IntegrationsInvocationsView({
                     >
                       {r.status}
                     </Badge>
-                  </td>
-                  <td className="px-4 py-2 tabular-nums">
-                    {r.duration_ms != null ? `${r.duration_ms}ms` : "—"}
                   </td>
                   <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
                     {r.error_code ?? "—"}

@@ -4,8 +4,8 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
+  BarChart2Icon,
   Building2Icon,
-  ClipboardListIcon,
   GitBranchIcon,
   HomeIcon,
 } from "lucide-react"
@@ -39,11 +39,16 @@ function isOrganisationSectionActive(pathname: string) {
   )
 }
 
+function isAnalyticsSectionActive(pathname: string) {
+  return pathname.startsWith("/analytics")
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname() ?? ""
   const { appUser } = useUser()
   const isAdmin = appUser?.role === "admin"
   const organisationActive = isOrganisationSectionActive(pathname)
+  const analyticsActive = isAnalyticsSectionActive(pathname)
 
   const organisationSubItems = [
     {
@@ -91,12 +96,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: GitBranchIcon,
       isActive: isActivePath(pathname, paths.workflows),
     },
-    {
-      title: "Audit",
-      url: paths.audit,
-      icon: ClipboardListIcon,
-      isActive: isActivePath(pathname, paths.audit),
-    },
+    ...(isAdmin
+      ? [
+          {
+            title: "Analytics",
+            icon: BarChart2Icon,
+            isActive: analyticsActive,
+            items: [
+              {
+                title: "Overview",
+                url: paths.analyticsOverview,
+                isActive: isActivePath(pathname, paths.analyticsOverview),
+              },
+              {
+                title: "Integrations",
+                url: paths.analyticsIntegrations,
+                isActive: isActivePath(pathname, paths.analyticsIntegrations),
+              },
+              {
+                title: "System Logs",
+                url: paths.analyticsSystemLogs,
+                isActive: isActivePath(pathname, paths.analyticsSystemLogs),
+              },
+            ],
+          },
+        ]
+      : []),
   ]
 
   return (
