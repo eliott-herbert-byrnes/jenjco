@@ -49,6 +49,8 @@ export async function createRun({
   return data.id
 }
 
+export type StepError = { reason: string; description: string }
+
 export async function markStep({
   ledgerRunId,
   stepId,
@@ -56,6 +58,7 @@ export async function markStep({
   status,
   tokensIn = 0,
   tokensOut = 0,
+  error: stepError,
 }: {
   ledgerRunId: string
   stepId: string
@@ -63,6 +66,7 @@ export async function markStep({
   status: StepStatus
   tokensIn?: number
   tokensOut?: number
+  error?: StepError | null
 }): Promise<void> {
   const supabase = createAdminClient()
   const { error } = await supabase.from("workflow_step_runs").upsert(
@@ -73,6 +77,7 @@ export async function markStep({
       status,
       tokens_in: tokensIn,
       tokens_out: tokensOut,
+      ...(stepError != null ? { error: stepError as Json } : {}),
     },
     { onConflict: "run_id,step_id" }
   )

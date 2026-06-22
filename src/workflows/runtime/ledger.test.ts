@@ -142,6 +142,43 @@ describe("ledger", () => {
         { onConflict: "run_id,step_id" }
       )
     })
+
+    it("includes error in upsert payload when provided", async () => {
+      await markStep({
+        ledgerRunId: "ledger-run-1",
+        stepId: "gather-processes",
+        kind: "deterministic",
+        status: "failed",
+        error: { reason: "timeout exceeded", description: "Step timed out after 30s" },
+      })
+
+      expect(workflowStepRunsUpsert).toHaveBeenCalledWith(
+        {
+          run_id: "ledger-run-1",
+          step_id: "gather-processes",
+          kind: "deterministic",
+          status: "failed",
+          tokens_in: 0,
+          tokens_out: 0,
+          error: { reason: "timeout exceeded", description: "Step timed out after 30s" },
+        },
+        { onConflict: "run_id,step_id" }
+      )
+    })
+
+    it("omits error from upsert payload when not provided", async () => {
+      await markStep({
+        ledgerRunId: "ledger-run-1",
+        stepId: "validate-input",
+        kind: "deterministic",
+        status: "running",
+      })
+
+      expect(workflowStepRunsUpsert).toHaveBeenCalledWith(
+        expect.not.objectContaining({ error: expect.anything() }),
+        { onConflict: "run_id,step_id" }
+      )
+    })
   })
 
   describe("completeRun", () => {
