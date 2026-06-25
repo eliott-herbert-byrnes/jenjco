@@ -35,6 +35,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { RequestWorkflowDialog } from "@/features/workflows/components/request-workflow-dialog"
+import { BRAND_BADGE_CLASSES } from "@/lib/brand-colors"
 
 type Team = {
   id: string
@@ -68,7 +69,8 @@ export function FeaturedActionsClient({ teams }: FeaturedActionsClientProps) {
     <div className="grid grid-cols-[2fr_1fr_1fr] gap-4">
       <Card>
         <CardHeader>
-          <Badge variant="secondary">Operations</Badge>
+          {/* TODO: derive from real department data */}
+          <Badge className={BRAND_BADGE_CLASSES.orange}>Operations</Badge>
           <CardTitle>Get a summary of recently executed workflows</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-between">
@@ -77,8 +79,8 @@ export function FeaturedActionsClient({ teams }: FeaturedActionsClientProps) {
             <div className="size-6 rounded bg-muted" />
             <div className="size-6 rounded bg-muted" />
           </div>
-          <Button variant="outline" disabled>
-            Execute
+          <Button variant="secondary" asChild>
+            <a href="#">Execute</a>
           </Button>
         </CardContent>
       </Card>
@@ -99,7 +101,7 @@ export function FeaturedActionsClient({ teams }: FeaturedActionsClientProps) {
           </CardHeader>
           <CardFooter className="mt-auto">
             <DialogTrigger asChild>
-              <Button variant="outline">Book</Button>
+              <Button variant="brand-sky">Book</Button>
             </DialogTrigger>
           </CardFooter>
         </Card>

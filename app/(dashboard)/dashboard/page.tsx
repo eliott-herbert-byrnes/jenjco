@@ -6,6 +6,7 @@ import { Header } from "@/components/header"
 import { FeaturedActions } from "@/features/dashboard/components/featured-actions"
 import { WelcomeSection } from "@/features/dashboard/components/welcome-section"
 import { WorkflowBrowser } from "@/features/dashboard/components/workflow-browser"
+import type { WorkflowHubRow } from "@/features/workflows/types"
 import { getServerAuth } from "@/lib/auth"
 import { createClient } from "@/lib/supabase/server"
 
@@ -17,11 +18,17 @@ export default async function DashboardHomePage() {
 
   const supabase = await createClient()
 
-  const { data: departments } = await supabase
-    .from("departments")
-    .select("id, name")
-    .eq("org_id", appUser.orgId)
-    .order("sort_order", { ascending: true })
+  const [{ data: departments }, { data: workflows, error: workflowsError }] =
+    await Promise.all([
+      supabase
+        .from("departments")
+        .select("id, name")
+        .eq("org_id", appUser.orgId)
+        .order("sort_order", { ascending: true }),
+      supabase.rpc("get_workflows_hub", { p_org_id: appUser.orgId }),
+    ])
+
+  if (workflowsError) throw new Error(workflowsError.message)
 
   return (
     <>
@@ -32,7 +39,10 @@ export default async function DashboardHomePage() {
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-8">
         <WelcomeSection displayName={appUser.displayName} />
         <FeaturedActions />
-        <WorkflowBrowser departments={departments ?? []} />
+        <WorkflowBrowser
+          departments={departments ?? []}
+          workflows={(workflows ?? []) as WorkflowHubRow[]}
+        />
       </main>
     </>
   )

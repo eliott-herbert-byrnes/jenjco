@@ -17,6 +17,7 @@ export type WorkflowHubRow = {
   department_name: string | null
   run_count: number
   last_executed: string | null
+  providers: string[]
 }
 
 export type WorkflowCanvasWorkflow = {
