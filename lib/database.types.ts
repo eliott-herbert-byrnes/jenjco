@@ -812,6 +812,7 @@ export type Database = {
           display_name: string
           id: string
           last_executed: string
+          providers: string[]
           run_count: number
           status: string
           workflow_key: string

@@ -24,6 +24,9 @@ const nextConfig = {
       },
     ]
   },
+  experimental: {
+    optimizePackageImports: ['@icons-pack/react-simple-icons'],
+  },
 }
 
 export default withWorkflow(nextConfig)

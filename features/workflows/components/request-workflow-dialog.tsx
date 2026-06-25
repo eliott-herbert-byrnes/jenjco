@@ -44,7 +44,7 @@ export function RequestWorkflowDialog({
     <Dialog>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button type="button" variant="outline">
+          <Button type="button" variant="brand-emerald">
             Request
           </Button>
         )}

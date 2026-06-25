@@ -1,34 +1,58 @@
+import Link from "next/link"
+
 import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import type { WorkflowStub } from "@/features/dashboard/data/stub-workflows"
+import { ProviderIcon } from "@/lib/provider-icons"
+import { cn } from "@/lib/utils"
 
 type WorkflowCardProps = {
-  workflow: WorkflowStub
+  id: string
+  displayName: string
+  departmentName: string | null
+  departmentId: string | null
+  providers: string[]
+  badgeColorClass: string
 }
 
-export function WorkflowCard({ workflow }: WorkflowCardProps) {
+export function WorkflowCard({
+  id,
+  displayName,
+  departmentName,
+  providers,
+  badgeColorClass,
+}: WorkflowCardProps) {
+  const href = `/workflows/${id}`
+
   return (
-    <Card className="transition-all duration-200 ease-in-out hover:scale-101">
-      <CardHeader>
-        <Badge variant="secondary">{workflow.departmentName}</Badge>
-        <CardTitle>{workflow.displayName}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-2">
-          {workflow.integrations.map((integration) => (
-            <div
-              key={integration.name}
-              title={integration.name}
-              className="size-6 rounded bg-muted"
-            />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <Link href={href} className="block">
+      <Card className="cursor-pointer transition-all duration-200 ease-in-out hover:scale-101">
+        <CardHeader>
+          {departmentName ? (
+            <Badge className={badgeColorClass}>{departmentName}</Badge>
+          ) : null}
+          <CardTitle>{displayName}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between">
+          <div className="flex gap-1">
+            {providers.map((provider) => (
+              <ProviderIcon
+                key={provider}
+                provider={provider}
+                className="size-6.5 bg-neutral-200 p-1 rounded-lg border border-neutral-300"
+              />
+            ))}
+          </div>
+          <span className={cn(buttonVariants({ variant: "secondary" }))}>
+            Execute
+          </span>
+        </CardContent>
+      </Card>
+    </Link>
   )
 }

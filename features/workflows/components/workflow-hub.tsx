@@ -23,6 +23,11 @@ import { FlagWorkflowDialog } from '@/features/workflows/components/flag-workflo
 import { RequestWorkflowDialog } from '@/features/workflows/components/request-workflow-dialog'
 import { WorkflowDetailSheet } from '@/features/workflows/components/workflow-detail-sheet'
 import type { WorkflowHubRow } from '@/features/workflows/types'
+import {
+  BRAND_BADGE_CLASSES,
+  type BrandColorKey,
+  buildDepartmentColorMap,
+} from '@/lib/brand-colors'
 import { cn } from '@/lib/utils'
 
 type WorkflowHubProps = {
@@ -36,6 +41,34 @@ const STATUS_SORT_ORDER: Record<string, number> = {
   active: 0,
   flagged: 1,
   inactive: 2,
+}
+
+const BRAND_FILTER_SELECTED_CLASSES: Record<BrandColorKey, string> = {
+  orange: 'border-brand-orange bg-brand-orange/30 text-brand-orange',
+  violet:
+    'border-brand-violet bg-brand-violet/30 text-violet-900 dark:text-brand-violet',
+  amber: 'border-brand-amber bg-brand-amber/30 text-amber-900',
+  sky: 'border-brand-sky bg-brand-sky/30 text-brand-sky',
+  emerald: 'border-brand-emerald bg-brand-emerald/30 text-brand-emerald',
+}
+
+function departmentBadge(
+  departmentId: string | null,
+  departmentName: string | null,
+  colorMap: Map<string, BrandColorKey>
+) {
+  if (!departmentName) {
+    return <span className="text-sm text-muted-foreground">—</span>
+  }
+
+  const colorKey =
+    (departmentId ? colorMap.get(departmentId) : undefined) ?? 'emerald'
+
+  return (
+    <Badge className={cn(BRAND_BADGE_CLASSES[colorKey], 'rounded-full')}>
+      {departmentName}
+    </Badge>
+  )
 }
 
 function formatLastExecuted(iso: string | null): string {
@@ -79,6 +112,7 @@ function statusBadge(status: string) {
 }
 
 export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
+  const departmentColorMap = buildDepartmentColorMap(departments)
   const [search, setSearch] = useState('')
   const [teamFilter, setTeamFilter] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortBy>('name')
@@ -159,22 +193,33 @@ export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex flex-wrap gap-2">
-            {departments.map((department) => (
-              <Button
-                key={department.id}
-                type="button"
-                variant={teamFilter === department.id ? 'default' : 'outline'}
-                size="sm"
-                className="rounded-full"
-                onClick={() =>
-                  setTeamFilter((current) =>
-                    current === department.id ? null : department.id
-                  )
-                }
-              >
-                {department.name}
-              </Button>
-            ))}
+            {departments.map((department) => {
+              const colorKey =
+                departmentColorMap.get(department.id) ?? 'emerald'
+              const isSelected = teamFilter === department.id
+
+              return (
+                <Button
+                  key={department.id}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    'rounded-full',
+                    isSelected
+                      ? BRAND_FILTER_SELECTED_CLASSES[colorKey]
+                      : undefined
+                  )}
+                  onClick={() =>
+                    setTeamFilter((current) =>
+                      current === department.id ? null : department.id
+                    )
+                  }
+                >
+                  {department.name}
+                </Button>
+              )
+            })}
           </div>
 
           <Select
@@ -227,13 +272,21 @@ export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium">{workflow.display_name}</p>
-                  <p className="text-xs text-muted-foreground sm:hidden">
-                    {workflow.department_name ?? '—'}
-                  </p>
+                  <div className="sm:hidden">
+                    {departmentBadge(
+                      workflow.department_id,
+                      workflow.department_name,
+                      departmentColorMap
+                    )}
+                  </div>
                 </div>
-                <p className="hidden text-sm text-muted-foreground sm:block">
-                  {workflow.department_name ?? '—'}
-                </p>
+                <div className="hidden sm:block">
+                  {departmentBadge(
+                    workflow.department_id,
+                    workflow.department_name,
+                    departmentColorMap
+                  )}
+                </div>
                 <div>{statusBadge(workflow.status)}</div>
                 <p className="text-sm text-muted-foreground">
                   {formatLastExecuted(workflow.last_executed)}
