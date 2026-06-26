@@ -119,6 +119,7 @@ export function WorkflowStepPanel({
       <div className="shrink-0 border-t px-4 py-3">
         <Button
           type="button"
+          variant="brand-emerald"
           className="w-full"
           disabled={!canRun || running}
           onClick={() => void run({ inputKeys, inputData })}

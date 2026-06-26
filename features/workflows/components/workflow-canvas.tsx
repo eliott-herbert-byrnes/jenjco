@@ -161,7 +161,12 @@ export function WorkflowCanvas({ workflow, role }: WorkflowCanvasProps) {
               </TooltipTrigger>
               <TooltipContent>Disabled for MVP</TooltipContent>
             </Tooltip>
-            <Button size="sm" disabled={!canRun} onClick={handleSwitchToRun}>
+            <Button
+              size="sm"
+              variant="brand-emerald"
+              disabled={!canRun}
+              onClick={handleSwitchToRun}
+            >
               Run
             </Button>
           </div>

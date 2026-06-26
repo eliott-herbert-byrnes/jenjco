@@ -3,7 +3,7 @@
 import { SearchIcon } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-import { Badge } from "@/components/ui/badge"
+import { DepartmentChip } from "@/components/department-chip"
 import { Input } from "@/components/ui/input"
 import { WorkflowCard } from "@/features/dashboard/components/workflow-card"
 import type { WorkflowHubRow } from "@/features/workflows/types"
@@ -56,21 +56,13 @@ export function WorkflowBrowser({ departments, workflows }: WorkflowBrowserProps
         />
       </div>
       <div className="mb-2 flex flex-wrap gap-2">
-        {departments.map((department) => {
-          const colorKey = departmentColorMap.get(department.id)
-          const badgeClass = colorKey
-            ? BRAND_BADGE_CLASSES[colorKey]
-            : BRAND_BADGE_CLASSES.emerald
-
-          return (
-            <Badge
-              key={department.id}
-              className={`${badgeClass} p-4 hover:opacity-80`}
-            >
-              {department.name}
-            </Badge>
-          )
-        })}
+        {departments.map((department) => (
+          <DepartmentChip
+            key={department.id}
+            name={department.name}
+            colorKey={departmentColorMap.get(department.id) ?? "emerald"}
+          />
+        ))}
       </div>
 
       <div className="grid grid-cols-2 gap-4">

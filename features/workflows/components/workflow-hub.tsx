@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { MoreVerticalIcon, SearchIcon } from 'lucide-react'
 
+import { DepartmentChip } from '@/components/department-chip'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,12 +28,13 @@ import {
   BRAND_BADGE_CLASSES,
   type BrandColorKey,
   buildDepartmentColorMap,
+  WORKFLOW_STATUS_BADGE_CLASSES,
 } from '@/lib/brand-colors'
 import { cn } from '@/lib/utils'
 
 type WorkflowHubProps = {
   workflows: WorkflowHubRow[]
-  departments: { id: string; name: string }[]
+  departments: { id: string; name: string; color?: string | null }[]
 }
 
 type SortBy = 'name' | 'status' | 'last_executed' | 'run_count'
@@ -41,15 +43,6 @@ const STATUS_SORT_ORDER: Record<string, number> = {
   active: 0,
   flagged: 1,
   inactive: 2,
-}
-
-const BRAND_FILTER_SELECTED_CLASSES: Record<BrandColorKey, string> = {
-  orange: 'border-brand-orange bg-brand-orange/30 text-brand-orange',
-  violet:
-    'border-brand-violet bg-brand-violet/30 text-violet-900 dark:text-brand-violet',
-  amber: 'border-brand-amber bg-brand-amber/30 text-amber-900',
-  sky: 'border-brand-sky bg-brand-sky/30 text-brand-sky',
-  emerald: 'border-brand-emerald bg-brand-emerald/30 text-brand-emerald',
 }
 
 function departmentBadge(
@@ -90,22 +83,24 @@ function formatLastExecuted(iso: string | null): string {
 function statusBadge(status: string) {
   if (status === 'active') {
     return (
-      <Badge variant="secondary" className="rounded-full">
-        Active
-      </Badge>
+      <Badge className={WORKFLOW_STATUS_BADGE_CLASSES.active}>Active</Badge>
     )
   }
 
   if (status === 'flagged') {
     return (
-      <Badge variant="outline" className="rounded-full">
-        Flagged
-      </Badge>
+      <Badge className={WORKFLOW_STATUS_BADGE_CLASSES.flagged}>Flagged</Badge>
     )
   }
 
   return (
-    <Badge variant="outline" className="rounded-full text-muted-foreground">
+    <Badge
+      variant="outline"
+      className={cn(
+        WORKFLOW_STATUS_BADGE_CLASSES.inactive,
+        'text-muted-foreground'
+      )}
+    >
       Inactive
     </Badge>
   )
@@ -193,29 +188,19 @@ export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex flex-wrap gap-2">
-            {departments.map((department) => {
-              const colorKey =
-                departmentColorMap.get(department.id) ?? 'emerald'
-
-              return (
-                <Button
-                  key={department.id}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    `rounded-full ${BRAND_FILTER_SELECTED_CLASSES[colorKey]}`
-                  )}
-                  onClick={() =>
-                    setTeamFilter((current) =>
-                      current === department.id ? null : department.id
-                    )
-                  }
-                >
-                  {department.name}
-                </Button>
-              )
-            })}
+            {departments.map((department) => (
+              <DepartmentChip
+                key={department.id}
+                name={department.name}
+                colorKey={departmentColorMap.get(department.id) ?? 'emerald'}
+                selected={teamFilter === department.id}
+                onClick={() =>
+                  setTeamFilter((current) =>
+                    current === department.id ? null : department.id
+                  )
+                }
+              />
+            ))}
           </div>
 
           <Select
