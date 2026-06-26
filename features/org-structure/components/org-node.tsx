@@ -3,8 +3,10 @@
 import { Handle, type Node as RFNode, type NodeProps, Position } from "@xyflow/react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { BRAND_BADGE_CLASSES } from "@/lib/brand-colors"
 import { cn } from "@/lib/utils"
 import type { OrgNodeData } from "../lib/layout"
+import Image from "next/image"
 
 type OrgRfNode = RFNode<OrgNodeData, "orgNode">
 
@@ -20,12 +22,24 @@ export function OrgNode({ data }: NodeProps<OrgRfNode>) {
     >
       {!data.isRoot && <Handle type="target" position={Position.Top} />}
 
-      <CardHeader className="flex flex-row items-center gap-2 rounded-t-md border-b bg-secondary p-3!">
-        {data.isRoot && (
-          <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full border bg-muted text-xs font-semibold">
-            {/* company logo placeholder */}
-          </span>
+      <CardHeader
+        className={cn(
+          "flex flex-row items-center gap-2 rounded-t-md border-b p-3!",
+          data.color ? BRAND_BADGE_CLASSES[data.color] : "bg-secondary"
         )}
+      >
+        {data.isRoot &&
+          (data.logoUrl ? (
+            <Image
+              src={data.logoUrl}
+              alt="org logo"
+              width={60}
+              height={60}
+              className="size-6 rounded-full object-contain border border-neutral-200"
+            />
+          ) : (
+            <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full border bg-muted text-xs font-semibold" />
+          ))}
         <CardTitle className="text-sm">{data.label}</CardTitle>
       </CardHeader>
 

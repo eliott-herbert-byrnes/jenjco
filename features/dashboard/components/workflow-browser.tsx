@@ -15,7 +15,7 @@ import {
 const SEARCH_DEBOUNCE_MS = 300
 
 type WorkflowBrowserProps = {
-  departments: Array<{ id: string; name: string }>
+  departments: Array<{ id: string; name: string; color?: string | null }>
   workflows: WorkflowHubRow[]
 }
 

@@ -63,6 +63,7 @@ export type Database = {
       }
       departments: {
         Row: {
+          color: string | null
           id: string
           name: string
           org_id: string
@@ -70,6 +71,7 @@ export type Database = {
           sort_order: number
         }
         Insert: {
+          color?: string | null
           id?: string
           name: string
           org_id: string
@@ -77,6 +79,7 @@ export type Database = {
           sort_order?: number
         }
         Update: {
+          color?: string | null
           id?: string
           name?: string
           org_id?: string

@@ -1,8 +1,10 @@
 "use client"
 
 import { Fragment, useMemo, useState } from "react"
+import Link from "next/link"
 import { ReactFlowProvider } from "@xyflow/react"
 import { GitBranchIcon, NetworkIcon } from "lucide-react"
+import { paths } from "@/app/paths"
 import { Canvas } from "@/components/ai-elements/canvas"
 import { Panel } from "@/components/ai-elements/panel"
 import {
@@ -20,19 +22,21 @@ const nodeTypes = { orgNode: OrgNode }
 export type OrgStructureCanvasProps = {
   orgName: string
   departments: DeptRow[]
+  logoUrl?: string
 }
 
 export function OrgStructureCanvas({
   orgName,
   departments,
+  logoUrl,
 }: OrgStructureCanvasProps) {
   const [selectedDeptId, setSelectedDeptId] = useState<string | null>(null)
   const selectedDept =
     departments.find((d) => d.id === selectedDeptId) ?? null
 
   const { nodes, edges } = useMemo(
-    () => buildOrgLayout(orgName, departments),
-    [orgName, departments]
+    () => buildOrgLayout(orgName, departments, logoUrl),
+    [orgName, departments, logoUrl]
   )
 
   const totalProcesses = departments.reduce((s, d) => s + d.process_count, 0)
@@ -96,12 +100,15 @@ export function OrgStructureCanvas({
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Processes
                 </p>
-                {selectedDept?.process_names.map((name) => (
-                  <Fragment key={name}>
-                    <div className="flex items-center gap-2 rounded-sm bg-gray-400/10 p-2 text-sm">
-                      <NetworkIcon className="size-4 shrink-0 text-muted-foreground ml-1 mr-1" />
-                      {name}
-                    </div>
+                {selectedDept?.process_ids.map((id, i) => (
+                  <Fragment key={id}>
+                    <Link
+                      href={paths.processDetail(id)}
+                      className="flex items-center gap-2 rounded-sm bg-gray-400/10 p-2 text-sm hover:bg-gray-400/20"
+                    >
+                      <NetworkIcon className="ml-1 mr-1 size-4 shrink-0 text-muted-foreground" />
+                      {selectedDept.process_names[i]}
+                    </Link>
                     <Separator />
                   </Fragment>
                 ))}
@@ -113,11 +120,15 @@ export function OrgStructureCanvas({
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Workflows
                 </p>
-                {selectedDept?.workflow_names.map((name) => (
-                    <div key={name} className="flex items-center gap-2 text-sm bg-gray-400/10 p-2 rounded">
+                {selectedDept?.workflow_ids.map((id, i) => (
+                  <Link
+                    key={id}
+                    href={paths.workflowDetail(id)}
+                    className="flex items-center gap-2 rounded bg-gray-400/10 p-2 text-sm hover:bg-gray-400/20"
+                  >
                     <GitBranchIcon className="size-4 shrink-0 text-muted-foreground" />
-                    {name}
-                  </div>
+                    {selectedDept.workflow_names[i]}
+                  </Link>
                 ))}
                 {selectedDept?.workflow_names.length === 0 && (
                   <p className="text-xs text-muted-foreground">No workflows</p>

@@ -8,13 +8,20 @@ export const BRAND_COLOR_KEYS = [
 
 export type BrandColorKey = (typeof BRAND_COLOR_KEYS)[number]
 
+export function isBrandColorKey(v: unknown): v is BrandColorKey {
+  return BRAND_COLOR_KEYS.includes(v as BrandColorKey)
+}
+
 export function buildDepartmentColorMap(
-  departments: { id: string }[],
+  departments: { id: string; color?: string | null }[],
 ): Map<string, BrandColorKey> {
   const map = new Map<string, BrandColorKey>()
 
   departments.forEach((dept, i) => {
-    map.set(dept.id, BRAND_COLOR_KEYS[i % BRAND_COLOR_KEYS.length])
+    const color = isBrandColorKey(dept.color)
+      ? dept.color
+      : BRAND_COLOR_KEYS[i % BRAND_COLOR_KEYS.length]
+    map.set(dept.id, color)
   })
 
   return map
