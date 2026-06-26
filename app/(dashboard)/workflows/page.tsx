@@ -21,7 +21,7 @@ export default async function WorkflowsHubPage() {
     supabase.rpc('get_workflows_hub', { p_org_id: appUser.orgId }),
     supabase
       .from('departments')
-      .select('id, name')
+      .select('id, name, color')
       .eq('org_id', appUser.orgId)
       .order('sort_order'),
   ])

@@ -12,6 +12,11 @@ import {
   isRunningRunStatus,
 } from '@/features/workflows/lib/format-duration'
 import type { WorkflowDetailStats } from '@/features/workflows/types'
+import {
+  getLastRunDurationValueClass,
+  STAT_CARD_VALUE_CLASSES,
+} from '@/lib/brand-colors'
+import { cn } from '@/lib/utils'
 
 function formatLastRunDuration(stats: WorkflowDetailStats): {
   value: string
@@ -51,27 +56,35 @@ export function WorkflowStatCards({
     {
       label: 'Total Runs',
       value: stats?.total_runs.toLocaleString() ?? '—',
+      valueClass: STAT_CARD_VALUE_CLASSES.neutral,
     },
     {
       label: 'Successful Runs',
       value: stats?.successful_runs.toLocaleString() ?? '—',
+      valueClass: STAT_CARD_VALUE_CLASSES.success,
     },
     {
       label: 'Failed Runs',
       value: stats?.failed_runs.toLocaleString() ?? '—',
+      valueClass: STAT_CARD_VALUE_CLASSES.warning,
     },
     {
       label: 'Failure Rate',
       value: stats != null ? `${stats.failure_rate}%` : '—',
+      valueClass: STAT_CARD_VALUE_CLASSES.warning,
     },
     {
       label: 'Avg Duration',
       value: formatDurationMs(stats?.avg_duration_ms ?? null),
+      valueClass: STAT_CARD_VALUE_CLASSES.neutral,
     },
     {
       label: 'Last Run Duration',
       value: lastRunDuration.value,
       subLabel: lastRunDuration.subLabel,
+      valueClass: stats
+        ? getLastRunDurationValueClass(stats.latest_run_status)
+        : STAT_CARD_VALUE_CLASSES.neutral,
     },
   ]
 
@@ -81,7 +94,11 @@ export function WorkflowStatCards({
         <Card key={card.label} size="sm">
           <CardHeader className="pb-2">
             <CardDescription>{card.label}</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">{card.value}</CardTitle>
+            <CardTitle
+              className={cn('text-2xl tabular-nums', card.valueClass)}
+            >
+              {card.value}
+            </CardTitle>
             {card.subLabel ? (
               <p className="text-xs text-muted-foreground">{card.subLabel}</p>
             ) : null}

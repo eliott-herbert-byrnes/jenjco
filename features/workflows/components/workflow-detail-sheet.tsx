@@ -1,11 +1,11 @@
 'use client'
 
 import { Fragment, useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { NetworkIcon } from 'lucide-react'
 
 import { paths } from '@/app/paths'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -187,10 +187,14 @@ export function WorkflowDetailSheet({
                 ) : (
                   processes.map((process) => (
                     <Fragment key={process.id}>
-                      <div className="flex items-center gap-2 rounded-sm bg-gray-400/10 p-2 text-sm">
+                      <Link
+                        href={paths.processDetail(process.id)}
+                        className="flex items-center gap-2 rounded-sm bg-gray-400/10 p-2 text-sm hover:bg-gray-400/20"
+                        onClick={() => onOpenChange(false)}
+                      >
                         <NetworkIcon className="ml-1 mr-1 size-4 shrink-0 text-muted-foreground" />
                         {process.title}
-                      </div>
+                      </Link>
                     </Fragment>
                   ))
                 )}
@@ -202,6 +206,7 @@ export function WorkflowDetailSheet({
         <SheetFooter className="flex-col justify-between border-t sm:justify-between">
           <Button
             type="button"
+            variant="brand-emerald"
             disabled={!workflow}
             onClick={() => {
               if (!workflow) return
@@ -211,7 +216,13 @@ export function WorkflowDetailSheet({
           >
             Run
           </Button>
-          <FlagWorkflowDialog />
+          <FlagWorkflowDialog
+            trigger={
+              <Button type="button" variant="destructive">
+                Flag
+              </Button>
+            }
+          />
         </SheetFooter>
       </SheetContent>
     </Sheet>
