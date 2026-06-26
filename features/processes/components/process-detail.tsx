@@ -1,12 +1,11 @@
 'use client'
 
 import type { AppRole } from '@/lib/auth'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { ProcessDetailData } from '@/features/processes/types'
-import { formatUpdatedAt } from '@/features/processes/utils/format'
 import { Badge } from '@/components/ui/badge'
 import { ProcessMarkdownBody } from '@/features/processes/components/process-markdown-body'
+import { RequestProcessChangeDialog } from '@/features/processes/components/request-process-change-dialog'
+import type { ProcessDetailData } from '@/features/processes/types'
+import { formatUpdatedAt } from '@/features/processes/utils/format'
 
 export function ProcessDetail({
   process,
@@ -28,26 +27,14 @@ export function ProcessDetail({
           </h1>
           {role === 'admin' && (
             <div className="flex shrink-0 gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="default"
-                    title="Edit process (coming soon)"
-                  >
-                    Request Change
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Disabled for MVP</p>
-                </TooltipContent>
-              </Tooltip>
+              <RequestProcessChangeDialog />
             </div>
           )}
         </div>
         <p className="text-sm text-muted-foreground">
-          <Badge variant="secondary" className="p-3">
+          <Badge
+            className={`p-3 ${process.departmentBadgeClass ?? 'bg-secondary text-secondary-foreground'}`}
+          >
             {process.departmentName ?? '—'}
           </Badge>
           <span className="mx-2 text-border">|</span>

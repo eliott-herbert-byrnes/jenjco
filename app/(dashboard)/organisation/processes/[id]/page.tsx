@@ -7,6 +7,7 @@ import {
   type LinkedWorkflow,
 } from '@/features/processes/lib/build-process-document'
 import { getServerAuth } from '@/lib/auth'
+import { BRAND_BADGE_CLASSES, isBrandColorKey } from '@/lib/brand-colors'
 import { createClient } from '@/lib/supabase/server'
 
 const uuidParam = z.string().uuid()
@@ -60,7 +61,7 @@ export default async function ProcessDetailPage({
   const { data: row, error } = await supabase
     .from('org_processes')
     .select(
-      'id, title, content, slug, department_id, created_at, updated_at, departments(name), process_workflows(sort_order, org_workflows(id, display_name))'
+      'id, title, content, slug, department_id, created_at, updated_at, departments(id, name, color), process_workflows(sort_order, org_workflows(id, display_name))'
     )
     .eq('id', idParsed.data)
     .eq('org_id', appUser.orgId)
@@ -73,10 +74,17 @@ export default async function ProcessDetailPage({
     notFound()
   }
 
-  const dept = row.departments as { name: string } | { name: string }[] | null
-  const departmentName = Array.isArray(dept)
-    ? dept[0]?.name ?? null
-    : dept?.name ?? null
+  const dept = row.departments as
+    | { id: string; name: string; color?: string | null }
+    | { id: string; name: string; color?: string | null }[]
+    | null
+  const department = Array.isArray(dept) ? dept[0] : dept
+  const departmentName = department?.name ?? null
+  const departmentId = row.department_id ?? department?.id ?? null
+  const departmentBadgeClass =
+    department?.color && isBrandColorKey(department.color)
+      ? BRAND_BADGE_CLASSES[department.color]
+      : null
 
   const workflows = mapLinkedWorkflows(
     row.process_workflows as ProcessWorkflowRow[] | null
@@ -93,6 +101,8 @@ export default async function ProcessDetailPage({
         title: row.title,
         content: row.content ?? '',
         departmentName,
+        departmentId,
+        departmentBadgeClass,
         updatedAt: row.updated_at,
       }}
       composedContent={composedContent}

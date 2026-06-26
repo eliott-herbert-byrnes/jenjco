@@ -26,11 +26,15 @@ import {
 import { disconnectIntegration } from "@/features/integrations/actions/disconnect"
 import { ConnectButton } from "@/features/integrations/components/connect-button"
 import type { ProviderState } from "@/features/integrations/types"
+import { BRAND_BADGE_CLASSES } from "@/lib/brand-colors"
+import { PROVIDERS } from "@/lib/integrations/providers"
 
 function statusBadge(provider: ProviderState) {
   switch (provider.status) {
     case "active":
-      return <Badge variant="secondary">Connected</Badge>
+      return (
+        <Badge className={BRAND_BADGE_CLASSES.emerald}>Connected</Badge>
+      )
     case "reconnect_required":
       return <Badge variant="destructive">Reconnect required</Badge>
     case "revoked":
@@ -67,12 +71,18 @@ export function ProviderCard({ provider, onSetupClick }: ProviderCardProps) {
 
   const showDisconnect =
     provider.status === "active" || provider.status === "reconnect_required"
+  const Icon = PROVIDERS[provider.id].icon
 
   return (
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <CardTitle className="text-base">{provider.label}</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <div className="bg-neutral-200 p-1.5 rounded-2xl border border-neutral-300">
+            <Icon className="size-5" aria-hidden />
+            </div>
+            {provider.label}
+          </CardTitle>
           {statusBadge(provider)}
         </div>
         <CardDescription>
@@ -87,7 +97,7 @@ export function ProviderCard({ provider, onSetupClick }: ProviderCardProps) {
         {showDisconnect ? (
           <AlertDialog open={disconnectOpen} onOpenChange={setDisconnectOpen}>
             <AlertDialogTrigger asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="destructive">
                 Disconnect
               </Button>
             </AlertDialogTrigger>

@@ -1,6 +1,8 @@
 import dagre from "@dagrejs/dagre"
 import { type Edge, type Node, Position } from "@xyflow/react"
 
+import type { BrandColorKey } from "@/lib/brand-colors"
+
 export const NODE_WIDTH = 180
 export const NODE_HEIGHT = 90
 export const ROOT_NODE_HEIGHT = 80
@@ -10,8 +12,11 @@ export type DeptRow = {
   name: string
   parent_id: string | null
   sort_order: number
+  color?: BrandColorKey | null
   process_count: number
   workflow_count: number
+  process_ids: string[]
+  workflow_ids: string[]
   process_names: string[]
   workflow_names: string[]
 }
@@ -19,6 +24,8 @@ export type DeptRow = {
 export type OrgNodeData = {
   label: string
   isRoot: boolean
+  color?: BrandColorKey
+  logoUrl?: string
   processCount?: number
   workflowCount?: number
 }
@@ -27,7 +34,8 @@ const ROOT_ID = "__org_root__"
 
 export function buildOrgLayout(
   orgName: string,
-  departments: DeptRow[]
+  departments: DeptRow[],
+  logoUrl?: string
 ): { nodes: Node<OrgNodeData>[]; edges: Edge[] } {
   const g = new dagre.graphlib.Graph()
   g.setDefaultEdgeLabel(() => ({}))
@@ -60,12 +68,17 @@ export function buildOrgLayout(
     }
   }
 
-  const rootNode = toRfNode(ROOT_ID, { label: orgName, isRoot: true })
+  const rootNode = toRfNode(ROOT_ID, {
+    label: orgName,
+    isRoot: true,
+    logoUrl,
+  })
 
   const deptNodes = departments.map((d) =>
     toRfNode(d.id, {
       label: d.name,
       isRoot: false,
+      color: d.color ?? undefined,
       processCount: d.process_count,
       workflowCount: d.workflow_count,
     })

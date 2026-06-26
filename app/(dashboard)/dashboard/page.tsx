@@ -22,7 +22,7 @@ export default async function DashboardHomePage() {
     await Promise.all([
       supabase
         .from("departments")
-        .select("id, name")
+        .select("id, name, color")
         .eq("org_id", appUser.orgId)
         .order("sort_order", { ascending: true }),
       supabase.rpc("get_workflows_hub", { p_org_id: appUser.orgId }),

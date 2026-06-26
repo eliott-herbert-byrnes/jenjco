@@ -1,3 +1,6 @@
+import type { ComponentType } from "react"
+import { SiGoogledrive } from "@icons-pack/react-simple-icons"
+
 export type ProviderId = "google-drive"
 
 export type ProviderConfig = {
@@ -6,6 +9,7 @@ export type ProviderConfig = {
   nangoIntegrationId: string
   scopes: string[]
   ownerTypeDefault: "org"
+  icon: ComponentType<{ className?: string }>
 }
 
 export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
@@ -18,6 +22,7 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
       "https://www.googleapis.com/auth/drive.metadata.readonly",
     ],
     ownerTypeDefault: "org",
+    icon: SiGoogledrive,
   },
 }
 
