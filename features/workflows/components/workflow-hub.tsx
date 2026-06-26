@@ -196,7 +196,6 @@ export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
             {departments.map((department) => {
               const colorKey =
                 departmentColorMap.get(department.id) ?? 'emerald'
-              const isSelected = teamFilter === department.id
 
               return (
                 <Button
@@ -205,10 +204,7 @@ export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
                   variant="outline"
                   size="sm"
                   className={cn(
-                    'rounded-full',
-                    isSelected
-                      ? BRAND_FILTER_SELECTED_CLASSES[colorKey]
-                      : undefined
+                    `rounded-full ${BRAND_FILTER_SELECTED_CLASSES[colorKey]}`
                   )}
                   onClick={() =>
                     setTeamFilter((current) =>
