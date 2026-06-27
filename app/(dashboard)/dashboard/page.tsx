@@ -36,7 +36,7 @@ export default async function DashboardHomePage() {
         page="Dashboard"
         description="Your organisation workflows at a glance"
       />
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-8">
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 sm:px-6">
         <WelcomeSection displayName={appUser.displayName} />
         <FeaturedActions />
         <WorkflowBrowser

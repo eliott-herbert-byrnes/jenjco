@@ -11,10 +11,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <TooltipProvider>
-      <SidebarProvider>
+      <SidebarProvider className="h-svh overflow-hidden">
         <AuthProvider>
           <AppSidebar />
-          <SidebarInset className="overflow-x-hidden">
+          <SidebarInset className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
             <div
               className={cn(
                 "flex flex-1 flex-col gap-0 p-0",

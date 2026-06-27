@@ -66,14 +66,14 @@ export function FeaturedActionsClient({ teams }: FeaturedActionsClientProps) {
   const [consultationNotes, setConsultationNotes] = useState("")
 
   return (
-    <div className="grid grid-cols-[2fr_1fr_1fr] gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr_1fr]">
       <Card>
         <CardHeader>
           {/* TODO: derive from real department data */}
           <Badge className={BRAND_BADGE_CLASSES.orange}>Operations</Badge>
           <CardTitle>Get a summary of recently executed workflows</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-between">
+        <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-2">
             <div className="size-6 rounded bg-muted" />
             <div className="size-6 rounded bg-muted" />

@@ -63,7 +63,8 @@ export async function IntegrationsView({
         <CardTitle>Integration Invocations</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-sm">
           <thead className="border-b bg-muted/50">
             <tr>
               {["Provider", "Endpoint", "Status", "Error", "Time"].map((h) => (
@@ -119,6 +120,7 @@ export async function IntegrationsView({
             })}
           </tbody>
         </table>
+        </div>
         {totalPages > 1 ? (
           <div className="flex items-center justify-between border-t px-4 py-3">
             <p className="text-xs text-muted-foreground">

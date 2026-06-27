@@ -108,6 +108,55 @@ function statusBadge(status: string) {
   )
 }
 
+type WorkflowHubRowActionsProps = {
+  workflow: WorkflowHubRow
+  isAdmin: boolean
+  onFlag: () => void
+  onNotifications: (workflow: WorkflowHubRow) => void
+}
+
+function WorkflowHubRowActions({
+  workflow,
+  isAdmin,
+  onFlag,
+  onNotifications,
+}: WorkflowHubRowActionsProps) {
+  return (
+    <div
+      className="flex shrink-0 justify-end"
+      data-workflow-actions=""
+      onClick={(event) => event.stopPropagation()}
+      onPointerDown={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
+    >
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button type="button" variant="ghost" size="icon-sm">
+            <MoreVerticalIcon className="size-4" />
+            <span className="sr-only">Actions for {workflow.display_name}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onSelect={onFlag}
+            onPointerDown={(event) => event.preventDefault()}
+          >
+            Flag
+          </DropdownMenuItem>
+          {isAdmin ? (
+            <DropdownMenuItem
+              onSelect={() => onNotifications(workflow)}
+              onPointerDown={(event) => event.preventDefault()}
+            >
+              Notifications
+            </DropdownMenuItem>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )
+}
+
 export function WorkflowHub({ workflows, departments, isAdmin }: WorkflowHubProps) {
   const departmentColorMap = buildDepartmentColorMap(departments)
   const [search, setSearch] = useState('')
@@ -180,7 +229,7 @@ export function WorkflowHub({ workflows, departments, isAdmin }: WorkflowHubProp
   return (
     <>
       <div className="mx-auto flex w-full flex-col gap-6 px-6 py-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="relative flex-1 max-w-xl">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -193,7 +242,7 @@ export function WorkflowHub({ workflows, departments, isAdmin }: WorkflowHubProp
           <RequestWorkflowDialog teams={departments} />
         </div>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap gap-2">
             {departments.map((department) => (
               <DepartmentChip
@@ -214,7 +263,7 @@ export function WorkflowHub({ workflows, departments, isAdmin }: WorkflowHubProp
             value={sortBy}
             onValueChange={(value) => setSortBy(value as SortBy)}
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent position="popper">
@@ -227,7 +276,7 @@ export function WorkflowHub({ workflows, departments, isAdmin }: WorkflowHubProp
         </div>
 
         <div className="space-y-3">
-          <div className="hidden px-4 text-xs font-medium text-muted-foreground sm:grid sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.7fr)_2.5rem] sm:gap-4">
+          <div className="hidden px-4 text-xs font-medium text-muted-foreground md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.7fr)_2.5rem] md:gap-4">
             <span>Name</span>
             <span>Team</span>
             <span>Status</span>
@@ -242,82 +291,118 @@ export function WorkflowHub({ workflows, departments, isAdmin }: WorkflowHubProp
             </p>
           ) : (
             filtered.map((workflow) => (
-              <div
-                key={workflow.id}
-                role="button"
-                tabIndex={0}
-                className={cn(
-                  'grid cursor-pointer gap-3 rounded-xl border px-4 py-3 transition-colors hover:bg-muted/30 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.7fr)_2.5rem] sm:items-center sm:gap-4',
-                  selectedWorkflow?.id === workflow.id && sheetOpen && 'bg-muted/40'
-                )}
-                onClick={() => openWorkflowSheet(workflow)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    openWorkflowSheet(workflow)
-                  }
-                }}
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{workflow.display_name}</p>
-                  <div className="sm:hidden">
+              <div key={workflow.id}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className={cn(
+                    'hidden cursor-pointer gap-3 rounded-xl border px-4 py-3 transition-colors hover:bg-muted/30 md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.7fr)_2.5rem] md:items-center md:gap-4',
+                    selectedWorkflow?.id === workflow.id &&
+                      sheetOpen &&
+                      'bg-muted/40'
+                  )}
+                  onClick={() => openWorkflowSheet(workflow)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      openWorkflowSheet(workflow)
+                    }
+                  }}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">
+                      {workflow.display_name}
+                    </p>
+                  </div>
+                  <div>
                     {departmentBadge(
                       workflow.department_id,
                       workflow.department_name,
                       departmentColorMap
                     )}
                   </div>
+                  <div>{statusBadge(workflow.status)}</div>
+                  <p className="text-sm text-muted-foreground">
+                    {formatLastExecuted(workflow.last_executed)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {workflow.run_count.toLocaleString()}
+                  </p>
+                  <WorkflowHubRowActions
+                    workflow={workflow}
+                    isAdmin={isAdmin}
+                    onFlag={() => setFlagDialogOpen(true)}
+                    onNotifications={(row) => {
+                      setNotificationDialogWorkflow(row)
+                      setNotificationDialogOpen(true)
+                    }}
+                  />
                 </div>
-                <div className="hidden sm:block">
-                  {departmentBadge(
-                    workflow.department_id,
-                    workflow.department_name,
-                    departmentColorMap
-                  )}
-                </div>
-                <div>{statusBadge(workflow.status)}</div>
-                <p className="text-sm text-muted-foreground">
-                  {formatLastExecuted(workflow.last_executed)}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {workflow.run_count.toLocaleString()}
-                </p>
+
                 <div
-                  className="flex justify-end"
-                  data-workflow-actions=""
-                  onClick={(event) => event.stopPropagation()}
-                  onPointerDown={(event) => event.stopPropagation()}
-                  onKeyDown={(event) => event.stopPropagation()}
+                  className={cn(
+                    'relative cursor-pointer rounded-xl border px-4 py-3 transition-colors hover:bg-muted/30 md:hidden',
+                    selectedWorkflow?.id === workflow.id &&
+                      sheetOpen &&
+                      'bg-muted/40'
+                  )}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openWorkflowSheet(workflow)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      openWorkflowSheet(workflow)
+                    }
+                  }}
                 >
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button type="button" variant="ghost" size="icon-sm">
-                        <MoreVerticalIcon className="size-4" />
-                        <span className="sr-only">
-                          Actions for {workflow.display_name}
-                        </span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onSelect={() => setFlagDialogOpen(true)}
-                        onPointerDown={(event) => event.preventDefault()}
-                      >
-                        Flag
-                      </DropdownMenuItem>
-                      {isAdmin ? (
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            setNotificationDialogWorkflow(workflow)
-                            setNotificationDialogOpen(true)
-                          }}
-                          onPointerDown={(event) => event.preventDefault()}
-                        >
-                          Notifications
-                        </DropdownMenuItem>
-                      ) : null}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="min-w-0 flex-1 font-medium">
+                      {workflow.display_name}
+                    </p>
+                    <WorkflowHubRowActions
+                      workflow={workflow}
+                      isAdmin={isAdmin}
+                      onFlag={() => setFlagDialogOpen(true)}
+                      onNotifications={(row) => {
+                        setNotificationDialogWorkflow(row)
+                        setNotificationDialogOpen(true)
+                      }}
+                    />
+                  </div>
+
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Team</dt>
+                      <dd className="mt-0.5">
+                        {departmentBadge(
+                          workflow.department_id,
+                          workflow.department_name,
+                          departmentColorMap
+                        )}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Status</dt>
+                      <dd className="mt-0.5">{statusBadge(workflow.status)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Last executed
+                      </dt>
+                      <dd className="mt-0.5 text-muted-foreground">
+                        {formatLastExecuted(workflow.last_executed)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Run count
+                      </dt>
+                      <dd className="mt-0.5 text-muted-foreground">
+                        {workflow.run_count.toLocaleString()}
+                      </dd>
+                    </div>
+                  </dl>
                 </div>
               </div>
             ))

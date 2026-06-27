@@ -71,7 +71,8 @@ export function UsersTable({
           <CardTitle>Team members</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
             <thead className="border-b bg-muted/50">
               <tr>
                 {["Name", "Email", "Role", "Team", "Status", "Joined", ""].map(
@@ -147,6 +148,7 @@ export function UsersTable({
               })}
             </tbody>
           </table>
+          </div>
         </CardContent>
       </Card>
 
