@@ -40,6 +40,7 @@ export async function listDriveFilesStep(
       orgId: input.orgId,
       userId: input.startedByUserId,
       resourceKey: WORKFLOW_KEY_GOOGLE_DRIVE_INGEST,
+      departmentId: input.departmentId ?? null,
     },
     async () => {
       const data = await proxyRequest<DriveFilesResponse>(

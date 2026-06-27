@@ -1,5 +1,3 @@
-import { paths } from "@/app/paths"
-import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
@@ -14,60 +12,67 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { SystemLogsFilters } from "@/features/analytics/components/system-logs-filters"
+import { SystemLogsTable } from "@/features/analytics/components/system-logs-table"
+import {
+  buildSystemLogsHref,
+  type SystemLogsFilterParams,
+} from "@/lib/date-range-filter"
+import {
+  buildSystemLogsQuery,
+  SYSTEM_LOGS_PAGE_SIZE,
+} from "@/lib/system-logs-query"
 import { createClient } from "@/lib/supabase/server"
 
-const PAGE_SIZE = 15
-
-function pageHref(
-  base: string,
-  p: number,
-  params: { search?: string; status?: string; type?: string }
-) {
-  const searchParams = new URLSearchParams()
-  if (p > 0) searchParams.set("page", String(p))
-  if (params.search) searchParams.set("search", params.search)
-  if (params.status) searchParams.set("status", params.status)
-  if (params.type) searchParams.set("type", params.type)
-  const qs = searchParams.toString()
-  return qs ? `${base}?${qs}` : base
+type Department = {
+  id: string
+  name: string
+  color?: string | null
 }
 
 export async function SystemLogsView({
   orgId,
+  departments,
   page = 0,
   search,
   status,
   type,
+  team,
+  from,
+  to,
+  tz,
 }: {
   orgId: string
+  departments: Department[]
   page?: number
-  search?: string
-  status?: string
-  type?: string
-}) {
+} & SystemLogsFilterParams) {
   const supabase = await createClient()
 
-  let query = supabase
-    .from("usage_logs")
-    .select(
-      "id, resource_key, resource_type, run_id, step_id, tokens_in, tokens_out, duration_ms, status, created_at",
-      { count: "exact" }
-    )
-    .eq("org_id", orgId)
+  const filterParams: SystemLogsFilterParams = {
+    search,
+    status,
+    type,
+    team,
+    from,
+    to,
+    tz,
+  }
 
-  if (search) query = query.ilike("resource_key", `%${search}%`)
-  if (status) query = query.eq("status", status)
-  if (type) query = query.eq("resource_type", type)
-
-  const { data, count, error } = await query
-    .order("created_at", { ascending: false })
-    .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+  const { data, count, error } = await buildSystemLogsQuery(
+    supabase,
+    orgId,
+    filterParams,
+    { count: "exact" },
+  ).range(
+    page * SYSTEM_LOGS_PAGE_SIZE,
+    (page + 1) * SYSTEM_LOGS_PAGE_SIZE - 1,
+  )
 
   if (error) throw new Error(error.message)
 
-  const filterParams = { search, status, type }
-  const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))
-  const baseHref = paths.analyticsSystemLogs
+  const totalPages = Math.max(
+    1,
+    Math.ceil((count ?? 0) / SYSTEM_LOGS_PAGE_SIZE),
+  )
 
   return (
     <Card>
@@ -75,71 +80,14 @@ export async function SystemLogsView({
         <CardTitle>System Logs</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <SystemLogsFilters search={search} status={status} type={type} />
+        <SystemLogsFilters {...filterParams} />
 
-        {!data?.length ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            No log entries match your filters
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full font-mono text-xs">
-              <thead className="border-b bg-muted/50">
-                <tr>
-                  {[
-                    "Time",
-                    "Resource",
-                    "Type",
-                    "Run ID",
-                    "Step",
-                    "In",
-                    "Out",
-                    "Duration",
-                    "Status",
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      className="px-4 py-2 text-left font-medium text-muted-foreground"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((r) => (
-                  <tr key={r.id} className="border-b last:border-0">
-                    <td className="px-4 py-1.5 text-muted-foreground">
-                      {new Date(r.created_at as string).toISOString()}
-                    </td>
-                    <td className="px-4 py-1.5">{r.resource_key}</td>
-                    <td className="px-4 py-1.5">{r.resource_type}</td>
-                    <td className="px-4 py-1.5 text-muted-foreground">
-                      {r.run_id ? r.run_id.slice(0, 8) : "—"}
-                    </td>
-                    <td className="px-4 py-1.5 text-muted-foreground">
-                      {r.step_id ?? "—"}
-                    </td>
-                    <td className="px-4 py-1.5 tabular-nums">{r.tokens_in ?? 0}</td>
-                    <td className="px-4 py-1.5 tabular-nums">{r.tokens_out ?? 0}</td>
-                    <td className="px-4 py-1.5 tabular-nums">
-                      {r.duration_ms != null ? `${r.duration_ms}ms` : "—"}
-                    </td>
-                    <td className="px-4 py-1.5">
-                      <Badge
-                        variant={
-                          r.status === "success" ? "default" : "destructive"
-                        }
-                      >
-                        {r.status}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <SystemLogsTable
+          rows={data ?? []}
+          departments={departments}
+          totalCount={count ?? 0}
+          filters={filterParams}
+        />
 
         {totalPages > 1 ? (
           <div className="flex items-center justify-between border-t pt-3">
@@ -150,7 +98,9 @@ export async function SystemLogsView({
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    href={pageHref(baseHref, page - 1, filterParams)}
+                    href={buildSystemLogsHref(filterParams, {
+                      page: page > 0 ? page - 1 : undefined,
+                    })}
                     className={
                       page === 0 ? "pointer-events-none opacity-50" : undefined
                     }
@@ -160,7 +110,9 @@ export async function SystemLogsView({
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
-                    href={pageHref(baseHref, page + 1, filterParams)}
+                    href={buildSystemLogsHref(filterParams, {
+                      page: page + 1,
+                    })}
                     className={
                       page >= totalPages - 1
                         ? "pointer-events-none opacity-50"

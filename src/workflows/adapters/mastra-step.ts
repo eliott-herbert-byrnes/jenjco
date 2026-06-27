@@ -8,6 +8,7 @@ export type MastraProcessSummaryParams = {
   ledgerRunId: string
   stepId: string
   resourceKey: string
+  departmentId: string | null
   processes: string
 }
 
@@ -21,6 +22,7 @@ export async function runMastraProcessSummary({
   ledgerRunId,
   stepId,
   resourceKey,
+  departmentId,
   processes,
 }: MastraProcessSummaryParams): Promise<{ text: string }> {
   "use step"
@@ -51,6 +53,7 @@ export async function runMastraProcessSummary({
       ledgerRunId,
       stepId,
       resourceKey,
+      departmentId,
       tokensIn,
       tokensOut,
       durationMs: Date.now() - startedAt,
@@ -65,6 +68,7 @@ export async function runMastraProcessSummary({
       ledgerRunId,
       stepId,
       resourceKey,
+      departmentId,
       tokensIn: 0,
       tokensOut: 0,
       durationMs: Date.now() - startedAt,

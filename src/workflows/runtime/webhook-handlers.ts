@@ -175,6 +175,7 @@ export async function handleNangoWebhook(
         orgId,
         workflowKey: classification.workflowKey,
         startedByUserId: null,
+        departmentId: result.departmentId,
         startedAt,
       })
 

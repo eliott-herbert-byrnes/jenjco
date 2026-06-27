@@ -3,8 +3,8 @@
 import { ChevronDownIcon, SearchIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 
+import { DepartmentChip } from "@/components/department-chip"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -37,6 +37,16 @@ import type {
   WorkflowStepStatsRow,
   WorkflowSummaryRow,
 } from "@/features/analytics/types"
+import {
+  StepKindBadge,
+  StepStatusBadge,
+} from "@/features/workflows/components/step-badges"
+import { useDebouncedValue } from "@/hooks/use-debounced-value"
+import {
+  BRAND_BADGE_CLASSES,
+  type BrandColorKey,
+  buildDepartmentColorMap,
+} from "@/lib/brand-colors"
 import { cn } from "@/lib/utils"
 
 type StatusFilter = "all" | "has_failures"
@@ -62,10 +72,23 @@ function fixSuggestion(reason: string, description: string): string {
   return "Restart or contact support"
 }
 
-function stepStatusBadgeVariant(status: string) {
-  if (status === "completed") return "default" as const
-  if (status === "failed") return "destructive" as const
-  return "secondary" as const
+function departmentBadge(
+  departmentId: string | null,
+  departmentName: string | null,
+  colorMap: Map<string, BrandColorKey>,
+) {
+  if (!departmentName) {
+    return <span className="text-sm text-muted-foreground">—</span>
+  }
+
+  const colorKey =
+    (departmentId ? colorMap.get(departmentId) : undefined) ?? "emerald"
+
+  return (
+    <Badge className={cn(BRAND_BADGE_CLASSES[colorKey], "rounded-full")}>
+      {departmentName}
+    </Badge>
+  )
 }
 
 function StepStatsRow({ step }: { step: WorkflowStepStatsRow }) {
@@ -87,10 +110,8 @@ function StepStatsRow({ step }: { step: WorkflowStepStatsRow }) {
             </span>
           </span>
           <div className="flex shrink-0 items-center gap-2">
-            <Badge variant="outline">{step.kind}</Badge>
-            <Badge variant={stepStatusBadgeVariant(step.latest_status)}>
-              {step.latest_status}
-            </Badge>
+            <StepKindBadge kind={step.kind} />
+            <StepStatusBadge status={step.latest_status} />
           </div>
         </button>
       </PopoverTrigger>
@@ -154,10 +175,12 @@ function WorkflowSummaryRow({
   row,
   open,
   onOpenChange,
+  departmentColorMap,
 }: {
   row: WorkflowSummaryRow
   open: boolean
   onOpenChange: (open: boolean) => void
+  departmentColorMap: Map<string, BrandColorKey>
 }) {
   const { steps, loading, fetchError } = useWorkflowStepStats(
     row.workflow_key,
@@ -180,8 +203,12 @@ function WorkflowSummaryRow({
         <span className="font-medium max-sm:min-w-0 max-sm:flex-1 max-sm:truncate">
           {row.display_name}
         </span>
-        <span className="truncate text-muted-foreground max-sm:hidden">
-          {row.department_name ?? "—"}
+        <span className="max-sm:hidden">
+          {departmentBadge(
+            row.department_id,
+            row.department_name,
+            departmentColorMap,
+          )}
         </span>
         <span className="tabular-nums max-sm:hidden">
           {row.total_runs.toLocaleString()}
@@ -223,7 +250,13 @@ function WorkflowSummaryRow({
   )
 }
 
-function WorkflowSummaryList({ rows }: { rows: WorkflowSummaryRow[] }) {
+function WorkflowSummaryList({
+  rows,
+  departmentColorMap,
+}: {
+  rows: WorkflowSummaryRow[]
+  departmentColorMap: Map<string, BrandColorKey>
+}) {
   const [openWorkflowKeys, setOpenWorkflowKeys] = useState<Set<string>>(
     () => new Set()
   )
@@ -260,6 +293,7 @@ function WorkflowSummaryList({ rows }: { rows: WorkflowSummaryRow[] }) {
           row={row}
           open={openWorkflowKeys.has(row.workflow_key)}
           onOpenChange={(open) => toggleWorkflow(row.workflow_key, open)}
+          departmentColorMap={departmentColorMap}
         />
       ))}
     </div>
@@ -271,14 +305,20 @@ export function WorkflowSummaryTable({
   departments,
 }: {
   rows: WorkflowSummaryRow[]
-  departments: { id: string; name: string }[]
+  departments: { id: string; name: string; color?: string | null }[]
 }) {
   const [search, setSearch] = useState("")
+  const debouncedSearch = useDebouncedValue(search)
   const [teamFilter, setTeamFilter] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
 
+  const departmentColorMap = useMemo(
+    () => buildDepartmentColorMap(departments),
+    [departments],
+  )
+
   const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
+    const query = debouncedSearch.trim().toLowerCase()
 
     return rows.filter((row) => {
       if (query && !row.display_name.toLowerCase().includes(query)) {
@@ -295,7 +335,7 @@ export function WorkflowSummaryTable({
 
       return true
     })
-  }, [rows, search, teamFilter, statusFilter])
+  }, [rows, debouncedSearch, teamFilter, statusFilter])
 
   return (
     <Card>
@@ -331,20 +371,17 @@ export function WorkflowSummaryTable({
         {departments.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {departments.map((department) => (
-              <Button
+              <DepartmentChip
                 key={department.id}
-                type="button"
-                variant={teamFilter === department.id ? "default" : "outline"}
-                size="sm"
-                className="rounded-full"
+                name={department.name}
+                colorKey={departmentColorMap.get(department.id) ?? "emerald"}
+                selected={teamFilter === department.id}
                 onClick={() =>
                   setTeamFilter((current) =>
                     current === department.id ? null : department.id
                   )
                 }
-              >
-                {department.name}
-              </Button>
+              />
             ))}
           </div>
         ) : null}
@@ -354,7 +391,10 @@ export function WorkflowSummaryTable({
             No workflows match your filters.
           </p>
         ) : (
-          <WorkflowSummaryList rows={filtered} />
+          <WorkflowSummaryList
+            rows={filtered}
+            departmentColorMap={departmentColorMap}
+          />
         )}
       </CardContent>
     </Card>

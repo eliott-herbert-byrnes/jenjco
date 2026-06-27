@@ -1,5 +1,6 @@
 import { start } from "workflow/api"
 import type { Json } from "@/lib/database.types"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { googleDriveIngestWorkflow } from "@/src/workflows/definitions/google-drive-ingest.workflow"
 import * as ledger from "@/src/workflows/runtime/ledger"
 import { STATUS_STREAM_NAMESPACE } from "@/src/workflows/runtime/status-stream"
@@ -33,10 +34,23 @@ export async function POST(request: Request) {
 
   const ledgerRunId = crypto.randomUUID()
   const startedAt = Date.now()
+
+  const supabase = createAdminClient()
+  const { data: orgWorkflow } = await supabase
+    .from("org_workflows")
+    .select("department_id")
+    .eq("org_id", orgId)
+    .eq("workflow_key", "google-drive-ingest")
+    .limit(1)
+    .maybeSingle()
+
+  const departmentId = orgWorkflow?.department_id ?? null
+
   const workflowInput = {
     orgId,
     ledgerRunId,
     startedByUserId: null,
+    departmentId,
   }
 
   const run = await start(googleDriveIngestWorkflow, [workflowInput])
@@ -91,6 +105,7 @@ export async function POST(request: Request) {
           userId: null,
           ledgerRunId,
           workflowKey: "google-drive-ingest",
+          departmentId,
           tokensIn,
           tokensOut,
           durationMs: Date.now() - startedAt,
@@ -124,6 +139,7 @@ export async function POST(request: Request) {
           userId: null,
           ledgerRunId,
           workflowKey: "google-drive-ingest",
+          departmentId,
           tokensIn,
           tokensOut,
           durationMs: Date.now() - startedAt,

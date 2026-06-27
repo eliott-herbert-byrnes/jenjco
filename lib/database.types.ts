@@ -501,6 +501,7 @@ export type Database = {
         Row: {
           cost_estimate: number | null
           created_at: string
+          department_id: string | null
           duration_ms: number | null
           id: string
           org_id: string
@@ -516,6 +517,7 @@ export type Database = {
         Insert: {
           cost_estimate?: number | null
           created_at?: string
+          department_id?: string | null
           duration_ms?: number | null
           id?: string
           org_id: string
@@ -531,6 +533,7 @@ export type Database = {
         Update: {
           cost_estimate?: number | null
           created_at?: string
+          department_id?: string | null
           duration_ms?: number | null
           id?: string
           org_id?: string
@@ -544,6 +547,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "usage_logs_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "usage_logs_org_id_fkey"
             columns: ["org_id"]

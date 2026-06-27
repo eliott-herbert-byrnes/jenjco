@@ -1,18 +1,17 @@
 "use client"
 
 import { SearchIcon } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 
 import { DepartmentChip } from "@/components/department-chip"
 import { Input } from "@/components/ui/input"
 import { WorkflowCard } from "@/features/dashboard/components/workflow-card"
 import type { WorkflowHubRow } from "@/features/workflows/types"
+import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import {
   BRAND_BADGE_CLASSES,
   buildDepartmentColorMap,
 } from "@/lib/brand-colors"
-
-const SEARCH_DEBOUNCE_MS = 300
 
 type WorkflowBrowserProps = {
   departments: Array<{ id: string; name: string; color?: string | null }>
@@ -21,15 +20,7 @@ type WorkflowBrowserProps = {
 
 export function WorkflowBrowser({ departments, workflows }: WorkflowBrowserProps) {
   const [searchQuery, setSearchQuery] = useState("")
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery)
-    }, SEARCH_DEBOUNCE_MS)
-
-    return () => window.clearTimeout(timer)
-  }, [searchQuery])
+  const debouncedSearchQuery = useDebouncedValue(searchQuery)
 
   const departmentColorMap = buildDepartmentColorMap(departments)
 

@@ -2,6 +2,7 @@ import { after } from "next/server"
 import { resumeHook, Run, start } from "workflow/api"
 
 import type { Json } from "@/lib/database.types"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { WORKFLOWS, type WorkflowKey } from "@/src/workflows/index"
 
 import { hasRunningWorkflow } from "./idempotency"
@@ -25,6 +26,7 @@ export type StartWorkflowRunResult =
   | {
       ledgerRunId: string
       vercelRunId: string
+      departmentId: string | null
       run: Run<unknown>
     }
   | {
@@ -38,11 +40,43 @@ export type FinalizeWorkflowRunParams = {
   orgId: string
   workflowKey: string
   startedByUserId: string | null
+  departmentId: string | null
   startedAt: number
 }
 
 function isWorkflowKey(key: string): key is WorkflowKey {
   return key in WORKFLOWS
+}
+
+async function resolveDepartmentId(
+  orgId: string,
+  workflowKey: string,
+  orgWorkflowId?: string
+): Promise<string | null> {
+  const supabase = createAdminClient()
+
+  if (orgWorkflowId) {
+    const { data, error } = await supabase
+      .from("org_workflows")
+      .select("department_id")
+      .eq("id", orgWorkflowId)
+      .eq("org_id", orgId)
+      .maybeSingle()
+
+    if (error) throw error
+    return data?.department_id ?? null
+  }
+
+  const { data, error } = await supabase
+    .from("org_workflows")
+    .select("department_id")
+    .eq("org_id", orgId)
+    .eq("workflow_key", workflowKey)
+    .limit(1)
+    .maybeSingle()
+
+  if (error) throw error
+  return data?.department_id ?? null
 }
 
 function buildWorkflowInput(
@@ -51,6 +85,7 @@ function buildWorkflowInput(
     orgId: string
     ledgerRunId: string
     startedByUserId: string | null
+    departmentId: string | null
     trigger: TriggerKind
   }
 ) {
@@ -58,6 +93,7 @@ function buildWorkflowInput(
     orgId: params.orgId,
     ledgerRunId: params.ledgerRunId,
     startedByUserId: params.startedByUserId,
+    departmentId: params.departmentId,
   }
 
   if (workflowKey === "google-drive-ingest" && params.trigger !== "manual") {
@@ -70,7 +106,8 @@ function buildWorkflowInput(
 export async function startWorkflowRun(
   params: StartWorkflowRunParams
 ): Promise<StartWorkflowRunResult> {
-  const { orgId, workflowKey, trigger, startedByUserId = null } = params
+  const { orgId, workflowKey, trigger, startedByUserId = null, orgWorkflowId } =
+    params
 
   if (!isWorkflowKey(workflowKey)) {
     throw new Error(`Workflow not registered: ${workflowKey}`)
@@ -81,11 +118,18 @@ export async function startWorkflowRun(
     return { skipped: true, reason: "already_running" }
   }
 
+  const departmentId = await resolveDepartmentId(
+    orgId,
+    workflowKey,
+    orgWorkflowId
+  )
+
   const ledgerRunId = crypto.randomUUID()
   const workflowInput = buildWorkflowInput(workflowKey, {
     orgId,
     ledgerRunId,
     startedByUserId: startedByUserId ?? null,
+    departmentId,
     trigger,
   })
 
@@ -107,6 +151,7 @@ export async function startWorkflowRun(
   return {
     ledgerRunId,
     vercelRunId: run.runId,
+    departmentId,
     run,
   }
 }
@@ -117,6 +162,7 @@ export async function finalizeWorkflowRun({
   orgId,
   workflowKey,
   startedByUserId,
+  departmentId,
   startedAt,
 }: FinalizeWorkflowRunParams): Promise<void> {
   try {
@@ -134,6 +180,7 @@ export async function finalizeWorkflowRun({
       userId: startedByUserId,
       ledgerRunId,
       workflowKey,
+      departmentId,
       tokensIn,
       tokensOut,
       durationMs: Date.now() - startedAt,
@@ -157,6 +204,7 @@ export async function finalizeWorkflowRun({
       userId: startedByUserId,
       ledgerRunId,
       workflowKey,
+      departmentId,
       tokensIn,
       tokensOut,
       durationMs: Date.now() - startedAt,

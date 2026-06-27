@@ -8,6 +8,7 @@ export type GatherProcessesOutput = {
   orgId: string
   ledgerRunId: string
   startedByUserId: string | null
+  departmentId: string | null
 }
 
 export async function gatherProcessesStep(
@@ -23,6 +24,7 @@ export async function gatherProcessesStep(
       orgId: input.orgId,
       userId: input.startedByUserId,
       resourceKey: WORKFLOW_KEY_PROCESS_KNOWLEDGE_SUMMARY,
+      departmentId: input.departmentId,
     },
     async () => {
       const supabase = createAdminClient()
@@ -40,6 +42,7 @@ export async function gatherProcessesStep(
         orgId: input.orgId,
         ledgerRunId: input.ledgerRunId,
         startedByUserId: input.startedByUserId,
+        departmentId: input.departmentId,
       }
     }
   )
