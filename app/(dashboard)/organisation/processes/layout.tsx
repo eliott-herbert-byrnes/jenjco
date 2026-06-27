@@ -37,11 +37,13 @@ export default async function ProcessesLayout({
         page="Processes"
         description="Review and manage your organisation processes"
       />
-      <div className="flex overflow-hidden h-[calc(100vh-4.5rem)]">
-        <aside className="w-72 shrink-0 overflow-y-auto border-r">
+      <div className="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden md:flex-row">
+        <aside className="max-h-[40vh] w-full shrink-0 overflow-y-auto border-b md:max-h-none md:w-72 md:border-b-0 md:border-r">
           <ProcessListPanel departments={grouped} role={appUser.role} />
         </aside>
-        <main className="flex flex-1 overflow-hidden">{children}</main>
+        <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          {children}
+        </main>
       </div>
     </>
   )

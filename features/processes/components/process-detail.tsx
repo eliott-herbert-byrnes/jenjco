@@ -20,26 +20,25 @@ export function ProcessDetail({
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col overflow-y-auto">
-      <header className="shrink-0 border-b px-6 py-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1 className="text-xl font-semibold tracking-tight text-foreground mb-2">
-            {process.title}
-          </h1>
-          {role === 'admin' && (
-            <div className="flex shrink-0 gap-2">
-              <RequestProcessChangeDialog />
-            </div>
-          )}
-        </div>
-        <p className="text-sm text-muted-foreground">
+      <header className="shrink-0 border-b px-4 py-5 sm:px-6">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          {process.title}
+        </h1>
+
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <Badge
             className={`p-3 ${process.departmentBadgeClass ?? 'bg-secondary text-secondary-foreground'}`}
           >
             {process.departmentName ?? '—'}
           </Badge>
-          <span className="mx-2 text-border">|</span>
-          Updated {updatedLabel}
-        </p>
+          {role === 'admin' && <RequestProcessChangeDialog />}
+          <span className="hidden text-sm text-muted-foreground sm:inline">
+            |
+          </span>
+          <span className="text-sm text-muted-foreground">
+            Updated {updatedLabel}
+          </span>
+        </div>
       </header>
       <div className="w-full flex-1 px-6 py-6 text-left">
         <ProcessMarkdownBody content={composedContent} />

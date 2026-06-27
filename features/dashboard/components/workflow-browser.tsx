@@ -56,9 +56,9 @@ export function WorkflowBrowser({ departments, workflows }: WorkflowBrowserProps
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {filteredWorkflows.length === 0 && debouncedSearchQuery.trim() ? (
-          <p className="col-span-2 py-8 text-center text-sm text-muted-foreground">
+          <p className="col-span-full py-8 text-center text-sm text-muted-foreground">
             No workflows match your search.
           </p>
         ) : (

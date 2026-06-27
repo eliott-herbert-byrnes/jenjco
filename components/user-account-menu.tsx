@@ -133,18 +133,6 @@ export function UserAccountMenu() {
                 <LucideSun />
                 Theme
               </DropdownMenuItem>
-              <DropdownMenuItem disabled>
-                <BadgeCheckIcon />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled>
-                <SettingsIcon />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled>
-                <BellIcon />
-                Notifications
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => void signOut()}>
