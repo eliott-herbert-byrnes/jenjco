@@ -5,6 +5,8 @@ import type { Json } from "@/lib/database.types"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { WORKFLOWS, type WorkflowKey } from "@/src/workflows/index"
 
+import { dispatchWorkflowNotifications } from "@/src/workflows/notifications/dispatch"
+
 import { hasRunningWorkflow } from "./idempotency"
 import * as ledger from "./ledger"
 import {
@@ -38,6 +40,7 @@ export type FinalizeWorkflowRunParams = {
   run: Run<unknown>
   ledgerRunId: string
   orgId: string
+  orgWorkflowId: string | null
   workflowKey: string
   startedByUserId: string | null
   departmentId: string | null
@@ -156,10 +159,34 @@ export async function startWorkflowRun(
   }
 }
 
+function scheduleNotificationDispatch(params: {
+  orgId: string
+  orgWorkflowId: string | null
+  ledgerRunId: string
+  departmentId: string | null
+  eventType: "completion" | "error"
+}): void {
+  const orgWorkflowId = params.orgWorkflowId
+  if (!orgWorkflowId) {
+    return
+  }
+
+  after(() =>
+    dispatchWorkflowNotifications({
+      orgId: params.orgId,
+      orgWorkflowId,
+      ledgerRunId: params.ledgerRunId,
+      departmentId: params.departmentId,
+      eventType: params.eventType,
+    })
+  )
+}
+
 export async function finalizeWorkflowRun({
   run,
   ledgerRunId,
   orgId,
+  orgWorkflowId,
   workflowKey,
   startedByUserId,
   departmentId,
@@ -186,6 +213,14 @@ export async function finalizeWorkflowRun({
       durationMs: Date.now() - startedAt,
       status: "success",
     })
+
+    scheduleNotificationDispatch({
+      orgId,
+      orgWorkflowId,
+      ledgerRunId,
+      departmentId,
+      eventType: "completion",
+    })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     let tokensIn = 0
@@ -209,6 +244,14 @@ export async function finalizeWorkflowRun({
       tokensOut,
       durationMs: Date.now() - startedAt,
       status: "error",
+    })
+
+    scheduleNotificationDispatch({
+      orgId,
+      orgWorkflowId,
+      ledgerRunId,
+      departmentId,
+      eventType: "error",
     })
   }
 }

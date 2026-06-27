@@ -580,6 +580,7 @@ export type Database = {
       users: {
         Row: {
           created_at: string
+          department_id: string | null
           display_name: string | null
           email: string
           id: string
@@ -591,6 +592,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          department_id?: string | null
           display_name?: string | null
           email: string
           id?: string
@@ -602,6 +604,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          department_id?: string | null
           display_name?: string | null
           email?: string
           id?: string
@@ -612,6 +615,13 @@ export type Database = {
           supabase_auth_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "users_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "users_org_id_fkey"
             columns: ["org_id"]
@@ -745,6 +755,206 @@ export type Database = {
             columns: ["run_id"]
             isOneToOne: false
             referencedRelation: "workflow_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_notification_deliveries: {
+        Row: {
+          created_at: string
+          delivery_mode: string
+          error_message: string | null
+          event_type: string
+          id: string
+          org_id: string
+          org_workflow_id: string
+          recipient_email: string
+          resend_id: string | null
+          settings_id: string | null
+          status: string
+          workflow_run_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          delivery_mode: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          org_id: string
+          org_workflow_id: string
+          recipient_email: string
+          resend_id?: string | null
+          settings_id?: string | null
+          status: string
+          workflow_run_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          delivery_mode?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          org_id?: string
+          org_workflow_id?: string
+          recipient_email?: string
+          resend_id?: string | null
+          settings_id?: string | null
+          status?: string
+          workflow_run_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_notification_deliveries_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_notification_deliveries_org_workflow_id_fkey"
+            columns: ["org_workflow_id"]
+            isOneToOne: false
+            referencedRelation: "org_workflows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_notification_deliveries_settings_id_fkey"
+            columns: ["settings_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_notification_settings"
+            referencedColumns: ["org_workflow_id"]
+          },
+          {
+            foreignKeyName: "workflow_notification_deliveries_workflow_run_id_fkey"
+            columns: ["workflow_run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_notification_digest_queue: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          org_id: string
+          org_workflow_id: string
+          recipient_email: string
+          run_summary: Json
+          workflow_run_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          org_id: string
+          org_workflow_id: string
+          recipient_email: string
+          run_summary?: Json
+          workflow_run_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          org_id?: string
+          org_workflow_id?: string
+          recipient_email?: string
+          run_summary?: Json
+          workflow_run_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_notification_digest_queue_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_notification_digest_queue_org_workflow_id_fkey"
+            columns: ["org_workflow_id"]
+            isOneToOne: false
+            referencedRelation: "org_workflows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_notification_digest_queue_workflow_run_id_fkey"
+            columns: ["workflow_run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_notification_settings: {
+        Row: {
+          audience: string
+          created_at: string
+          department_id: string | null
+          enabled: boolean
+          notify_on_completion: boolean
+          notify_on_error: boolean
+          org_id: string
+          org_workflow_id: string
+          team_scope: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          audience: string
+          created_at?: string
+          department_id?: string | null
+          enabled?: boolean
+          notify_on_completion?: boolean
+          notify_on_error?: boolean
+          org_id: string
+          org_workflow_id: string
+          team_scope: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          department_id?: string | null
+          enabled?: boolean
+          notify_on_completion?: boolean
+          notify_on_error?: boolean
+          org_id?: string
+          org_workflow_id?: string
+          team_scope?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_notification_settings_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_notification_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_notification_settings_org_workflow_id_fkey"
+            columns: ["org_workflow_id"]
+            isOneToOne: false
+            referencedRelation: "org_workflows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_notification_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

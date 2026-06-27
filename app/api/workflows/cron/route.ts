@@ -91,6 +91,7 @@ export async function GET(request: Request) {
         run: result.run,
         ledgerRunId: result.ledgerRunId,
         orgId: row.org_id,
+        orgWorkflowId: row.id,
         workflowKey,
         startedByUserId: null,
         departmentId: result.departmentId,

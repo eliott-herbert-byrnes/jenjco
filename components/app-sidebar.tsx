@@ -82,6 +82,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Dashboard",
       url: paths.dashboard,
       icon: HomeIcon,
+      isActive: isActivePath(pathname, paths.dashboard),
+    },
+    {
+      title: "Workflows",
+      url: paths.workflows,
+      icon: GitBranchIcon,
       isActive: isActivePath(pathname, paths.workflows),
     },
     {
@@ -89,12 +95,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: Building2Icon,
       isActive: organisationActive,
       items: organisationSubItems,
-    },
-    {
-      title: "Workflows",
-      url: paths.workflows,
-      icon: GitBranchIcon,
-      isActive: isActivePath(pathname, paths.workflows),
     },
     ...(isAdmin
       ? [
@@ -112,6 +112,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 title: "System Logs",
                 url: paths.analyticsSystemLogs,
                 isActive: isActivePath(pathname, paths.analyticsSystemLogs),
+              },
+              {
+                title: "Delivery Logs",
+                url: paths.analyticsDeliveryLogs,
+                isActive: isActivePath(pathname, paths.analyticsDeliveryLogs),
               },
               {
                 title: "Integrations",

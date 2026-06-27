@@ -23,6 +23,7 @@ export const paths = {
   analyticsOverview: "/analytics/overview",
   analyticsIntegrations: "/analytics/integrations",
   analyticsSystemLogs: "/analytics/system-logs",
+  analyticsDeliveryLogs: "/analytics/delivery-logs",
   /** Legacy path; redirected to `signIn` in `next.config.mjs` */
   login: "/login",
 } as const

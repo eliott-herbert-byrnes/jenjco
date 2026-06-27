@@ -22,9 +22,13 @@ const updateUserSchema = z
     userId: z.string().uuid(),
     role: z.enum(["admin", "viewer"]).optional(),
     displayName: z.string().max(100).nullable().optional(),
+    departmentId: z.string().uuid().nullable().optional(),
   })
   .refine(
-    (data) => data.role !== undefined || data.displayName !== undefined,
+    (data) =>
+      data.role !== undefined ||
+      data.displayName !== undefined ||
+      data.departmentId !== undefined,
     { message: "No changes provided" }
   )
 
@@ -48,7 +52,7 @@ export async function updateUser(
     }
   }
 
-  const { userId, role, displayName } = parsed.data
+  const { userId, role, displayName, departmentId } = parsed.data
   const supabase = await createClient()
 
   const { data: target, error: fetchError } = await fetchTargetUser(
@@ -64,6 +68,31 @@ export async function updateUser(
     return { success: false, error: "User not found" }
   }
 
+  if (departmentId !== undefined) {
+    if (!target.is_active) {
+      return {
+        success: false,
+        error: "Team can only be assigned to active users",
+      }
+    }
+
+    if (departmentId !== null) {
+      const { data: department, error: departmentError } = await supabase
+        .from("departments")
+        .select("id")
+        .eq("id", departmentId)
+        .eq("org_id", appUser.orgId)
+        .maybeSingle()
+
+      if (departmentError) {
+        return { success: false, error: departmentError.message }
+      }
+      if (!department) {
+        return { success: false, error: "Invalid team" }
+      }
+    }
+  }
+
   const { count: adminCount, error: countError } = await countOrgAdmins(
     supabase,
     appUser.orgId
@@ -75,6 +104,7 @@ export async function updateUser(
   const changes = {
     ...(role !== undefined ? { role } : {}),
     ...(displayName !== undefined ? { displayName } : {}),
+    ...(departmentId !== undefined ? { departmentId } : {}),
   }
 
   const guard = assertCanUpdateUser(
@@ -90,12 +120,16 @@ export async function updateUser(
   const updatePayload: {
     role?: "admin" | "viewer"
     display_name?: string | null
+    department_id?: string | null
   } = {}
   if (role !== undefined) {
     updatePayload.role = role
   }
   if (displayName !== undefined) {
     updatePayload.display_name = displayName
+  }
+  if (departmentId !== undefined) {
+    updatePayload.department_id = departmentId
   }
 
   const { error: updateError } = await supabase

@@ -13,11 +13,15 @@ import {
 } from "@/components/ui/card"
 import { EditUserDialog } from "@/features/organisation/users/components/edit-user-dialog"
 import { UserActionsMenu } from "@/features/organisation/users/components/user-actions-menu"
-import type { OrgUserRow } from "@/features/organisation/users/types"
+import type {
+  DepartmentOption,
+  OrgUserRow,
+} from "@/features/organisation/users/types"
 import { BRAND_BADGE_CLASSES } from "@/lib/brand-colors"
 
 type UsersTableProps = {
   users: OrgUserRow[]
+  departments: DepartmentOption[]
   currentUserId: string
   onMutationSuccess: () => void
 }
@@ -46,6 +50,7 @@ function statusBadge(isActive: boolean) {
 
 export function UsersTable({
   users,
+  departments,
   currentUserId,
   onMutationSuccess,
 }: UsersTableProps) {
@@ -69,7 +74,7 @@ export function UsersTable({
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/50">
               <tr>
-                {["Name", "Email", "Role", "Status", "Joined", ""].map(
+                {["Name", "Email", "Role", "Team", "Status", "Joined", ""].map(
                   (heading) => (
                     <th
                       key={heading || "actions"}
@@ -111,6 +116,9 @@ export function UsersTable({
                       {user.email}
                     </td>
                     <td className="px-4 py-2">{roleBadge(user.role)}</td>
+                    <td className="px-4 py-2 text-muted-foreground">
+                      {user.department_name ?? "—"}
+                    </td>
                     <td className="px-4 py-2">
                       {statusBadge(user.is_active)}
                     </td>
@@ -144,6 +152,7 @@ export function UsersTable({
 
       <EditUserDialog
         user={editingUser}
+        departments={departments}
         open={editingUser !== null}
         onOpenChange={(open) => {
           if (!open) setEditingUser(null)

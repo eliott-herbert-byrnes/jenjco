@@ -24,6 +24,7 @@ export type InviteInput = {
 export type UserUpdateChanges = {
   role?: AppRole
   displayName?: string | null
+  departmentId?: string | null
 }
 
 function fail(code: string, message: string): GuardResult {

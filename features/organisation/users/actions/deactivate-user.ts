@@ -75,7 +75,7 @@ export async function deactivateUser(
 
   const { error: updateError } = await admin
     .from("users")
-    .update({ is_active: false })
+    .update({ is_active: false, department_id: null })
     .eq("id", target.id)
     .eq("org_id", appUser.orgId)
 

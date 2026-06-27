@@ -16,10 +16,14 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { FlagWorkflowDialog } from '@/features/workflows/components/flag-workflow-dialog'
+import { WorkflowNotificationSummary } from '@/features/workflows/components/workflow-notification-summary'
 import { WorkflowRunChart } from '@/features/workflows/components/workflow-run-chart'
 import { WorkflowStatCards } from '@/features/workflows/components/workflow-stat-cards'
 import { useWorkflowDetailStats } from '@/features/workflows/hooks/use-workflow-detail-stats'
 import { extractMarkdownSection } from '@/features/workflows/lib/extract-markdown-section'
+import {
+  type WorkflowNotificationSettingsRow,
+} from '@/features/workflows/notifications/types'
 import type { WorkflowHubRow } from '@/features/workflows/types'
 import { createClient } from '@/lib/supabase/client'
 
@@ -44,6 +48,10 @@ type WorkflowDetailSheetProps = {
   workflow: WorkflowHubRow | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  departments: { id: string; name: string }[]
+  isAdmin: boolean
+  notificationSettingsRevision?: number
+  onEditNotifications?: (workflow: WorkflowHubRow) => void
 }
 
 function normalizeProcess(
@@ -57,12 +65,19 @@ export function WorkflowDetailSheet({
   workflow,
   open,
   onOpenChange,
+  departments,
+  isAdmin,
+  notificationSettingsRevision = 0,
+  onEditNotifications,
 }: WorkflowDetailSheetProps) {
   const router = useRouter()
   const workflowId = workflow?.id
   const workflowKey = workflow?.workflow_key
   const [processes, setProcesses] = useState<LinkedProcess[]>([])
   const [processesLoading, setProcessesLoading] = useState(false)
+  const [notificationSettings, setNotificationSettings] =
+    useState<WorkflowNotificationSettingsRow | null>(null)
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
   const [prevWorkflowId, setPrevWorkflowId] = useState<string | undefined>(
     workflowId
   )
@@ -80,6 +95,8 @@ export function WorkflowDetailSheet({
     setPrevWorkflowId(workflowId)
     setProcesses([])
     setProcessesLoading(false)
+    setNotificationSettings(null)
+    setNotificationsLoading(false)
   }
 
   useEffect(() => {
@@ -129,6 +146,35 @@ export function WorkflowDetailSheet({
     }
   }, [open, workflowId])
 
+  useEffect(() => {
+    if (!open || !workflowId) return
+
+    const activeWorkflowId = workflowId
+    let cancelled = false
+
+    async function loadNotifications() {
+      setNotificationsLoading(true)
+
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('workflow_notification_settings')
+        .select('*')
+        .eq('org_workflow_id', activeWorkflowId)
+        .maybeSingle()
+
+      if (cancelled) return
+
+      setNotificationSettings(error ? null : data)
+      setNotificationsLoading(false)
+    }
+
+    void loadNotifications()
+
+    return () => {
+      cancelled = true
+    }
+  }, [open, workflowId, notificationSettingsRevision])
+
   const loading = processesLoading || statsLoading
 
   const overview = useMemo(() => {
@@ -138,6 +184,15 @@ export function WorkflowDetailSheet({
     )
     return fromContent ?? workflow?.description ?? ''
   }, [processes, workflow?.description])
+
+  const departmentNameById = useMemo(
+    () => new Map(departments.map((department) => [department.id, department.name])),
+    [departments]
+  )
+
+  const settingsDepartmentName = notificationSettings?.department_id
+    ? departmentNameById.get(notificationSettings.department_id) ?? null
+    : null
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -175,6 +230,37 @@ export function WorkflowDetailSheet({
                   Daily Run Count
                 </p>
                 <WorkflowRunChart dailyRuns={dailyRuns} />
+              </section>
+              <Separator />
+
+              <section className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Notifications
+                  </p>
+                  {isAdmin && workflow && onEditNotifications ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto px-2 py-1 text-xs"
+                      onClick={() => onEditNotifications(workflow)}
+                    >
+                      Edit
+                    </Button>
+                  ) : null}
+                </div>
+                {notificationsLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    Loading notification settings…
+                  </p>
+                ) : (
+                  <WorkflowNotificationSummary
+                    settings={notificationSettings}
+                    workflowDepartmentName={workflow?.department_name ?? null}
+                    departmentName={settingsDepartmentName}
+                  />
+                )}
               </section>
               <Separator />
 

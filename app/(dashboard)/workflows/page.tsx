@@ -35,6 +35,7 @@ export default async function WorkflowsHubPage() {
       <WorkflowHub
         workflows={(workflows ?? []) as WorkflowHubRow[]}
         departments={departments ?? []}
+        isAdmin={appUser.role === 'admin'}
       />
     </>
   )

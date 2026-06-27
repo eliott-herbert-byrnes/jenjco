@@ -23,6 +23,7 @@ import {
 import { FlagWorkflowDialog } from '@/features/workflows/components/flag-workflow-dialog'
 import { RequestWorkflowDialog } from '@/features/workflows/components/request-workflow-dialog'
 import { WorkflowDetailSheet } from '@/features/workflows/components/workflow-detail-sheet'
+import { WorkflowNotificationsDialog } from '@/features/workflows/components/workflow-notifications-dialog'
 import type { WorkflowHubRow } from '@/features/workflows/types'
 import {
   BRAND_BADGE_CLASSES,
@@ -35,6 +36,7 @@ import { cn } from '@/lib/utils'
 type WorkflowHubProps = {
   workflows: WorkflowHubRow[]
   departments: { id: string; name: string; color?: string | null }[]
+  isAdmin: boolean
 }
 
 type SortBy = 'name' | 'status' | 'last_executed' | 'run_count'
@@ -106,7 +108,7 @@ function statusBadge(status: string) {
   )
 }
 
-export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
+export function WorkflowHub({ workflows, departments, isAdmin }: WorkflowHubProps) {
   const departmentColorMap = buildDepartmentColorMap(departments)
   const [search, setSearch] = useState('')
   const [teamFilter, setTeamFilter] = useState<string | null>(null)
@@ -116,6 +118,11 @@ export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
   )
   const [sheetOpen, setSheetOpen] = useState(false)
   const [flagDialogOpen, setFlagDialogOpen] = useState(false)
+  const [notificationDialogOpen, setNotificationDialogOpen] = useState(false)
+  const [notificationDialogWorkflow, setNotificationDialogWorkflow] =
+    useState<WorkflowHubRow | null>(null)
+  const [notificationSettingsRevision, setNotificationSettingsRevision] =
+    useState(0)
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -298,6 +305,17 @@ export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
                       >
                         Flag
                       </DropdownMenuItem>
+                      {isAdmin ? (
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setNotificationDialogWorkflow(workflow)
+                            setNotificationDialogOpen(true)
+                          }}
+                          onPointerDown={(event) => event.preventDefault()}
+                        >
+                          Notifications
+                        </DropdownMenuItem>
+                      ) : null}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -311,11 +329,34 @@ export function WorkflowHub({ workflows, departments }: WorkflowHubProps) {
         workflow={selectedWorkflow}
         open={sheetOpen}
         onOpenChange={handleSheetOpenChange}
+        departments={departments}
+        isAdmin={isAdmin}
+        notificationSettingsRevision={notificationSettingsRevision}
+        onEditNotifications={(workflow) => {
+          setNotificationDialogWorkflow(workflow)
+          setNotificationDialogOpen(true)
+        }}
       />
 
       <FlagWorkflowDialog
         open={flagDialogOpen}
         onOpenChange={setFlagDialogOpen}
+      />
+
+      <WorkflowNotificationsDialog
+        key={notificationDialogWorkflow?.id ?? 'notifications'}
+        workflow={notificationDialogWorkflow}
+        open={notificationDialogOpen}
+        onOpenChange={(open) => {
+          setNotificationDialogOpen(open)
+          if (!open) {
+            setNotificationDialogWorkflow(null)
+          }
+        }}
+        departments={departments}
+        onSettingsChanged={() =>
+          setNotificationSettingsRevision((revision) => revision + 1)
+        }
       />
     </>
   )

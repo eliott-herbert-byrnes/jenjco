@@ -27,10 +27,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { updateUser } from "@/features/organisation/users/actions/update-user"
-import type { OrgUserRow } from "@/features/organisation/users/types"
+import type {
+  DepartmentOption,
+  OrgUserRow,
+} from "@/features/organisation/users/types"
+
+const NO_TEAM_VALUE = "__none__"
 
 type EditUserDialogProps = {
   user: OrgUserRow | null
+  departments: DepartmentOption[]
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
@@ -38,13 +44,22 @@ type EditUserDialogProps = {
 
 type EditUserFormProps = {
   user: OrgUserRow
+  departments: DepartmentOption[]
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
 }
 
-function EditUserForm({ user, onOpenChange, onSuccess }: EditUserFormProps) {
+function EditUserForm({
+  user,
+  departments,
+  onOpenChange,
+  onSuccess,
+}: EditUserFormProps) {
   const [role, setRole] = useState<"admin" | "viewer">(user.role)
   const [displayName, setDisplayName] = useState(user.display_name ?? "")
+  const [departmentId, setDepartmentId] = useState(
+    user.department_id ?? NO_TEAM_VALUE
+  )
 
   const { execute, pending } = useServerAction(updateUser, {
     successMessage: "User updated",
@@ -60,6 +75,12 @@ function EditUserForm({ user, onOpenChange, onSuccess }: EditUserFormProps) {
       userId: user.id,
       role,
       displayName: displayName.trim() || null,
+      ...(user.is_active
+        ? {
+            departmentId:
+              departmentId === NO_TEAM_VALUE ? null : departmentId,
+          }
+        : {}),
     })
   }
 
@@ -95,6 +116,31 @@ function EditUserForm({ user, onOpenChange, onSuccess }: EditUserFormProps) {
             </SelectContent>
           </Select>
         </Field>
+        <Field>
+          <FieldLabel htmlFor="edit-team">Team</FieldLabel>
+          <Select
+            value={departmentId}
+            onValueChange={setDepartmentId}
+            disabled={!user.is_active}
+          >
+            <SelectTrigger id="edit-team" className="w-full">
+              <SelectValue placeholder="Select team" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NO_TEAM_VALUE}>None</SelectItem>
+              {departments.map((department) => (
+                <SelectItem key={department.id} value={department.id}>
+                  {department.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {!user.is_active ? (
+            <p className="text-xs text-muted-foreground">
+              Team can only be assigned when the user is active.
+            </p>
+          ) : null}
+        </Field>
       </FieldGroup>
 
       <DialogFooter className="mt-6">
@@ -116,6 +162,7 @@ function EditUserForm({ user, onOpenChange, onSuccess }: EditUserFormProps) {
 
 export function EditUserDialog({
   user,
+  departments,
   open,
   onOpenChange,
   onSuccess,
@@ -126,7 +173,7 @@ export function EditUserDialog({
         <DialogHeader>
           <DialogTitle>Edit user</DialogTitle>
           <DialogDescription>
-            Update role and display name. Email cannot be changed here.
+            Update role, team, and display name. Email cannot be changed here.
           </DialogDescription>
         </DialogHeader>
 
@@ -134,6 +181,7 @@ export function EditUserDialog({
           <EditUserForm
             key={user.id}
             user={user}
+            departments={departments}
             onOpenChange={onOpenChange}
             onSuccess={onSuccess}
           />

@@ -173,6 +173,7 @@ export async function handleNangoWebhook(
         run: result.run,
         ledgerRunId: result.ledgerRunId,
         orgId,
+        orgWorkflowId: null,
         workflowKey: classification.workflowKey,
         startedByUserId: null,
         departmentId: result.departmentId,

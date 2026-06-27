@@ -1,16 +1,20 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import type { OrgUserRow } from "@/features/organisation/users/types"
+import type {
+  DepartmentOption,
+  OrgUserRow,
+} from "@/features/organisation/users/types"
 import { InviteUserForm } from "./invite-user-form"
 import { UsersTable } from "./users-table"
 
 type UsersViewProps = {
   users: OrgUserRow[]
+  departments: DepartmentOption[]
   currentUserId: string
 }
 
-export function UsersView({ users, currentUserId }: UsersViewProps) {
+export function UsersView({ users, departments, currentUserId }: UsersViewProps) {
   const router = useRouter()
 
   const handleMutationSuccess = () => {
@@ -22,6 +26,7 @@ export function UsersView({ users, currentUserId }: UsersViewProps) {
       <InviteUserForm onSuccess={handleMutationSuccess} />
       <UsersTable
         users={users}
+        departments={departments}
         currentUserId={currentUserId}
         onMutationSuccess={handleMutationSuccess}
       />
