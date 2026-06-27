@@ -4,8 +4,8 @@ import Link from "next/link"
 import { toast } from "sonner"
 
 import { paths } from "@/app/paths"
+import { JenjcoLogo } from "@/components/jenjco-logo"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
 
 type MarketingHeaderProps = {
   isAuthenticated?: boolean
@@ -28,13 +28,7 @@ export function MarketingHeader({ isAuthenticated }: MarketingHeaderProps) {
     <header className="flex h-15 items-center justify-between px-7">
       <div className="flex items-center gap-8">
         <Link href={paths.home} className="flex items-center gap-2">
-          <Image
-            src="/logo.svg"
-            alt="Jenjco"
-            width={50}
-            height={50}
-            className="h-5 w-auto text-foreground"
-          />
+          <JenjcoLogo className="h-5 w-auto" />
           <span className="font-bold">JENJCO</span>
         </Link>
 

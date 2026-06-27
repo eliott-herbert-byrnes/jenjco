@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 
 import { paths } from "@/app/paths"
+import { JenjcoLogo } from "@/components/jenjco-logo"
 import { NavMain } from "@/components/nav-main"
 import { useUser } from "@/hooks/use-user"
 import { UserAccountMenu } from "@/components/user-account-menu"
@@ -23,8 +24,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import Image from "next/image"
-
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/"
   return pathname === href || pathname.startsWith(`${href}/`)
@@ -136,13 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href={paths.dashboard}>
-                  <Image
-                    width="7"
-                    height="7"
-                    src="/logo.svg"
-                    alt="JENJCO"
-                    className="size-7 shrink-0 ml-1 mt-1"
-                  />
+                  <JenjcoLogo className="ml-1 mt-1 size-7" />
                   <div className="grid flex-1 text-left text-sm leading-tight mt-1.5">
                     <span className="truncate font-semibold">JENJCO</span>
                     <span className="truncate text-xs text-muted-foreground">
