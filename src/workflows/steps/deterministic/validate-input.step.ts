@@ -11,6 +11,7 @@ export type ValidateInputOutput = {
   orgId: string
   ledgerRunId: string
   startedByUserId: string | null
+  departmentId: string | null
 }
 
 export async function validateInputStep(
@@ -26,6 +27,7 @@ export async function validateInputStep(
       orgId: input.orgId,
       userId: input.startedByUserId,
       resourceKey: WORKFLOW_KEY_PROCESS_KNOWLEDGE_SUMMARY,
+      departmentId: input.departmentId ?? null,
     },
     async () => {
       if (!input.orgId) throw new Error("orgId is required")
@@ -36,6 +38,7 @@ export async function validateInputStep(
         orgId: input.orgId,
         ledgerRunId: input.ledgerRunId,
         startedByUserId: input.startedByUserId,
+        departmentId: input.departmentId ?? null,
       }
     }
   )

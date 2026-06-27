@@ -14,6 +14,7 @@ export async function recordStepUsage({
   ledgerRunId,
   stepId,
   resourceKey,
+  departmentId,
   tokensIn,
   tokensOut,
   durationMs,
@@ -24,6 +25,7 @@ export async function recordStepUsage({
   ledgerRunId: string
   stepId: string
   resourceKey: string
+  departmentId: string | null
   tokensIn: number
   tokensOut: number
   durationMs?: number
@@ -37,6 +39,7 @@ export async function recordStepUsage({
     resource_type: "workflow_step",
     run_id: ledgerRunId,
     step_id: stepId,
+    department_id: departmentId,
     tokens_in: tokensIn,
     tokens_out: tokensOut,
     cost_estimate: estimateCost(tokensIn, tokensOut),
@@ -74,6 +77,7 @@ export async function recordWorkflowRollup({
   userId,
   ledgerRunId,
   workflowKey,
+  departmentId,
   tokensIn,
   tokensOut,
   durationMs,
@@ -83,6 +87,7 @@ export async function recordWorkflowRollup({
   userId: string | null
   ledgerRunId: string
   workflowKey: string
+  departmentId: string | null
   tokensIn: number
   tokensOut: number
   durationMs?: number
@@ -96,6 +101,7 @@ export async function recordWorkflowRollup({
     resource_type: "workflow",
     run_id: ledgerRunId,
     step_id: null,
+    department_id: departmentId,
     tokens_in: tokensIn,
     tokens_out: tokensOut,
     cost_estimate: estimateCost(tokensIn, tokensOut),

@@ -30,7 +30,7 @@ export default async function AnalyticsOverviewPage() {
     supabase.rpc("get_analytics_workflow_summary", { p_org_id: appUser.orgId }),
     supabase
       .from("departments")
-      .select("id, name")
+      .select("id, name, color")
       .eq("org_id", appUser.orgId)
       .order("sort_order"),
   ])

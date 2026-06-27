@@ -1,4 +1,5 @@
 import { isRunningRunStatus } from '@/features/workflows/lib/format-duration'
+import { cn } from '@/lib/utils'
 
 export const BRAND_COLOR_KEYS = [
   'orange',
@@ -62,6 +63,26 @@ export const STAT_CARD_VALUE_CLASSES = {
   warning: 'text-brand-orange',
   running: 'text-brand-amber',
 } as const
+
+export const STEP_KIND_BADGE_CLASSES = {
+  deterministic: `${BRAND_BADGE_CLASSES.sky} rounded-full`,
+  ai: `${BRAND_BADGE_CLASSES.violet} rounded-full`,
+} as const
+
+export const USAGE_LOG_STATUS_BADGE_CLASSES = {
+  success: RUN_SUCCESS_BADGE_CLASS,
+  error: `${BRAND_BADGE_CLASSES.orange} rounded-full`,
+} as const
+
+export function departmentBadgeClass(
+  departmentId: string | null,
+  colorMap: Map<string, BrandColorKey>,
+): string {
+  const colorKey =
+    (departmentId ? colorMap.get(departmentId) : undefined) ?? 'emerald'
+
+  return cn(BRAND_BADGE_CLASSES[colorKey], 'rounded-full')
+}
 
 export function getLastRunDurationValueClass(
   latestRunStatus: string | null,

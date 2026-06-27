@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     orgId,
     workflowKey: "hook-spike",
     startedByUserId: null,
+    departmentId: null,
     startedAt,
   })
 

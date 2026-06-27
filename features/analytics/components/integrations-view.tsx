@@ -13,7 +13,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { USAGE_LOG_STATUS_BADGE_CLASSES } from "@/lib/brand-colors"
 import { getProvider } from "@/lib/integrations/providers"
+import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/server"
 
 const PAGE_SIZE = 20
@@ -92,8 +94,15 @@ export async function IntegrationsView({
                   <td className="px-4 py-2 font-mono text-xs">{endpoint}</td>
                   <td className="px-4 py-2">
                     <Badge
+                      className={cn(
+                        r.status === "success" || r.status === "error"
+                          ? USAGE_LOG_STATUS_BADGE_CLASSES[r.status]
+                          : undefined,
+                      )}
                       variant={
-                        r.status === "success" ? "default" : "destructive"
+                        r.status === "success" || r.status === "error"
+                          ? undefined
+                          : "outline"
                       }
                     >
                       {r.status}

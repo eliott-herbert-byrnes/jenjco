@@ -33,6 +33,7 @@ export async function logUsage({
     user_id: userId,
     resource_key: resourceKey,
     resource_type: resourceType,
+    department_id: null,
     tokens_in: tokensIn,
     tokens_out: tokensOut,
     cost_estimate: costEstimate,

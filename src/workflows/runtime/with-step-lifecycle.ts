@@ -9,6 +9,7 @@ export type StepLifecycleContext = {
   orgId: string
   userId: string | null
   resourceKey: string
+  departmentId: string | null
 }
 
 /**
@@ -19,7 +20,8 @@ export async function withStepLifecycle<T>(
   ctx: StepLifecycleContext,
   fn: () => Promise<T>
 ): Promise<T> {
-  const { ledgerRunId, stepId, kind, orgId, userId, resourceKey } = ctx
+  const { ledgerRunId, stepId, kind, orgId, userId, resourceKey, departmentId } =
+    ctx
   const startedAt = Date.now()
 
   await ledger.markStep({
@@ -41,6 +43,7 @@ export async function withStepLifecycle<T>(
         ledgerRunId,
         stepId,
         resourceKey,
+        departmentId,
         tokensIn: 0,
         tokensOut: 0,
         durationMs,
@@ -68,6 +71,7 @@ export async function withStepLifecycle<T>(
         ledgerRunId,
         stepId,
         resourceKey,
+        departmentId,
         tokensIn: 0,
         tokensOut: 0,
         durationMs,

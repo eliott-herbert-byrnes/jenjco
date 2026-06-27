@@ -93,6 +93,7 @@ export async function GET(request: Request) {
         orgId: row.org_id,
         workflowKey,
         startedByUserId: null,
+        departmentId: result.departmentId,
         startedAt,
       })
 

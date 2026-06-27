@@ -16,6 +16,7 @@ export async function generateSummaryStep(
       orgId: input.orgId,
       userId: input.startedByUserId,
       resourceKey: WORKFLOW_KEY_PROCESS_KNOWLEDGE_SUMMARY,
+      departmentId: input.departmentId,
     },
     () =>
       runMastraProcessSummary({
@@ -24,6 +25,7 @@ export async function generateSummaryStep(
         ledgerRunId: input.ledgerRunId,
         stepId: "generate-summary",
         resourceKey: WORKFLOW_KEY_PROCESS_KNOWLEDGE_SUMMARY,
+        departmentId: input.departmentId,
         processes: input.processes,
       })
   )

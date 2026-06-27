@@ -23,7 +23,8 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { formatDuration, isRunningRunStatus } from '@/features/workflows/lib/format-duration'
+import { StepStatusBadge } from '@/features/workflows/components/step-badges'
+import { formatDuration } from '@/features/workflows/lib/format-duration'
 import {
   RUNNING_BADGE_CLASS,
   RUN_SUCCESS_BADGE_CLASS,
@@ -53,19 +54,6 @@ function RunStatusBadge({ statusLabel }: { statusLabel: RunStatusLabel }) {
     return <Badge variant="destructive">{statusLabel}</Badge>
   }
   return <Badge className={RUNNING_BADGE_CLASS}>{statusLabel}</Badge>
-}
-
-function StepStatusBadge({ status }: { status: string }) {
-  if (status === 'failed' || status === 'cancelled') {
-    return <Badge variant="destructive">{status}</Badge>
-  }
-  if (status === 'completed') {
-    return <Badge className={RUN_SUCCESS_BADGE_CLASS}>{status}</Badge>
-  }
-  if (isRunningRunStatus(status)) {
-    return <Badge className={RUNNING_BADGE_CLASS}>{status}</Badge>
-  }
-  return <Badge variant="outline">{status}</Badge>
 }
 
 function groupRunsByDay(runs: WorkflowRunRow[]): [string, WorkflowRunRow[]][] {

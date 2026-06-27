@@ -77,7 +77,7 @@ export async function POST(
     )
   }
 
-  const { ledgerRunId, run } = startResult
+  const { ledgerRunId, run, departmentId } = startResult
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -115,6 +115,7 @@ export async function POST(
           orgId: appUser.orgId,
           workflowKey: wf.workflow_key,
           startedByUserId: appUser.id,
+          departmentId,
           startedAt,
         })
 
@@ -133,6 +134,7 @@ export async function POST(
           orgId: appUser.orgId,
           workflowKey: wf.workflow_key,
           startedByUserId: appUser.id,
+          departmentId,
           startedAt,
         })
 
