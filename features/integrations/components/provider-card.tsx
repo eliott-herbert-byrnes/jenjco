@@ -78,7 +78,7 @@ export function ProviderCard({ provider, onSetupClick }: ProviderCardProps) {
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <div className="bg-neutral-200 p-1.5 rounded-2xl border border-neutral-300">
+            <div className="bg-neutral-200 dark:bg-neutral-700 dark:border-neutral-900 p-1.5 rounded-3xl border border-neutral-300">
             <Icon className="size-5" aria-hidden />
             </div>
             {provider.label}

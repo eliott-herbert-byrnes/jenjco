@@ -15,9 +15,9 @@ const uuidParam = z.string().uuid()
 type ProcessWorkflowRow = {
   sort_order: number
   org_workflows:
-    | { id: string; display_name: string }
-    | { id: string; display_name: string }[]
-    | null
+  | { id: string; display_name: string }
+  | { id: string; display_name: string }[]
+  | null
 }
 
 function mapLinkedWorkflows(

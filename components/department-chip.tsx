@@ -5,6 +5,7 @@ import {
   type BrandColorKey,
 } from '@/lib/brand-colors'
 import { cn } from '@/lib/utils'
+import { Button } from './ui/button'
 
 type DepartmentChipProps = {
   name: string
@@ -13,7 +14,7 @@ type DepartmentChipProps = {
   onClick?: () => void
 }
 
-const CHIP_BASE_CLASSES = 'rounded-full p-4 text-sm font-medium'
+const CHIP_BASE_CLASSES = `rounded-full px-4 py-4 text-sm font-medium hover:bg-${BRAND_BADGE_CLASSES}`
 
 export function DepartmentChip({
   name,
@@ -23,23 +24,23 @@ export function DepartmentChip({
 }: DepartmentChipProps) {
   if (onClick) {
     return (
-      <button
-        type="button"
+      <Button
         className={cn(
           CHIP_BASE_CLASSES,
           'border',
           selected
             ? BRAND_FILTER_SELECTED_CLASSES[colorKey]
             : cn(
-                BRAND_BADGE_CLASSES[colorKey],
-                'cursor-pointer hover:opacity-80 px-4 py-2 border-none',
-              ),
+              BRAND_BADGE_CLASSES[colorKey],
+              'cursor-pointer px-4 py-2 border-none',
+            ),
         )}
         onClick={onClick}
         aria-pressed={selected}
+
       >
         {name}
-      </button>
+      </Button>
     )
   }
 

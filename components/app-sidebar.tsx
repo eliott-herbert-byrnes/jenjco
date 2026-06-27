@@ -109,14 +109,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 isActive: isActivePath(pathname, paths.analyticsOverview),
               },
               {
-                title: "Integrations",
-                url: paths.analyticsIntegrations,
-                isActive: isActivePath(pathname, paths.analyticsIntegrations),
-              },
-              {
                 title: "System Logs",
                 url: paths.analyticsSystemLogs,
                 isActive: isActivePath(pathname, paths.analyticsSystemLogs),
+              },
+              {
+                title: "Integrations",
+                url: paths.analyticsIntegrations,
+                isActive: isActivePath(pathname, paths.analyticsIntegrations),
               },
             ],
           },
