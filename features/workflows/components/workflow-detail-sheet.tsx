@@ -214,7 +214,7 @@ export function WorkflowDetailSheet({
               router.push(`${paths.workflows}/${workflow.id}`)
             }}
           >
-            Run
+            Go
           </Button>
           <FlagWorkflowDialog
             trigger={

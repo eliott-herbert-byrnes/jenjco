@@ -73,9 +73,7 @@ export function WorkflowStepPanel({
 
         <div className="space-y-4">
           {inputKeys.length === 0 ? (
-            <p className="text-muted-foreground text-xs">
-              This workflow has no configurable inputs.
-            </p>
+            <>{null}</>
           ) : (
             inputKeys.map((key) => {
               const meta = inputProps[key]
@@ -124,7 +122,7 @@ export function WorkflowStepPanel({
           disabled={!canRun || running}
           onClick={() => void run({ inputKeys, inputData })}
         >
-          {running ? 'Running…' : 'Run'}
+          {running ? 'Running…' : 'Start'}
         </Button>
       </div>
     </div>

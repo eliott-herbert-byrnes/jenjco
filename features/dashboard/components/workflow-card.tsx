@@ -44,7 +44,7 @@ export function WorkflowCard({
               <ProviderIcon
                 key={provider}
                 provider={provider}
-                className="size-6.5 bg-neutral-200 p-1 rounded-lg border border-neutral-300"
+                className="size-7 bg-neutral-200 dark:bg-neutral-700 dark:border-neutral-900 p-1 rounded-lg border border-neutral-300"
               />
             ))}
           </div>

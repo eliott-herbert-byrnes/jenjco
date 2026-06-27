@@ -32,7 +32,7 @@ export function buildDepartmentColorMap(
 export const BRAND_BADGE_CLASSES: Record<BrandColorKey, string> = {
   orange: 'bg-brand-orange/15 text-brand-orange',
   violet: 'bg-brand-violet/20 text-violet-900 dark:text-brand-violet',
-  amber: 'bg-brand-amber/25 text-amber-900',
+  amber: 'bg-brand-amber/25 text-amber-900 dark:text-amber-300',
   sky: 'bg-brand-sky/15 text-brand-sky',
   emerald: 'bg-brand-emerald/15 text-brand-emerald',
 }
@@ -41,7 +41,7 @@ export const BRAND_FILTER_SELECTED_CLASSES: Record<BrandColorKey, string> = {
   orange: 'border-brand-orange bg-brand-orange/30 text-brand-orange',
   violet:
     'border-brand-violet bg-brand-violet/30 text-violet-900 dark:text-brand-violet',
-  amber: 'border-brand-amber bg-brand-amber/30 text-amber-900',
+  amber: 'border-brand-amber bg-brand-amber/30 text-amber-900 dark:bg-brand-amber/30 dark:text-amber-300',
   sky: 'border-brand-sky bg-brand-sky/30 text-brand-sky',
   emerald: 'border-brand-emerald bg-brand-emerald/30 text-brand-emerald',
 }
