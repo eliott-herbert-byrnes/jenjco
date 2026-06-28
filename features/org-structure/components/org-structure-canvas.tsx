@@ -91,7 +91,7 @@ export function OrgStructureCanvas({
             if (!open) setSelectedDeptId(null)
           }}
         >
-          <SheetContent side="right" className="rounded-3xl p-2">
+          <SheetContent side="right" className="rounded-3xl p-2 h-100">
             <SheetHeader>
               <SheetTitle>{selectedDept?.name}</SheetTitle>
             </SheetHeader>
