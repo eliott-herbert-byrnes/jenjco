@@ -1,9 +1,18 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { paths } from "@/app/paths"
 import { Header } from "@/components/header"
-import { DeliveryLogsView } from "@/features/analytics/components/delivery-logs-view"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { DeliveryLogsFilters } from "@/features/analytics/components/delivery-logs-filters"
+import { DeliveryLogsResultsSection } from "@/features/analytics/components/delivery-logs-results-section"
+import { DeliveryLogsSkeleton } from "@/features/analytics/components/delivery-logs-skeleton"
 import { getServerAuth } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Analytics Delivery Logs" }
@@ -26,6 +35,11 @@ export default async function AnalyticsDeliveryLogsPage({
 
   const params = await searchParams
   const page = Math.max(0, Number(params.page ?? 0) || 0)
+  const filterParams = {
+    search: params.search,
+    status: params.status,
+    event: params.event,
+  }
 
   return (
     <>
@@ -34,13 +48,24 @@ export default async function AnalyticsDeliveryLogsPage({
         description="Workflow notification delivery history"
       />
       <div className="flex flex-col gap-6 p-6">
-        <DeliveryLogsView
-          orgId={appUser.orgId}
-          page={page}
-          search={params.search}
-          status={params.status}
-          event={params.event}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Delivery Logs</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <DeliveryLogsFilters {...filterParams} />
+            <Suspense
+              key={`${page}-${params.search ?? ""}-${params.status ?? ""}-${params.event ?? ""}`}
+              fallback={<DeliveryLogsSkeleton />}
+            >
+              <DeliveryLogsResultsSection
+                orgId={appUser.orgId}
+                page={page}
+                {...filterParams}
+              />
+            </Suspense>
+          </CardContent>
+        </Card>
       </div>
     </>
   )

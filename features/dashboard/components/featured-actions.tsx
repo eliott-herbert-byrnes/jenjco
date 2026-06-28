@@ -1,20 +1,19 @@
-import { redirect } from "next/navigation"
-
-import { paths } from "@/app/paths"
 import { FeaturedActionsClient } from "@/features/dashboard/components/featured-actions-client"
-import { getServerAuth } from "@/lib/auth"
 import { createClient } from "@/lib/supabase/server"
 
-export async function FeaturedActions() {
-  const { appUser } = await getServerAuth()
-  if (!appUser) redirect(paths.signIn)
+type FeaturedActionsProps = {
+  orgId: string
+}
 
+export async function FeaturedActions({ orgId }: FeaturedActionsProps) {
   const supabase = await createClient()
-  const { data: teams } = await supabase
+  const { data: teams, error } = await supabase
     .from("departments")
     .select("id, name")
-    .eq("org_id", appUser.orgId)
+    .eq("org_id", orgId)
     .order("sort_order", { ascending: true })
+
+  if (error) throw new Error(error.message)
 
   return <FeaturedActionsClient teams={teams ?? []} />
 }
