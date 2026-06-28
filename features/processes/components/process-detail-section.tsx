@@ -1,0 +1,112 @@
+import { notFound } from "next/navigation"
+import { z } from "zod"
+
+import { ProcessDetail } from "@/features/processes/components/process-detail"
+import {
+  buildProcessDocument,
+  type LinkedWorkflow,
+} from "@/features/processes/lib/build-process-document"
+import type { AppRole } from "@/lib/auth"
+import { BRAND_BADGE_CLASSES, isBrandColorKey } from "@/lib/brand-colors"
+import { createClient } from "@/lib/supabase/server"
+
+const uuidParam = z.string().uuid()
+
+type ProcessWorkflowRow = {
+  sort_order: number
+  org_workflows:
+    | { id: string; display_name: string }
+    | { id: string; display_name: string }[]
+    | null
+}
+
+function mapLinkedWorkflows(
+  rows: ProcessWorkflowRow[] | null | undefined
+): LinkedWorkflow[] {
+  if (!rows) return []
+
+  return rows.flatMap((row) => {
+    const workflow = Array.isArray(row.org_workflows)
+      ? row.org_workflows[0]
+      : row.org_workflows
+    if (!workflow) return []
+
+    return [
+      {
+        id: workflow.id,
+        display_name: workflow.display_name,
+        sort_order: row.sort_order,
+      },
+    ]
+  })
+}
+
+type ProcessDetailSectionProps = {
+  id: string
+  orgId: string
+  role: AppRole
+}
+
+export async function ProcessDetailSection({
+  id,
+  orgId,
+  role,
+}: ProcessDetailSectionProps) {
+  const idParsed = uuidParam.safeParse(id)
+  if (!idParsed.success) {
+    notFound()
+  }
+
+  const supabase = await createClient()
+  const { data: row, error } = await supabase
+    .from("org_processes")
+    .select(
+      "id, title, content, slug, department_id, created_at, updated_at, departments(id, name, color), process_workflows(sort_order, org_workflows(id, display_name))"
+    )
+    .eq("id", idParsed.data)
+    .eq("org_id", orgId)
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  if (!row) {
+    notFound()
+  }
+
+  const dept = row.departments as
+    | { id: string; name: string; color?: string | null }
+    | { id: string; name: string; color?: string | null }[]
+    | null
+  const department = Array.isArray(dept) ? dept[0] : dept
+  const departmentName = department?.name ?? null
+  const departmentId = row.department_id ?? department?.id ?? null
+  const departmentBadgeClass =
+    department?.color && isBrandColorKey(department.color)
+      ? BRAND_BADGE_CLASSES[department.color]
+      : null
+
+  const workflows = mapLinkedWorkflows(
+    row.process_workflows as ProcessWorkflowRow[] | null
+  )
+  const composedContent = buildProcessDocument({
+    workflows,
+    content: row.content ?? "",
+  })
+
+  return (
+    <ProcessDetail
+      process={{
+        id: row.id,
+        title: row.title,
+        content: row.content ?? "",
+        departmentName,
+        departmentId,
+        departmentBadgeClass,
+        updatedAt: row.updated_at,
+      }}
+      composedContent={composedContent}
+      role={role}
+    />
+  )
+}

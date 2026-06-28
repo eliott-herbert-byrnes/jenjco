@@ -1,9 +1,11 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { paths } from "@/app/paths"
 import { Header } from "@/components/header"
-import { IntegrationsView } from "@/features/analytics/components/integrations-view"
+import { AnalyticsIntegrationsSection } from "@/features/analytics/components/analytics-integrations-section"
+import { AnalyticsIntegrationsSkeleton } from "@/features/analytics/components/analytics-integrations-skeleton"
 import { getServerAuth } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Analytics Integrations" }
@@ -27,7 +29,9 @@ export default async function AnalyticsIntegrationsPage({ searchParams }: Props)
         description="Integration invocation history"
       />
       <div className="flex flex-col gap-6 p-6">
-        <IntegrationsView orgId={appUser.orgId} page={page} />
+        <Suspense key={page} fallback={<AnalyticsIntegrationsSkeleton />}>
+          <AnalyticsIntegrationsSection orgId={appUser.orgId} page={page} />
+        </Suspense>
       </div>
     </>
   )

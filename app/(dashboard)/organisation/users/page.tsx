@@ -1,71 +1,19 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { paths } from "@/app/paths"
-import { UsersView } from "@/features/organisation/users/components/users-view"
-import type {
-  DepartmentOption,
-  OrgUserRow,
-} from "@/features/organisation/users/types"
-import { getServerAuth } from "@/lib/auth"
-import { createClient } from "@/lib/supabase/server"
 import { Header } from "@/components/header"
+import { UsersSection } from "@/features/organisation/users/components/users-section"
+import { UsersSkeleton } from "@/features/organisation/users/components/users-skeleton"
+import { getServerAuth } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Users" }
-
-type UserRowWithDepartment = {
-  id: string
-  email: string
-  role: "admin" | "viewer"
-  display_name: string | null
-  department_id: string | null
-  is_active: boolean
-  invited_at: string | null
-  created_at: string
-  departments: { name: string } | null
-}
 
 export default async function OrganisationUsersPage() {
   const { appUser } = await getServerAuth()
   if (!appUser) redirect(paths.signIn)
   if (appUser.role !== "admin") redirect(paths.dashboard)
-
-  const supabase = await createClient()
-
-  const [{ data: rows, error }, { data: departmentRows }] = await Promise.all([
-    supabase
-      .from("users")
-      .select(
-        "id, email, role, display_name, is_active, invited_at, created_at, department_id, departments(name)"
-      )
-      .eq("org_id", appUser.orgId)
-      .order("created_at"),
-    supabase
-      .from("departments")
-      .select("id, name")
-      .eq("org_id", appUser.orgId)
-      .order("sort_order"),
-  ])
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  const users: OrgUserRow[] = ((rows ?? []) as UserRowWithDepartment[]).map(
-    (row) => ({
-      id: row.id,
-      email: row.email,
-      role: row.role,
-      display_name: row.display_name,
-      department_id: row.department_id,
-      department_name: row.departments?.name ?? null,
-      is_active: row.is_active,
-      invited_at: row.invited_at,
-      created_at: row.created_at,
-    })
-  )
-
-  const departments = (departmentRows ?? []) as DepartmentOption[]
 
   return (
     <>
@@ -74,11 +22,9 @@ export default async function OrganisationUsersPage() {
         description="Invite teammates and manage roles for your organisation"
       />
       <div className="flex flex-col gap-6 p-6">
-        <UsersView
-          users={users}
-          departments={departments}
-          currentUserId={appUser.id}
-        />
+        <Suspense fallback={<UsersSkeleton />}>
+          <UsersSection orgId={appUser.orgId} currentUserId={appUser.id} />
+        </Suspense>
       </div>
     </>
   )
